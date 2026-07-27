@@ -59,6 +59,17 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Phase 2 — decisions**
+- Careers now run season after season. Attributes develop each year, fast early and flattening out, and your overall climbs with them.
+- A decision fires at your chosen cadence: every season on Intense, every second on Normal, every third on Express.
+- Ten scenes so far, each with two or three options and **no preview of what any of them do**. You find out after you commit.
+- Decisions are gated. The flat-out corner scene only appears for a Qualifier or an Overtaker; the wet-tyre gamble only if it actually rained; the junior-programme call only if you beat your team-mate or finished top five.
+- **Delayed consequences.** Roughly half the options plant something that lands two or three seasons later — the cheap engine supplier folding, an old engineer becoming a chief strategist who owes you one, a corner that catches you out in front of a scout. These appear as a red strip above the results when the season opens.
+- **Reputation** tracks four axes (loyal, mercenary, political, fast-but-fragile) and shows the dominant one in the season header.
+- **Decision log** from the summary screen: every choice, what came of it, career totals, and how many choices are still to land.
+- Bundler rewritten to read script tags out of the HTML rather than a hard-coded list, so adding a file can't silently break the build. It now checks the script count too.
+- `test-career.js` plays six seasons headlessly and prints every decision, outcome and callback.
+
 **Academy selection + overall rating**
 - After confirming your driver you're offered three seats, generated from your career seed — the same driver always gets the same three doors.
 - A works programme (best kart, established winner as team-mate, podiums expected), a midfield outfit (even team-mate, +5 Racecraft), or a family-run team (slow kart, beatable team-mate, +9 Technical feedback, built around you).

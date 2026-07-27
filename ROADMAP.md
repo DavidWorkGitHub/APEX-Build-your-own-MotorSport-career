@@ -2,8 +2,8 @@
 
 Where the game goes from here. Tick things off as they land; the ideas section is a menu, not a promise.
 
-**Done:** landing page · driver creator · driver card · season loop (karting)
-**Next up:** Phase 2 — decisions
+**Done:** landing page · driver creator · driver card · academy selection · overall rating · season loop · decisions
+**Next up:** Phase 3 — the ladder
 
 ---
 
@@ -88,13 +88,15 @@ The reward for the whole thing. A room you can walk back into.
 - [x] Save to `localStorage` so a career survives a refresh
 - [x] Seeded RNG — one driver, one career, same story
 
-### Phase 2 — decisions
-- [ ] Decision modal: short scene, 2–3 options, no preview of outcomes
-- [ ] Fires at the chosen cadence (1 / 2 / 3 seasons)
-- [ ] Hidden weightings across seat quality, reputation, development, risk
-- [ ] At least a third of decisions pay off two or three seasons later
-- [ ] Decision log, so the career can be retold at the end
-- [ ] Trait gates which decisions you're ever offered
+### Phase 2 — decisions ✅ done
+- [x] Decision screen: short scene, 2–3 options, no preview of outcomes
+- [x] Fires at the chosen cadence (1 / 2 / 3 seasons)
+- [x] Hidden weightings across seat quality, reputation, development, risk
+- [x] At least a third of decisions pay off two or three seasons later
+- [x] Decision log, so the career can be retold at the end
+- [x] Trait gates which decisions you're ever offered
+- [x] Multi-season progression with attribute development
+- [ ] More scenes — ten is enough to prove it, not enough for a full career
 
 ### Phase 3 — the ladder
 - [ ] Eight divisions, with the five-outcome end-of-season roll

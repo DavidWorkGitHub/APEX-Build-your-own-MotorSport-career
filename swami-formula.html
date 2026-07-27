@@ -330,6 +330,40 @@ input::placeholder{color:#4A525B}
 .ovr span{position:absolute;bottom:-15px;font-family:var(--mono);font-size:7.5px;letter-spacing:.16em;
   text-transform:uppercase;opacity:.7}
 
+/* ================= decision ================= */
+.decision{max-width:720px;margin:0 auto;background:var(--carbon);border:1px solid var(--line);
+  border-radius:var(--rl);padding:clamp(26px,4vw,46px);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.decision__scene{font-size:19px;line-height:1.6;margin:4px 0 0}
+.decision__q{color:var(--dim);font-size:15px;margin:16px 0 0}
+.options{display:grid;gap:10px;margin-top:28px}
+.option{text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--carbon-2);
+  border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:var(--r);padding:16px 18px;
+  display:grid;gap:5px;transition:.22s var(--ease)}
+.option:hover{background:var(--carbon-3);border-left-color:var(--accent);transform:translateX(3px)}
+.option:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.option__label{font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:.03em}
+.option__detail{color:var(--dim);font-size:13.5px;line-height:1.5}
+.decision__outcome{margin-top:26px;padding-top:22px;border-top:1px solid var(--line);animation:rise .4s var(--ease) both}
+.decision__outcome p{font-size:17px;line-height:1.6;margin:0}
+.decision__foot{display:flex;align-items:center;gap:14px;margin-top:24px;flex-wrap:wrap}
+.decision__foot .bar-note b{color:var(--accent-2);font-weight:500}
+.decision__foot .btn{margin-left:auto}
+
+/* callbacks — a past decision landing */
+.callbacks{padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(220,0,26,.05);display:grid;gap:8px}
+.callbacks p{margin:0;font-size:13.5px;line-height:1.5;display:flex;gap:10px;align-items:flex-start;color:var(--ink)}
+.callbacks i{width:5px;height:5px;border-radius:50%;background:var(--accent-2);flex:none;margin-top:7px}
+.season__rep{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+
+/* ================= log ================= */
+.log__title{font-family:var(--body);font-weight:600;text-transform:none;letter-spacing:-.02em;font-size:32px;margin:4px 0 0}
+.log{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--rl);
+  overflow:hidden;margin:20px 0 26px}
+.log-row{background:var(--carbon-2);padding:14px 18px;display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:baseline}
+.log-year{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint)}
+.log-row b{font-weight:600;font-size:14.5px}
+.log-row small{display:block;color:var(--dim);font-size:13px;margin-top:5px;line-height:1.5}
+
 /* ================= season ================= */
 .season{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.72fr);gap:18px;align-items:start}
 .season__head{align-items:center}
@@ -656,6 +690,39 @@ input::placeholder{color:#4A525B}
     </div>
   </section>
 
+  <!-- ============ DECISION ============ -->
+  <section class="screen" data-screen="decision" hidden>
+    <div class="decision">
+      <p class="eyebrow" id="decEyebrow">Decision</p>
+      <p class="decision__scene" id="decScene"></p>
+      <p class="decision__q" id="decQuestion"></p>
+
+      <div class="options" id="decOptions"></div>
+
+      <div class="decision__outcome" id="decOutcome" hidden>
+        <p id="decOutcomeText"></p>
+        <div class="decision__foot">
+          <span class="bar-note">Reputation · <b id="decRep">—</b></span>
+          <button class="btn btn--solid" id="decContinue" type="button">Race the season</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DECISION LOG ============ -->
+  <section class="screen" data-screen="log" hidden>
+    <div class="summary">
+      <p class="eyebrow">Career so far</p>
+      <h2 class="log__title">Every choice you've made</h2>
+      <p class="summary__mate">Reputation · <b id="logRep">—</b> · <span id="logPending"></span></p>
+      <div class="summary__grid" id="logTotals"></div>
+      <div class="log" id="logBody"></div>
+      <div class="card-actions">
+        <button class="btn btn--ghost" id="logBack" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ SEASON ============ -->
   <section class="screen" data-screen="season" hidden>
     <div class="season">
@@ -663,6 +730,7 @@ input::placeholder{color:#4A525B}
         <div class="panel__head season__head">
           <h2 id="seasonDivision">Karting</h2>
           <span id="seasonYear">Season 1</span>
+          <span class="season__rep" id="seasonRep"></span>
           <span class="season__driver" id="seasonDriver"></span>
         </div>
 
@@ -671,6 +739,8 @@ input::placeholder{color:#4A525B}
           <span id="progressLabel">Round 0 of 12</span>
           <button class="btn btn--tiny" id="skipSeason" type="button">Skip to end</button>
         </div>
+
+        <div class="callbacks" id="callbacks" hidden></div>
 
         <div class="race-head">
           <span>Rnd</span><span>Circuit</span><span>Grid</span><span>Finish</span><span>Mate</span><span>Pts</span>
@@ -721,12 +791,14 @@ input::placeholder{color:#4A525B}
       <p class="summary__mate" id="sumMate"></p>
 
       <div class="card-actions">
-        <button class="btn btn--solid" id="summaryNext" type="button">Continue to season 2</button>
+        <button class="btn btn--ghost" id="openLog" type="button">Decision log</button>
+        <button class="btn btn--solid" id="summaryNext" type="button">Continue</button>
       </div>
     </div>
   </section>
 </div>
 <script>
+/* ---- app.js ---- */
 "use strict";
 /* =========================================================
    Swami Formula — Build your own F1 career
@@ -836,7 +908,7 @@ function show(name) {
         }
     });
     const order = ["mode", "identity", "card", "academy", "season"];
-    const idx = name === "summary" ? 4 : order.indexOf(name);
+    const idx = (name === "summary" || name === "decision" || name === "log") ? 4 : order.indexOf(name);
     $$(".step").forEach((s, i) => {
         s.dataset.state = i < idx ? "done" : i === idx ? "now" : "todo";
     });
@@ -858,6 +930,9 @@ function computeAttrs() {
         a.consistency += 4;
         a.tyres += 3;
         a.qualifying -= 3;
+    }
+    if (typeof careerGrowth !== "undefined") {
+        Object.keys(careerGrowth).forEach((k) => { a[k] += careerGrowth[k]; });
     }
     if (typeof chosenAcademy !== "undefined" && chosenAcademy?.perk) {
         a[chosenAcademy.perk.key] += chosenAcademy.perk.value;
@@ -1127,6 +1202,7 @@ function init() {
 }
 document.addEventListener("DOMContentLoaded", init);
 
+/* ---- season.js ---- */
 "use strict";
 /* =========================================================
    PHASE 1 — the season loop
@@ -1181,7 +1257,7 @@ function playerRacer(div) {
         id: 0, name: driver.surname.toUpperCase(), team: "",
         // a rookie sits just under the midfield; traits and decisions move you from there
         skill: clamp(52 + (skill - 52) * 1.05 + 6, 40, 95),
-        car: chosenAcademy ? academyCar(chosenAcademy) : band(div.carBand),
+        car: clamp((chosenAcademy ? academyCar(chosenAcademy) : band(div.carBand)) + (typeof carBonus !== "undefined" ? carBonus : 0), 40, 95),
         wetSkill: a.wet,
         reliability: 55 + (a.consistency - 52) * 0.7,
         isPlayer: true, isTeamMate: false, points: 0, wins: 0, podiums: 0,
@@ -1314,6 +1390,7 @@ function saveCareer() {
     catch { /* file:// or private mode — career just won't persist */ }
 }
 
+/* ---- academy.js ---- */
 "use strict";
 /* =========================================================
    ACADEMY — three offers, one seat
@@ -1369,7 +1446,8 @@ function overall() {
     const a = computeAttrs();
     const raw = a.qualifying * 0.22 + a.racecraft * 0.24 + a.tyres * 0.16 +
         a.wet * 0.10 + a.feedback * 0.12 + a.consistency * 0.16;
-    const machinery = chosenAcademy ? (academyCar(chosenAcademy) - 58) * 0.18 : 0;
+    const bonus = typeof carBonus !== "undefined" ? carBonus : 0;
+    const machinery = chosenAcademy ? (academyCar(chosenAcademy) + bonus - 58) * 0.18 : 0;
     return Math.round(clamp(raw + machinery, 1, 99));
 }
 function ovrBand(n) {
@@ -1440,6 +1518,348 @@ document.addEventListener("DOMContentLoaded", () => {
         startSeason(); });
 });
 
+/* ---- decisions.js ---- */
+"use strict";
+/* =========================================================
+   PHASE 2 — decisions
+   A scene, two or three options, no preview of outcomes.
+   Some of what you choose lands two or three seasons later.
+   ========================================================= */
+/* --------------------------- career state --------------------------- */
+const careerGrowth = { qualifying: 0, racecraft: 0, tyres: 0, wet: 0, feedback: 0, consistency: 0 };
+const reputation = { loyal: 0, mercenary: 0, political: 0, fragile: 0 };
+const decisionLog = [];
+const usedDecisions = new Set();
+let pending = [];
+let carBonus = 0;
+let currentDecision = null;
+const careerTotals = { seasons: 0, points: 0, wins: 0, podiums: 0, titles: 0, beat: 0, lost: 0 };
+function repLabel() {
+    const entries = Object.entries(reputation);
+    const [top, val] = entries.sort((a, b) => b[1] - a[1])[0];
+    if (val <= 0)
+        return "Unknown quantity";
+    return { loyal: "Loyal", mercenary: "Mercenary", political: "Political", fragile: "Fast but fragile" }[top];
+}
+function applyEffect(e) {
+    if (!e)
+        return;
+    if (e.attrs) {
+        Object.keys(e.attrs).forEach((k) => {
+            careerGrowth[k] += e.attrs[k] ?? 0;
+        });
+    }
+    if (e.car)
+        carBonus += e.car;
+    if (e.rep) {
+        Object.keys(e.rep).forEach((k) => {
+            reputation[k] += e.rep[k] ?? 0;
+        });
+    }
+}
+/* --------------------------- the pool --------------------------- */
+const lastSeasonPos = () => (season ? championshipPos() : 99);
+const beatMate = () => {
+    if (!season)
+        return false;
+    const b = season.results.filter((r) => r.beatTeamMate).length;
+    return b > season.results.length - b;
+};
+const DECISIONS = [
+    {
+        id: "engine-deal",
+        eyebrow: "Winter",
+        scene: "A supplier offers your team a cut-price engine deal for next season. It's quick over one lap and everyone in the paddock knows it grenades by round eight.",
+        question: "Your team asks what you want.",
+        options: [
+            { label: "Take the pace", detail: "Faster kart, and you'll be walking back from some races.",
+                outcome: "You take it. The thing is a rocket for six weekends.",
+                effect: { car: 4, attrs: { consistency: -3 }, rep: { fragile: 2 } },
+                later: { inSeasons: 2, text: "The supplier folds. Everyone who ran their engines is scrambling for parts, you included.", effect: { car: -3 } } },
+            { label: "Stay reliable", detail: "Slower, but you'll see the flag.",
+                outcome: "You pass. The kart is ordinary and it finishes every race.",
+                effect: { attrs: { consistency: 4 }, rep: { loyal: 1 } } },
+        ],
+    },
+    {
+        id: "mate-blame",
+        eyebrow: "Round 7",
+        scene: "Your team-mate ran you wide at the hairpin and it cost you both a podium. The team principal asks you, in front of the whole garage, what happened.",
+        question: "You have about two seconds.",
+        options: [
+            { label: "Say it was racing", detail: "Absorb it. The garage sees a driver who doesn't create problems.",
+                outcome: "You shrug it off. Your team-mate says nothing, but he knows.",
+                effect: { rep: { loyal: 3 } },
+                later: { inSeasons: 2, text: "Your old team-mate is asked about you by a bigger team. He tells them you're easy to work with.", effect: { car: 3 } } },
+            { label: "Say it was him", detail: "True, and expensive.",
+                outcome: "You say it plainly. The garage goes quiet. He doesn't speak to you for a month.",
+                effect: { attrs: { racecraft: 3 }, rep: { political: 2, mercenary: 1 } },
+                later: { inSeasons: 2, text: "A team you wanted to drive for hears you're difficult in a debrief.", effect: { car: -2 } } },
+            { label: "Take the blame yourself", detail: "It wasn't yours to take.",
+                outcome: "You take it on the chin. The engineers exchange a look.",
+                effect: { rep: { loyal: 2, political: 1 }, attrs: { feedback: 2 } } },
+        ],
+    },
+    {
+        id: "wet-start",
+        eyebrow: "Round 11",
+        scene: "Rain arrives on the formation lap. Half the grid is diving into the pits for wets. Your engineer thinks the shower passes in ten minutes.",
+        question: "Slicks or wets.",
+        options: [
+            { label: "Gamble on slicks", detail: "If he's right you win. If he's wrong you're last.",
+                outcome: "You stay out. Six laps of tiptoeing, then the track dries and you're gone.",
+                effect: { attrs: { wet: 5, racecraft: 2 }, rep: { fragile: 1 } } },
+            { label: "Pit for wets", detail: "The safe half of the grid.",
+                outcome: "You pit with everyone else and finish where you started.",
+                effect: { attrs: { consistency: 3 } } },
+        ],
+        when: () => !!season && season.results.some((r) => r.wet),
+    },
+    {
+        id: "sim-work",
+        eyebrow: "Off-season",
+        scene: "The team wants three weeks of your winter on the rig, mapping a new chassis. It's tedious, unpaid, and nobody outside the factory will ever know you did it.",
+        question: "Winter is short.",
+        options: [
+            { label: "Do the work", detail: "Learn the car nobody else understands yet.",
+                outcome: "You spend the winter in a dark room with an engineer called Marta. The chassis gets better.",
+                effect: { attrs: { feedback: 6, tyres: 3 }, rep: { loyal: 2 } },
+                later: { inSeasons: 2, text: "Marta moves to a front-running team and asks for you by name.", effect: { car: 4 } } },
+            { label: "Race elsewhere instead", detail: "Endurance cameo. Seat time, exposure, money.",
+                outcome: "You do a winter series abroad. Different tyres, different rivals, useful.",
+                effect: { attrs: { racecraft: 4, tyres: 2 }, rep: { mercenary: 2 } } },
+            { label: "Take the winter off", detail: "You're nineteen and exhausted.",
+                outcome: "You go home. You come back rested and a step behind.",
+                effect: { attrs: { consistency: 3, feedback: -2 } } },
+        ],
+    },
+    {
+        id: "rival-offer",
+        eyebrow: "Contract talks",
+        scene: "The team that beat you all season wants you. More money, better machinery, and a team-mate who has never been out-qualified by anyone.",
+        question: "Your current team have been good to you.",
+        options: [
+            { label: "Sign with them", detail: "Better kart. Brutal benchmark.",
+                outcome: "You sign. Your old engineer shakes your hand and doesn't look at you.",
+                effect: { car: 6, rep: { mercenary: 3 } },
+                later: { inSeasons: 3, text: "Your old team wins the title with the driver they signed instead of you.", effect: { rep: { fragile: 1 } } } },
+            { label: "Stay where you are", detail: "Slower, and they build the car around you.",
+                outcome: "You stay. The team principal tells the press you're family.",
+                effect: { attrs: { feedback: 4, consistency: 2 }, rep: { loyal: 4 } },
+                later: { inSeasons: 2, text: "Staying paid off — the team's new chassis is built to your feedback.", effect: { car: 4 } } },
+        ],
+        when: () => lastSeasonPos() > 1,
+    },
+    {
+        id: "sponsor",
+        eyebrow: "Money",
+        scene: "A sponsor will fund your whole season. They want twelve appearance days, a documentary crew at every round, and approval over what you say.",
+        question: "The alternative is finding the money yourself.",
+        options: [
+            { label: "Sign the deal", detail: "Funded. Filmed. Managed.",
+                outcome: "You sign. There is a camera in the garage before every session now.",
+                effect: { car: 5, attrs: { consistency: -2 }, rep: { political: 3 } } },
+            { label: "Turn it down", detail: "Keep your season quiet and your mouth free.",
+                outcome: "You turn it down. Money is tight and nobody tells you what to say.",
+                effect: { attrs: { racecraft: 3 }, rep: { loyal: 2 } },
+                later: { inSeasons: 3, text: "The sponsor's other driver burns out under the attention. People remember you saw it coming.", effect: { rep: { political: 1 } } } },
+        ],
+    },
+    {
+        id: "test-crash",
+        eyebrow: "Testing",
+        scene: "You've found four tenths in a corner nobody else takes flat. It works about three times in four. The team have one chassis left and no budget for another.",
+        question: "There's a test session tomorrow.",
+        options: [
+            { label: "Keep taking it flat", detail: "Four tenths is four tenths.",
+                outcome: "You keep doing it. It works, until the session it doesn't.",
+                effect: { attrs: { qualifying: 6, consistency: -4 }, rep: { fragile: 3 } },
+                later: { inSeasons: 2, text: "The corner catches you out in front of a scout. It gets brought up for years.", effect: { attrs: { qualifying: -2 } } } },
+            { label: "Bank it for qualifying only", detail: "Use it once a weekend, when it counts.",
+                outcome: "You save it for the lap that matters. The engineers approve.",
+                effect: { attrs: { qualifying: 3, feedback: 2 } } },
+            { label: "Leave it alone", detail: "The chassis has to last the year.",
+                outcome: "You back off. Someone else finds it two months later.",
+                effect: { attrs: { consistency: 4, qualifying: -1 }, rep: { loyal: 1 } } },
+        ],
+        when: () => (driver.trait?.id === "qualifier" || driver.trait?.id === "overtaker"),
+    },
+    {
+        id: "engineer-blame",
+        eyebrow: "Post-race",
+        scene: "A strategy call from the pit wall cost you a win. The press are asking, and your engineer is standing four feet away.",
+        question: "Somebody is about to be blamed.",
+        options: [
+            { label: "Back your engineer publicly", detail: "Take the hit on his behalf.",
+                outcome: "You say it was a shared call. He doesn't thank you. He never forgets it either.",
+                effect: { attrs: { feedback: 4 }, rep: { loyal: 3 } },
+                later: { inSeasons: 3, text: "Your engineer is now chief strategist somewhere serious, and he still owes you one.", effect: { car: 5 } } },
+            { label: "Let the blame land", detail: "It wasn't your call and everyone knows it.",
+                outcome: "You answer honestly. He's moved off your car by the next round.",
+                effect: { attrs: { racecraft: 2 }, rep: { mercenary: 2, political: 1 } },
+                later: { inSeasons: 2, text: "Your new engineer has heard what happened to the last one. The debriefs are shorter now.", effect: { attrs: { feedback: -3 } } } },
+        ],
+        when: () => driver.trait?.id === "feedback" || lastSeasonPos() <= 8,
+    },
+    {
+        id: "junior-programme",
+        eyebrow: "The call",
+        scene: "A manufacturer junior programme calls. They want you on a development contract: their coaching, their doctors, their schedule — and they own where you race next.",
+        question: "It's the fastest way up, and the least of it is yours.",
+        options: [
+            { label: "Sign with the programme", detail: "Doors open. You stop choosing which ones.",
+                outcome: "You sign. Someone else manages your calendar from Monday.",
+                effect: { car: 6, attrs: { consistency: 3, racecraft: -2 }, rep: { political: 2 } },
+                later: { inSeasons: 3, text: "The programme has too many drivers and not enough seats. You're one of six.", effect: { car: -4 } } },
+            { label: "Stay independent", detail: "Slower, and every choice stays yours.",
+                outcome: "You stay independent. Nobody's phone rings for you but your own.",
+                effect: { attrs: { racecraft: 4, feedback: 2 }, rep: { mercenary: 1, loyal: 1 } } },
+        ],
+        when: () => beatMate() || lastSeasonPos() <= 5,
+    },
+    {
+        id: "injury",
+        eyebrow: "Mid-season",
+        scene: "You've cracked a bone in your hand. Two rounds off and it heals clean. Race on it and it holds, probably, and hurts every lap.",
+        question: "There's a scout at the next round.",
+        options: [
+            { label: "Race on it", detail: "Nobody sees the hand. Everybody sees the result.",
+                outcome: "You race. It's the worst pain of your life and you finish.",
+                effect: { attrs: { consistency: -3, racecraft: 4 }, rep: { fragile: 2 } },
+                later: { inSeasons: 2, text: "The hand never fully came back. Long races hurt now.", effect: { attrs: { tyres: -3 } } } },
+            { label: "Sit out two rounds", detail: "Heal properly. Lose the points.",
+                outcome: "You sit them out and watch your team-mate score in your kart.",
+                effect: { attrs: { consistency: 4 } } },
+        ],
+    },
+];
+/* --------------------------- engine --------------------------- */
+function decisionDue(year) {
+    const cadence = driver.mode === "intense" ? 1 : driver.mode === "normal" ? 2 : 3;
+    return year % cadence === 0;
+}
+function pickDecision() {
+    const eligible = DECISIONS.filter((d) => !usedDecisions.has(d.id) && (!d.when || d.when()));
+    if (eligible.length === 0)
+        return null;
+    return eligible[Math.floor(rng() * eligible.length)];
+}
+function chooseOption(opt) {
+    applyEffect(opt.effect);
+    if (opt.later)
+        pending.push({ ...opt.later, dueYear: (season?.year ?? 1) + opt.later.inSeasons });
+    decisionLog.push({
+        year: season?.year ?? 1,
+        decision: currentDecision.id,
+        chose: opt.label,
+        outcome: opt.outcome,
+    });
+    usedDecisions.add(currentDecision.id);
+}
+/** Consequences that come due this season, applied and returned for display. */
+function resolveDue(year) {
+    const due = pending.filter((c) => c.dueYear <= year);
+    pending = pending.filter((c) => c.dueYear > year);
+    due.forEach((c) => applyEffect(c.effect));
+    return due.map((c) => c.text);
+}
+/** Natural development — fast early, flattening out. */
+function growSeason(year) {
+    const rate = year <= 3 ? 3 : year <= 6 ? 2 : 1;
+    Object.keys(careerGrowth).forEach((k) => {
+        careerGrowth[k] += rate * (0.5 + rng() * 0.9);
+    });
+}
+
+/* ---- decisions-ui.js ---- */
+"use strict";
+/* =========================================================
+   PHASE 2 — decision screen + season progression
+   ========================================================= */
+let callbacks = [];
+function renderDecision(d) {
+    currentDecision = d;
+    $("#decEyebrow").textContent = `Season ${season?.year ?? 1} · ${d.eyebrow}`;
+    $("#decScene").textContent = d.scene;
+    $("#decQuestion").textContent = d.question;
+    $("#decOutcome").hidden = true;
+    $("#decOptions").hidden = false;
+    $("#decOptions").innerHTML = d.options.map((o, i) => `
+    <button class="option" type="button" data-opt="${i}">
+      <span class="option__label">${o.label}</span>
+      <span class="option__detail">${o.detail}</span>
+    </button>`).join("");
+    $$(".option").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const opt = d.options[parseInt(btn.dataset.opt, 10)];
+            chooseOption(opt);
+            $("#decOptions").hidden = true;
+            $("#decOutcome").hidden = false;
+            $("#decOutcomeText").textContent = opt.outcome;
+            $("#decRep").textContent = repLabel();
+            renderOverall();
+        });
+    });
+    show("decision");
+}
+/** Season 2 onward: grow, resolve what's come due, then race or decide. */
+function advanceSeason() {
+    const year = (season?.year ?? 1) + 1;
+    // bank the season that just ended
+    if (season) {
+        const p = season.field[0];
+        const beat = season.results.filter((r) => r.beatTeamMate).length;
+        careerTotals.seasons++;
+        careerTotals.points += p.points;
+        careerTotals.wins += p.wins;
+        careerTotals.podiums += p.podiums;
+        careerTotals.beat += beat;
+        careerTotals.lost += season.results.length - beat;
+        if (championshipPos() === 1)
+            careerTotals.titles++;
+    }
+    growSeason(year);
+    callbacks = resolveDue(year);
+    if (decisionDue(year)) {
+        const d = pickDecision();
+        if (d) {
+            season.year = year;
+            renderDecision(d);
+            return;
+        }
+    }
+    startSeason(year);
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $("#decContinue").addEventListener("click", () => startSeason(season?.year ?? 1));
+    $("#summaryNext").addEventListener("click", advanceSeason);
+    $("#openLog").addEventListener("click", () => {
+        const log = $("#logBody");
+        log.innerHTML = decisionLog.length
+            ? decisionLog.map((e) => `
+        <div class="log-row">
+          <span class="log-year">S${e.year}</span>
+          <span><b>${e.chose}</b><small>${e.outcome}</small></span>
+        </div>`).join("")
+            : `<p class="empty">No decisions yet. The first one arrives at the end of a season.</p>`;
+        $("#logRep").textContent = repLabel();
+        const t = careerTotals;
+        $("#logTotals").innerHTML = `
+      <div><b>${t.seasons}</b><span>Seasons</span></div>
+      <div><b>${t.titles}</b><span>Titles</span></div>
+      <div><b>${t.wins}</b><span>Wins</span></div>
+      <div><b>${t.podiums}</b><span>Podiums</span></div>
+      <div><b>${t.points}</b><span>Points</span></div>
+      <div><b>${t.beat}–${t.lost}</b><span>vs team-mates</span></div>`;
+        $("#logPending").textContent = pending.length
+            ? `${pending.length} choice${pending.length > 1 ? "s" : ""} still to land`
+            : "Nothing outstanding";
+        show("log");
+    });
+    $("#logBack").addEventListener("click", () => show("summary"));
+});
+
+/* ---- season-ui.js ---- */
 "use strict";
 /* =========================================================
    PHASE 1 — season screen
@@ -1454,6 +1874,7 @@ let skipping = false;
 function seasonHeader() {
     $("#seasonDivision").textContent = season.division.name;
     $("#seasonYear").textContent = `Season ${season.year}`;
+    $("#seasonRep").textContent = typeof repLabel === "function" ? repLabel() : "";
     $("#seasonDriver").textContent = `${driver.surname.toUpperCase()} · ${driver.number}${chosenAcademy ? " · " + chosenAcademy.name : ""}`;
 }
 function renderResultRow(r) {
@@ -1549,11 +1970,20 @@ function nextRace() {
     saveCareer();
     raceTimer = window.setTimeout(nextRace, skipping ? 0 : 620);
 }
-function startSeason() {
-    season = { year: 1, division: KARTING, results: [], field: [], finished: false };
+function startSeason(year = 1) {
+    season = { year, division: KARTING, results: [], field: [], finished: false };
     season.field = buildField(KARTING);
     skipping = false;
     $("#raceBody").innerHTML = "";
+    const cb = $("#callbacks");
+    if (typeof callbacks !== "undefined" && callbacks.length) {
+        cb.innerHTML = callbacks.map((t) => `<p><i></i>${t}</p>`).join("");
+        cb.hidden = false;
+        callbacks = [];
+    }
+    else {
+        cb.hidden = true;
+    }
     $("#skipSeason").hidden = false;
     seasonHeader();
     renderRunning();
@@ -1569,11 +1999,6 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#backToCard").addEventListener("click", () => {
         window.clearTimeout(raceTimer);
         show("card");
-    });
-    $("#summaryNext").addEventListener("click", () => {
-        // Phase 2 lands here: the decision screen, then the promotion roll.
-        $("#summaryNext").textContent = "Decisions arrive in the next build";
-        $("#summaryNext").disabled = true;
     });
 });
 
