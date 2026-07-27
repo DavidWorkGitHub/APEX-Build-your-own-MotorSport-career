@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>APEX — Build your own F1 career</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet" />
+<style>
+/* ============ tokens ============
+   Palette is lifted from an F1 live timing screen:
+   asphalt black, carbon panel, purple = fastest overall,
+   green = personal best, yellow = yellow flag, red = red flag. */
+:root{
+  --asphalt:#08090B;
+  --carbon:#101317;
+  --carbon-2:#161A1F;
+  --line:#262C33;
+  --ink:#F2F0EA;
+  --ink-dim:#8C949E;
+  --purple:#C724F5;
+  --green:#00E676;
+  --yellow:#FFD400;
+  --red:#D8262C;
+  --display:"Barlow Condensed","Oswald","Arial Narrow",sans-serif;
+  --body:"Inter",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:4px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px),
+    var(--asphalt);
+  color:var(--ink);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;
+  padding:clamp(16px,3vw,40px);
+}
+h1,h2,h3,.display{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;margin:0;font-weight:700}
+.wrap{max-width:1140px;margin:0 auto}
+.screen[hidden]{display:none}
+
+/* ============ timing strip masthead ============ */
+.strip{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:clamp(20px,4vw,40px);flex-wrap:wrap}
+.strip__mark{font-family:var(--display);font-size:26px;letter-spacing:.24em;line-height:1}
+.strip__mark b{color:var(--purple);font-weight:700}
+.strip__ticks{display:flex;gap:4px}
+.strip__ticks i{width:26px;height:4px;background:var(--line);border-radius:2px}
+.strip__ticks i:nth-child(1){background:var(--purple)}
+.strip__ticks i:nth-child(2){background:var(--green)}
+.strip__tag{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-dim);letter-spacing:.08em;text-transform:uppercase}
+
+/* ============ screen 1: modes ============ */
+.lede{max-width:52ch;margin:0 0 8px}
+.lede h1{font-size:clamp(38px,7vw,68px);line-height:.94}
+.lede h1 em{font-style:normal;color:var(--purple)}
+.lede p{color:var(--ink-dim);font-size:15px;line-height:1.6;margin:14px 0 0}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:clamp(24px,4vw,44px)}
+.mode{
+  position:relative;text-align:left;cursor:pointer;color:inherit;font:inherit;
+  background:var(--carbon);border:1px solid var(--line);border-left:3px solid var(--line);
+  border-radius:var(--r);padding:22px 20px 20px;display:grid;gap:8px;
+  transition:border-color .18s,transform .18s,background .18s;
+}
+.mode:hover,.mode:focus-visible{background:var(--carbon-2);border-left-color:var(--purple);transform:translateY(-2px)}
+.mode__sector{font-family:var(--mono);font-size:10px;color:var(--ink-dim);letter-spacing:.16em}
+.mode__name{font-family:var(--display);font-size:32px;text-transform:uppercase;line-height:1}
+.mode__cadence{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.04em}
+.mode__blurb{color:var(--ink-dim);font-size:14px;line-height:1.55}
+.mode__go{font-family:var(--display);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--purple);opacity:0;transform:translateX(-6px);transition:.18s}
+.mode:hover .mode__go,.mode:focus-visible .mode__go{opacity:1;transform:none}
+
+/* ============ screen 2: identity ============ */
+.panel{background:var(--carbon);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.panel__head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:12px}
+.panel__head h2{font-size:26px}
+.panel__head span{font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+.cols{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr) minmax(0,1fr);gap:1px;background:var(--line)}
+.col{background:var(--carbon);padding:22px}
+.col > h3{font-size:15px;letter-spacing:.16em;color:var(--ink-dim);margin-bottom:18px;font-weight:600}
+
+/* helmet */
+.helmet{width:100%;max-width:280px;margin:0 auto 22px;display:block}
+.liveries{display:flex;gap:8px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.swatch{width:34px;height:22px;padding:0;border:1px solid var(--line);border-radius:2px;overflow:hidden;display:flex;cursor:pointer;background:none}
+.swatch span{flex:1}
+.swatch[aria-pressed="true"]{outline:2px solid var(--purple);outline-offset:2px}
+.fields{display:grid;grid-template-columns:1fr 76px;gap:12px}
+label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-dim);text-transform:uppercase;margin-bottom:6px}
+input{
+  width:100%;background:var(--carbon-2);border:1px solid var(--line);border-radius:var(--r);
+  color:var(--ink);font-family:var(--body);font-size:14px;padding:11px 12px;
+}
+input#number{font-family:var(--mono);text-align:center}
+input:focus-visible{outline:2px solid var(--purple);outline-offset:1px;border-color:transparent}
+input::placeholder{color:#4E555E}
+.note{color:var(--yellow);font-size:12px;margin:8px 0 0;line-height:1.4}
+.toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:16px}
+.toggle button{
+  font:inherit;font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:14px;
+  background:var(--carbon-2);border:1px solid var(--line);border-radius:var(--r);color:var(--ink-dim);
+  padding:11px 6px;cursor:pointer;transition:.16s;
+}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--asphalt);border-color:var(--ink)}
+
+/* nationality */
+.search{position:relative;margin-bottom:14px}
+.search input{padding-left:34px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.45}
+.grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;max-height:398px;overflow-y:auto;
+  border:1px solid var(--line);border-radius:var(--r);padding:6px;background:var(--asphalt);
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+}
+.country{
+  display:flex;align-items:center;gap:9px;background:none;border:0;border-radius:2px;color:var(--ink);
+  font:inherit;font-size:13px;padding:8px 9px;cursor:pointer;text-align:left;transition:background .14s;
+}
+.country:hover{background:var(--carbon-2)}
+.country[aria-pressed="true"]{background:var(--purple);color:#fff}
+.country__flag{font-size:16px;line-height:1}
+.country__name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{color:var(--ink-dim);font-size:13px;padding:16px;grid-column:1/-1;margin:0}
+
+/* circuit */
+.circuit{width:100%;display:block;background:var(--asphalt);border:1px solid var(--line);border-radius:var(--r)}
+.track{fill:none;stroke:#20262D;stroke-width:26;stroke-linejoin:round}
+.track-line{fill:none;stroke:#2E353D;stroke-width:1.5;stroke-dasharray:5 7}
+.node rect{fill:var(--carbon-2);stroke:var(--line);stroke-width:1;transition:.16s}
+.node text{font-family:var(--mono);font-size:11px;fill:var(--ink-dim);letter-spacing:.04em}
+.node{cursor:pointer}
+.node:hover rect{stroke:var(--purple)}
+.node[aria-pressed="true"] rect{fill:var(--purple);stroke:var(--purple)}
+.node[aria-pressed="true"] text{fill:#fff}
+.node:focus-visible{outline:none}
+.node:focus-visible rect{stroke:var(--green);stroke-width:2}
+.trait-read{margin-top:16px;border-left:2px solid var(--purple);padding-left:12px;min-height:62px}
+.trait-read strong{font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:.04em;display:block}
+.trait-read p{color:var(--ink-dim);font-size:13px;line-height:1.5;margin:5px 0 0}
+
+/* footer bar */
+.bar{display:flex;align-items:center;gap:14px;padding:18px 22px;border-top:1px solid var(--line);flex-wrap:wrap}
+.btn{font:inherit;font-family:var(--display);text-transform:uppercase;letter-spacing:.12em;font-size:15px;padding:12px 26px;border-radius:var(--r);cursor:pointer;transition:.16s;border:1px solid var(--line);background:transparent;color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+.btn--go{background:var(--green);border-color:var(--green);color:#04160C;margin-left:auto}
+.btn--go:hover{background:#3BFF9A;border-color:#3BFF9A}
+.btn--go:disabled{background:transparent;border-color:var(--line);color:#4E555E;cursor:not-allowed}
+.bar__note{font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+.bar__note:not(:last-child){margin-right:auto}
+
+/* ============ screen 3: driver card ============ */
+.card-wrap{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:24px;align-items:start}
+.card{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:linear-gradient(160deg,var(--card-base,#111),#0A0C0E 72%);padding:24px;min-height:380px;display:flex;flex-direction:column}
+.card::after{content:"";position:absolute;inset:auto -40% -60% -10%;height:60%;background:var(--card-accent,#C724F5);opacity:.16;transform:rotate(-8deg)}
+.card__num{font-family:var(--mono);font-size:104px;line-height:.86;letter-spacing:-.04em}
+.card__name{font-family:var(--display);font-size:40px;line-height:1;margin-top:6px;word-break:break-word}
+.card__nat{display:flex;align-items:center;gap:9px;margin-top:auto;font-size:14px;position:relative;z-index:1}
+.card__nat span:first-child{font-size:22px}
+.spec{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.spec div{background:var(--carbon);padding:15px 18px;display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:baseline}
+.spec dt{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+.spec dd{margin:0;font-size:15px}
+.spec dd small{display:block;color:var(--ink-dim);font-size:13px;margin-top:4px;line-height:1.5}
+.card-actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+
+@media (max-width:900px){
+  .cols{grid-template-columns:1fr}
+  .card-wrap{grid-template-columns:1fr}
+  .spec div{grid-template-columns:1fr;gap:4px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="strip">
+    <div class="strip__mark">A<b>P</b>EX</div>
+    <div class="strip__ticks"><i></i><i></i><i></i></div>
+    <div class="strip__tag" id="modeTag">Build your own F1 career</div>
+  </header>
+
+  <!-- ===================== SCREEN 1 ===================== -->
+  <section class="screen" data-screen="mode">
+    <div class="lede">
+      <h1>Pick where <em>destiny</em> gets a say.</h1>
+      <p>You'll start in karting with nothing but a surname and a number. Every so often the season hands you a decision — a seat, a team-mate, a risk in the wet — and the rest plays out into trophies, stats and one defining moment nobody else will have. How often you're asked is up to you.</p>
+    </div>
+    <div class="modes" id="modeList"></div>
+  </section>
+
+  <!-- ===================== SCREEN 2 ===================== -->
+  <section class="screen" data-screen="identity" hidden>
+    <div class="panel">
+      <div class="panel__head">
+        <h2>Define your driver</h2>
+        <span>Locked for the rest of the career</span>
+      </div>
+
+      <div class="cols">
+        <!-- identity -->
+        <div class="col">
+          <h3>Identity</h3>
+          <svg class="helmet" viewBox="0 0 260 220" role="img" aria-label="Helmet preview">
+            <ellipse cx="130" cy="205" rx="74" ry="9" fill="#000" opacity=".45"/>
+            <path id="helmetShell" fill="#111417"
+              d="M130 22c50 0 82 34 82 80 0 20-5 36-13 47-6 8-15 12-26 12H74c-19 0-30-13-32-31-2-11-4-20-4-28 0-46 32-80 92-80z"/>
+            <path class="helmet-accent" fill="#C724F5"
+              d="M130 22c9 0 18 1 26 3l-14 158h-24L104 25c8-2 17-3 26-3z"/>
+            <path class="helmet-accent" fill="#C724F5"
+              d="M40 96h180c1 6 2 12 2 18H38c0-6 1-12 2-18z" opacity=".55"/>
+            <path fill="#0A0C0E"
+              d="M58 96c14-16 40-25 72-25s58 9 72 25c2 12 1 22-3 30-24 7-45 10-69 10s-45-3-69-10c-4-8-5-18-3-30z"/>
+            <path fill="#3A4650" opacity=".5" d="M70 90c14-11 33-17 55-17-24 3-42 9-55 17z"/>
+            <rect x="34" y="150" width="192" height="34" rx="12" fill="#0A0C0E" opacity=".55"/>
+            <text id="helmetNumber" x="76" y="176" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="30" font-weight="700" fill="#F2F0EA">10</text>
+            <text id="helmetName" x="160" y="174" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-size="24" font-weight="700" letter-spacing="1.5" fill="#F2F0EA">SURNAME</text>
+          </svg>
+
+          <div class="liveries" id="liveryRow"></div>
+
+          <div class="fields">
+            <div>
+              <label for="surname">Surname</label>
+              <input id="surname" type="text" maxlength="12" placeholder="On the helmet and the timing screen" autocomplete="off" />
+            </div>
+            <div>
+              <label for="number">Number</label>
+              <input id="number" type="number" min="2" max="99" value="10" />
+            </div>
+          </div>
+          <p class="note" id="numberNote" hidden></p>
+
+          <label style="margin-top:18px">Natural balance</label>
+          <div class="toggle">
+            <button type="button" data-setup="oversteer" aria-pressed="true">Oversteer</button>
+            <button type="button" data-setup="understeer" aria-pressed="false">Understeer</button>
+          </div>
+        </div>
+
+        <!-- nationality -->
+        <div class="col">
+          <h3>Nationality</h3>
+          <div class="search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input id="search" type="search" placeholder="Search country" autocomplete="off" aria-label="Search country" />
+          </div>
+          <div class="grid" id="countryGrid" role="group" aria-label="Nationality"></div>
+        </div>
+
+        <!-- trait -->
+        <div class="col">
+          <h3>Racing trait</h3>
+          <svg class="circuit" viewBox="0 0 460 270" role="group" aria-label="Choose a racing trait on the circuit">
+            <path class="track" d="M40 130C40 80 60 58 96 58L210 40L330 60C380 68 404 94 404 132C404 172 370 196 336 206L214 226L96 200C55 192 40 170 40 130Z"/>
+            <path class="track-line" d="M40 130C40 80 60 58 96 58L210 40L330 60C380 68 404 94 404 132C404 172 370 196 336 206L214 226L96 200C55 192 40 170 40 130Z"/>
+            <rect x="150" y="30" width="4" height="22" fill="#F2F0EA" opacity=".7"/>
+            <g id="traitLayer"></g>
+          </svg>
+          <div class="trait-read">
+            <strong id="traitName">Choose a trait</strong>
+            <p id="traitBlurb">Tap a corner of the circuit. Your trait shapes which decisions the career offers you, and which ones it never will.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bar">
+        <button class="btn" id="back" type="button">Back</button>
+        <span class="bar__note" id="confirmNote"></span>
+        <button class="btn btn--go" id="confirm" type="button" disabled>Confirm driver</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SCREEN 3 ===================== -->
+  <section class="screen" data-screen="card" hidden>
+    <div class="card-wrap">
+      <div class="card" id="cardArt">
+        <div class="card__num" id="cardNumber">10</div>
+        <div class="card__name" id="cardName">SURNAME</div>
+        <div class="card__nat"><span id="cardFlag">🏁</span><span id="cardCountry">—</span></div>
+      </div>
+      <div>
+        <dl class="spec">
+          <div><dt>Trait</dt><dd id="cardTrait">—</dd></div>
+          <div><dt>Reputation</dt><dd><small id="cardTraitBlurb">—</small></dd></div>
+          <div><dt>Balance</dt><dd id="cardSetup">—</dd></div>
+          <div><dt>Livery</dt><dd id="cardLivery">—</dd></div>
+          <div><dt>Run mode</dt><dd id="cardMode">—</dd></div>
+          <div><dt>Season 1</dt><dd>Karting, national level<small>Your first decision is waiting: a works kart team with a hard team-mate, or a family-run outfit that builds everything around you.</small></dd></div>
+        </dl>
+        <div class="card-actions">
+          <button class="btn" id="restart" type="button">Edit driver</button>
+          <button class="btn btn--go" type="button" style="margin-left:0">Start season 1</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+<script>
+"use strict";
+/* =========================================================
+   APEX — Build your own F1 career
+   Driver identity creator + run mode selection
+   ========================================================= */
+/* ---------------------------------------------------------
+   Data
+   --------------------------------------------------------- */
+const MODES = [
+    {
+        id: "intense",
+        name: "Intense",
+        cadence: "1 decision per season",
+        blurb: "Every season turns on a choice. The long way round, and the most detail.",
+        sector: "S1",
+    },
+    {
+        id: "normal",
+        name: "Normal",
+        cadence: "1 decision every 2 seasons",
+        blurb: "Room to let results build between the moments that matter.",
+        sector: "S2",
+    },
+    {
+        id: "express",
+        name: "Express",
+        cadence: "1 decision every 3 seasons",
+        blurb: "A full career in one sitting. Only the crossroads.",
+        sector: "S3",
+    },
+];
+const LIVERIES = [
+    { id: "monza", name: "Monza", base: "#D8262C", accent: "#F2F0EA", trim: "#101214" },
+    { id: "spa", name: "Spa", base: "#111417", accent: "#C724F5", trim: "#F2F0EA" },
+    { id: "interlagos", name: "Interlagos", base: "#0B7A3B", accent: "#FFD400", trim: "#F2F0EA" },
+    { id: "suzuka", name: "Suzuka", base: "#F2F0EA", accent: "#D8262C", trim: "#101214" },
+    { id: "montreal", name: "Montréal", base: "#1B4FD8", accent: "#00E676", trim: "#0B0D0F" },
+    { id: "jeddah", name: "Jeddah", base: "#E56A1C", accent: "#101214", trim: "#F2F0EA" },
+];
+/** Positions map onto a stylised circuit: entry, apex, exit. */
+const TRAITS = [
+    { id: "qualifier", label: "QLF", full: "Qualifier", blurb: "One lap, everything on it. You start further up than the car deserves.", x: 96, y: 60 },
+    { id: "starter", label: "LCH", full: "Launch specialist", blurb: "Lights out and you're already two places better off.", x: 210, y: 42 },
+    { id: "overtaker", label: "OVT", full: "Overtaker", blurb: "You go for gaps that close. Usually in time.", x: 330, y: 62 },
+    { id: "defender", label: "DEF", full: "Defender", blurb: "Nobody comes past. Not cleanly, not for twenty laps.", x: 404, y: 132 },
+    { id: "tyres", label: "TYR", full: "Tyre manager", blurb: "Your rubber lasts ten laps longer than it should. Strategists love you.", x: 336, y: 206 },
+    { id: "wet", label: "WET", full: "Wet-weather master", blurb: "Rain flattens the grid and you climb straight over it.", x: 214, y: 226 },
+    { id: "feedback", label: "ENG", full: "Engineer's driver", blurb: "Your debriefs develop the car. Upgrades land because you called them.", x: 96, y: 200 },
+    { id: "consistency", label: "CNS", full: "Metronome", blurb: "No mistakes, no drama. The points pile up while others crash.", x: 40, y: 130 },
+];
+const RETIRED_NUMBERS = { 17: "retired" };
+const COUNTRIES = [
+    { code: "AR", name: "Argentina", flag: "🇦🇷" },
+    { code: "AU", name: "Australia", flag: "🇦🇺" },
+    { code: "AT", name: "Austria", flag: "🇦🇹" },
+    { code: "BH", name: "Bahrain", flag: "🇧🇭" },
+    { code: "BE", name: "Belgium", flag: "🇧🇪" },
+    { code: "BR", name: "Brazil", flag: "🇧🇷" },
+    { code: "BG", name: "Bulgaria", flag: "🇧🇬" },
+    { code: "CA", name: "Canada", flag: "🇨🇦" },
+    { code: "CL", name: "Chile", flag: "🇨🇱" },
+    { code: "CN", name: "China", flag: "🇨🇳" },
+    { code: "CO", name: "Colombia", flag: "🇨🇴" },
+    { code: "HR", name: "Croatia", flag: "🇭🇷" },
+    { code: "CZ", name: "Czechia", flag: "🇨🇿" },
+    { code: "DK", name: "Denmark", flag: "🇩🇰" },
+    { code: "EE", name: "Estonia", flag: "🇪🇪" },
+    { code: "FI", name: "Finland", flag: "🇫🇮" },
+    { code: "FR", name: "France", flag: "🇫🇷" },
+    { code: "DE", name: "Germany", flag: "🇩🇪" },
+    { code: "GR", name: "Greece", flag: "🇬🇷" },
+    { code: "HK", name: "Hong Kong", flag: "🇭🇰" },
+    { code: "HU", name: "Hungary", flag: "🇭🇺" },
+    { code: "IS", name: "Iceland", flag: "🇮🇸" },
+    { code: "IN", name: "India", flag: "🇮🇳" },
+    { code: "ID", name: "Indonesia", flag: "🇮🇩" },
+    { code: "IE", name: "Ireland", flag: "🇮🇪" },
+    { code: "IL", name: "Israel", flag: "🇮🇱" },
+    { code: "IT", name: "Italy", flag: "🇮🇹" },
+    { code: "JP", name: "Japan", flag: "🇯🇵" },
+    { code: "KZ", name: "Kazakhstan", flag: "🇰🇿" },
+    { code: "LV", name: "Latvia", flag: "🇱🇻" },
+    { code: "LT", name: "Lithuania", flag: "🇱🇹" },
+    { code: "LU", name: "Luxembourg", flag: "🇱🇺" },
+    { code: "MY", name: "Malaysia", flag: "🇲🇾" },
+    { code: "MX", name: "Mexico", flag: "🇲🇽" },
+    { code: "MC", name: "Monaco", flag: "🇲🇨" },
+    { code: "MA", name: "Morocco", flag: "🇲🇦" },
+    { code: "NL", name: "Netherlands", flag: "🇳🇱" },
+    { code: "NZ", name: "New Zealand", flag: "🇳🇿" },
+    { code: "NG", name: "Nigeria", flag: "🇳🇬" },
+    { code: "NO", name: "Norway", flag: "🇳🇴" },
+    { code: "PY", name: "Paraguay", flag: "🇵🇾" },
+    { code: "PE", name: "Peru", flag: "🇵🇪" },
+    { code: "PH", name: "Philippines", flag: "🇵🇭" },
+    { code: "PL", name: "Poland", flag: "🇵🇱" },
+    { code: "PT", name: "Portugal", flag: "🇵🇹" },
+    { code: "QA", name: "Qatar", flag: "🇶🇦" },
+    { code: "RO", name: "Romania", flag: "🇷🇴" },
+    { code: "SA", name: "Saudi Arabia", flag: "🇸🇦" },
+    { code: "RS", name: "Serbia", flag: "🇷🇸" },
+    { code: "SG", name: "Singapore", flag: "🇸🇬" },
+    { code: "SK", name: "Slovakia", flag: "🇸🇰" },
+    { code: "SI", name: "Slovenia", flag: "🇸🇮" },
+    { code: "ZA", name: "South Africa", flag: "🇿🇦" },
+    { code: "KR", name: "South Korea", flag: "🇰🇷" },
+    { code: "ES", name: "Spain", flag: "🇪🇸" },
+    { code: "SE", name: "Sweden", flag: "🇸🇪" },
+    { code: "CH", name: "Switzerland", flag: "🇨🇭" },
+    { code: "TH", name: "Thailand", flag: "🇹🇭" },
+    { code: "TR", name: "Türkiye", flag: "🇹🇷" },
+    { code: "UA", name: "Ukraine", flag: "🇺🇦" },
+    { code: "AE", name: "United Arab Emirates", flag: "🇦🇪" },
+    { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+    { code: "US", name: "United States", flag: "🇺🇸" },
+    { code: "UY", name: "Uruguay", flag: "🇺🇾" },
+    { code: "VE", name: "Venezuela", flag: "🇻🇪" },
+    { code: "VN", name: "Vietnam", flag: "🇻🇳" },
+];
+/* ---------------------------------------------------------
+   State
+   --------------------------------------------------------- */
+const driver = {
+    surname: "",
+    number: 10,
+    country: null,
+    trait: null,
+    setup: "oversteer",
+    livery: LIVERIES[1],
+    mode: null,
+};
+/* ---------------------------------------------------------
+   Helpers
+   --------------------------------------------------------- */
+const $ = (sel) => document.querySelector(sel);
+function show(screen) {
+    document.querySelectorAll(".screen").forEach((el) => {
+        el.hidden = el.dataset.screen !== screen;
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+/* ---------------------------------------------------------
+   Screen 1 — run mode
+   --------------------------------------------------------- */
+function buildModes() {
+    const wrap = $("#modeList");
+    wrap.innerHTML = MODES.map((m) => `
+    <button class="mode" type="button" data-mode="${m.id}" aria-pressed="false">
+      <span class="mode__sector">${m.sector}</span>
+      <span class="mode__name">${m.name}</span>
+      <span class="mode__cadence">${m.cadence}</span>
+      <span class="mode__blurb">${m.blurb}</span>
+      <span class="mode__go">Start career <em>→</em></span>
+    </button>`).join("");
+    wrap.querySelectorAll(".mode").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            driver.mode = btn.dataset.mode;
+            wrap.querySelectorAll(".mode").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+            $("#modeTag").textContent = MODES.find((m) => m.id === driver.mode).cadence;
+            show("identity");
+        });
+    });
+}
+/* ---------------------------------------------------------
+   Screen 2a — helmet preview
+   --------------------------------------------------------- */
+function paintHelmet() {
+    const { base, accent, trim } = driver.livery;
+    $("#helmetShell").setAttribute("fill", base);
+    document.querySelectorAll(".helmet-accent").forEach((el) => el.setAttribute("fill", accent));
+    const num = $("#helmetNumber");
+    num.setAttribute("fill", trim);
+    num.textContent = String(driver.number);
+    const name = $("#helmetName");
+    name.setAttribute("fill", trim);
+    name.textContent = (driver.surname || "SURNAME").toUpperCase().slice(0, 12);
+}
+function buildLiveries() {
+    const wrap = $("#liveryRow");
+    wrap.innerHTML = LIVERIES.map((l) => `
+    <button class="swatch" type="button" data-livery="${l.id}" title="${l.name}" aria-label="${l.name} livery" aria-pressed="${l.id === driver.livery.id}">
+      <span style="background:${l.base}"></span><span style="background:${l.accent}"></span>
+    </button>`).join("");
+    wrap.querySelectorAll(".swatch").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            driver.livery = LIVERIES.find((l) => l.id === btn.dataset.livery);
+            wrap.querySelectorAll(".swatch").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+            paintHelmet();
+        });
+    });
+}
+/* ---------------------------------------------------------
+   Screen 2b — nationality
+   --------------------------------------------------------- */
+function renderCountries(filter = "") {
+    const q = filter.trim().toLowerCase();
+    const list = COUNTRIES.filter((c) => c.name.toLowerCase().includes(q));
+    const grid = $("#countryGrid");
+    if (list.length === 0) {
+        grid.innerHTML = `<p class="empty">No country matches “${filter}”. Try fewer letters.</p>`;
+        return;
+    }
+    grid.innerHTML = list
+        .map((c) => `
+    <button class="country" type="button" data-code="${c.code}" aria-pressed="${driver.country?.code === c.code}">
+      <span class="country__flag">${c.flag}</span><span class="country__name">${c.name}</span>
+    </button>`)
+        .join("");
+    grid.querySelectorAll(".country").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            driver.country = COUNTRIES.find((c) => c.code === btn.dataset.code);
+            grid.querySelectorAll(".country").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+            validate();
+        });
+    });
+}
+/* ---------------------------------------------------------
+   Screen 2c — circuit trait map
+   --------------------------------------------------------- */
+function buildTraits() {
+    const layer = $("#traitLayer");
+    layer.innerHTML = TRAITS.map((t) => `
+    <g class="node" data-trait="${t.id}" tabindex="0" role="button" aria-label="${t.full}" aria-pressed="false"
+       transform="translate(${t.x},${t.y})">
+      <rect x="-27" y="-15" width="54" height="30" rx="15"></rect>
+      <text x="0" y="5" text-anchor="middle">${t.label}</text>
+    </g>`).join("");
+    const pick = (id) => {
+        driver.trait = TRAITS.find((t) => t.id === id);
+        layer.querySelectorAll(".node").forEach((n) => n.setAttribute("aria-pressed", String(n.dataset.trait === id)));
+        $("#traitName").textContent = driver.trait.full;
+        $("#traitBlurb").textContent = driver.trait.blurb;
+        validate();
+    };
+    layer.querySelectorAll(".node").forEach((node) => {
+        node.addEventListener("click", () => pick(node.dataset.trait));
+        node.addEventListener("keydown", (e) => {
+            const ev = e;
+            if (ev.key === "Enter" || ev.key === " ") {
+                ev.preventDefault();
+                pick(node.dataset.trait);
+            }
+        });
+    });
+}
+/* ---------------------------------------------------------
+   Validation + confirm
+   --------------------------------------------------------- */
+function numberError(n) {
+    if (!Number.isInteger(n) || n < 2 || n > 99)
+        return "Pick a number between 2 and 99. Number 1 belongs to the reigning champion.";
+    if (RETIRED_NUMBERS[n])
+        return `${n} is retired from the grid. Choose another.`;
+    return null;
+}
+function validate() {
+    const nameOk = driver.surname.trim().length >= 2;
+    const numErr = numberError(driver.number);
+    const ok = nameOk && !numErr && !!driver.country && !!driver.trait;
+    $("#numberNote").textContent = numErr ?? "";
+    $("#numberNote").hidden = !numErr;
+    const btn = $("#confirm");
+    btn.disabled = !ok;
+    const missing = [];
+    if (!nameOk)
+        missing.push("surname");
+    if (!driver.country)
+        missing.push("nationality");
+    if (!driver.trait)
+        missing.push("racing trait");
+    $("#confirmNote").textContent = ok ? "Ready to go racing." : `Still needed: ${missing.join(", ")}.`;
+    return ok;
+}
+function buildCard() {
+    const mode = MODES.find((m) => m.id === driver.mode);
+    const c = driver.country;
+    const t = driver.trait;
+    $("#cardNumber").textContent = String(driver.number);
+    $("#cardName").textContent = driver.surname.toUpperCase();
+    $("#cardFlag").textContent = c.flag;
+    $("#cardCountry").textContent = c.name;
+    $("#cardTrait").textContent = t.full;
+    $("#cardTraitBlurb").textContent = t.blurb;
+    $("#cardSetup").textContent = driver.setup === "oversteer" ? "Loose rear — oversteer" : "Stable front — understeer";
+    $("#cardLivery").textContent = driver.livery.name;
+    $("#cardMode").textContent = `${mode.name} — ${mode.cadence.toLowerCase()}`;
+    const card = $("#cardArt");
+    card.style.setProperty("--card-base", driver.livery.base);
+    card.style.setProperty("--card-accent", driver.livery.accent);
+}
+/* ---------------------------------------------------------
+   Wiring
+   --------------------------------------------------------- */
+function init() {
+    buildModes();
+    buildLiveries();
+    renderCountries();
+    buildTraits();
+    paintHelmet();
+    validate();
+    $("#surname").addEventListener("input", (e) => {
+        driver.surname = e.target.value;
+        paintHelmet();
+        validate();
+    });
+    $("#number").addEventListener("input", (e) => {
+        driver.number = parseInt(e.target.value, 10);
+        if (!Number.isNaN(driver.number))
+            paintHelmet();
+        validate();
+    });
+    $("#search").addEventListener("input", (e) => {
+        renderCountries(e.target.value);
+    });
+    document.querySelectorAll("[data-setup]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            driver.setup = btn.dataset.setup;
+            document.querySelectorAll("[data-setup]").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+        });
+    });
+    $("#back").addEventListener("click", () => show("mode"));
+    $("#restart").addEventListener("click", () => show("identity"));
+    $("#confirm").addEventListener("click", () => {
+        if (!validate())
+            return;
+        buildCard();
+        show("card");
+    });
+}
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+</body>
+</html>
