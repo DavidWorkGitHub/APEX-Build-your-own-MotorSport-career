@@ -295,6 +295,87 @@ input::placeholder{color:#4A525B}
 .card-actions{display:flex;gap:11px;flex-wrap:wrap}
 .card-actions .btn--solid{margin-left:0}
 
+
+/* ================= season ================= */
+.season{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.72fr);gap:18px;align-items:start}
+.season__head{align-items:center}
+.season__head h2{font-size:24px}
+.season__driver{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.08em}
+.progress{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--line)}
+.progress__bar{flex:1;height:4px;border-radius:3px;background:var(--carbon-3);overflow:hidden}
+.progress__bar i{display:block;height:100%;width:0;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .45s var(--ease)}
+.progress span{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.08em;white-space:nowrap}
+.btn--tiny{padding:6px 14px;font-size:12px}
+.race-head,.race-row{display:grid;grid-template-columns:44px 1fr 48px 62px 52px 44px;gap:10px;align-items:center;
+  padding:9px 22px}
+.race-head{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  border-bottom:1px solid var(--line);background:var(--carbon-2)}
+.race-body{max-height:396px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+.race-body::-webkit-scrollbar{width:8px}
+.race-body::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
+.race-row{border-bottom:1px solid var(--line);font-size:13.5px}
+.race-row.is-new{animation:slidein .38s var(--ease) both}
+@keyframes slidein{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.rr-round,.rr-grid,.rr-pts{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.rr-pts{text-align:right;color:var(--ink)}
+.rr-circuit{color:var(--ink)}
+.rr-circuit .wet{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:#4FA8FF;
+  border:1px solid rgba(79,168,255,.4);border-radius:3px;padding:1px 4px;margin-left:6px;vertical-align:1px}
+.rr-finish{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--dim)}
+.rr-finish.pts{color:var(--ink)}
+.rr-finish.pod{color:var(--accent-2)}
+.rr-finish.win{color:var(--green)}
+.rr-finish.dnf{color:var(--yellow);font-size:11px}
+.rr-mate{font-family:var(--mono);font-size:11.5px}
+.rr-mate.beat{color:var(--green)} .rr-mate.lost{color:var(--faint)}
+
+.season__side{display:grid;gap:14px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);
+  border-radius:var(--rl);overflow:hidden}
+.stat{background:var(--carbon);padding:15px 16px;display:grid;gap:3px}
+.stat b{font-family:var(--mono);font-size:20px;line-height:1}
+.stat--big b{font-size:30px;color:var(--accent-2)}
+.stat span{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+.h2h{background:var(--carbon);border:1px solid var(--line);border-radius:var(--rl);padding:16px}
+.h2h__top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.h2h__top span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.h2h__top b{font-family:var(--mono);font-size:17px}
+.h2h__bar{height:5px;border-radius:3px;background:var(--carbon-3);overflow:hidden;margin:11px 0 9px}
+.h2h__bar i{display:block;height:100%;width:0;background:var(--green);border-radius:3px;transition:width .45s var(--ease)}
+.h2h p{margin:0;font-size:12px;color:var(--faint);line-height:1.45}
+.table{background:var(--carbon);border:1px solid var(--line);border-radius:var(--rl);padding:16px}
+.table h3{font-size:12.5px;letter-spacing:.16em;color:var(--dim);margin-bottom:11px;font-weight:600}
+.st-row{display:grid;grid-template-columns:20px 1fr auto;gap:10px;padding:7px 8px;border-radius:4px;font-size:13px;
+  align-items:center;animation:rise .3s var(--ease) both}
+.st-row > span:first-child{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.st-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-pts{font-family:var(--mono);font-size:12px}
+.st-row.me{background:var(--accent);color:#fff}
+.st-row.me > span:first-child,.st-row.me .st-pts{color:#fff}
+.st-row.mate{background:var(--carbon-3)}
+.mate-tag{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  border:1px solid var(--line-2);border-radius:3px;padding:1px 4px;margin-left:5px;font-weight:500}
+
+/* ================= summary ================= */
+.summary{max-width:760px;margin:0 auto;background:var(--carbon);border:1px solid var(--line);border-radius:var(--rl);
+  padding:clamp(26px,4vw,44px);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.summary__pos{display:flex;align-items:baseline;gap:14px;margin:6px 0 0;text-transform:none}
+.summary__pos b{font-family:var(--mono);font-size:clamp(56px,9vw,86px);line-height:.9;color:var(--accent-2)}
+.summary__pos span{font-family:var(--body);font-weight:400;font-size:16px;color:var(--dim);letter-spacing:0}
+.summary__verdict{font-size:17px;line-height:1.55;margin:20px 0 0;max-width:46ch}
+.summary__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--rl);overflow:hidden;margin:28px 0 0}
+.summary__grid div{background:var(--carbon-2);padding:16px;display:grid;gap:4px}
+.summary__grid b{font-family:var(--mono);font-size:22px;line-height:1}
+.summary__grid span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.summary__mate{color:var(--dim);font-size:13.5px;margin:16px 0 26px}
+
+@media (max-width:940px){.season{grid-template-columns:1fr}}
+@media (max-width:560px){
+  .race-head,.race-row{grid-template-columns:36px 1fr 44px 40px 40px;padding:9px 14px}
+  .race-head span:nth-child(3),.rr-grid{display:none}
+}
 @media (max-width:940px){
   .hero{grid-template-columns:1fr;gap:26px}
   .hero__art{max-width:520px}
@@ -325,6 +406,7 @@ input::placeholder{color:#4A525B}
       <span class="step" data-state="now"><i></i>Run mode</span>
       <span class="step" data-state="todo"><i></i>Driver</span>
       <span class="step" data-state="todo"><i></i>Grid</span>
+      <span class="step" data-state="todo"><i></i>Season</span>
     </nav>
     <button class="theme" id="themeToggle" type="button" aria-label="Switch between light and dark">
       <i id="thDark" class="on"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 13a9 9 0 11-10-10 7 7 0 1010 10z"/></svg></i>
@@ -506,12 +588,82 @@ input::placeholder{color:#4A525B}
 
         <div class="card-actions">
           <button class="btn btn--ghost" id="restart" type="button">Edit driver</button>
-          <button class="btn btn--solid" type="button">Start season 1<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
+          <button class="btn btn--solid" id="startSeason" type="button">Start season 1<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
         </div>
       </div>
     </div>
   </section>
 
+
+  <!-- ============ SEASON ============ -->
+  <section class="screen" data-screen="season" hidden>
+    <div class="season">
+      <div class="panel season__main">
+        <div class="panel__head season__head">
+          <h2 id="seasonDivision">Karting</h2>
+          <span id="seasonYear">Season 1</span>
+          <span class="season__driver" id="seasonDriver"></span>
+        </div>
+
+        <div class="progress">
+          <div class="progress__bar"><i id="progressFill"></i></div>
+          <span id="progressLabel">Round 0 of 12</span>
+          <button class="btn btn--tiny" id="skipSeason" type="button">Skip to end</button>
+        </div>
+
+        <div class="race-head">
+          <span>Rnd</span><span>Circuit</span><span>Grid</span><span>Finish</span><span>Mate</span><span>Pts</span>
+        </div>
+        <div class="race-body" id="raceBody"></div>
+      </div>
+
+      <aside class="season__side">
+        <div class="stats">
+          <div class="stat stat--big"><b id="statPos">—</b><span>Championship</span></div>
+          <div class="stat stat--big"><b id="statPoints">0</b><span>Points</span></div>
+          <div class="stat"><b id="statWins">0</b><span>Wins</span></div>
+          <div class="stat"><b id="statPodiums">0</b><span>Podiums</span></div>
+        </div>
+
+        <div class="h2h">
+          <div class="h2h__top"><span>Team-mate head-to-head</span><b id="statH2H">0–0</b></div>
+          <div class="h2h__bar"><i id="h2hFill"></i></div>
+          <p>The first number the paddock reads.</p>
+        </div>
+
+        <div class="table">
+          <h3>Standings</h3>
+          <div id="tableBody"></div>
+        </div>
+
+        <button class="btn btn--ghost" id="backToCard" type="button">Back to driver</button>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ SUMMARY ============ -->
+  <section class="screen" data-screen="summary" hidden>
+    <div class="summary">
+      <p class="eyebrow" id="sumDivision">Karting</p>
+      <h2 class="summary__pos"><b id="sumPos">—</b><span>in the championship</span></h2>
+      <p class="summary__verdict" id="sumVerdict"></p>
+
+      <div class="summary__grid">
+        <div><b id="sumPoints">0</b><span>Points</span></div>
+        <div><b id="sumWins">0</b><span>Wins</span></div>
+        <div><b id="sumPodiums">0</b><span>Podiums</span></div>
+        <div><b id="sumBest">—</b><span>Best finish</span></div>
+        <div><b id="sumDnf">0</b><span>DNFs</span></div>
+        <div><b id="sumH2H">0–0</b><span>vs team-mate</span></div>
+      </div>
+
+      <p class="summary__mate" id="sumMate"></p>
+
+      <div class="card-actions">
+        <button class="btn btn--solid" id="summaryNext" type="button">Continue to season 2</button>
+      </div>
+    </div>
+  </section>
 </div>
 <script>
 "use strict";
@@ -622,8 +774,8 @@ function show(name) {
             el.classList.add("is-in");
         }
     });
-    const order = ["mode", "identity", "card"];
-    const idx = order.indexOf(name);
+    const order = ["mode", "identity", "card", "season"];
+    const idx = name === "summary" ? 3 : order.indexOf(name);
     $$(".step").forEach((s, i) => {
         s.dataset.state = i < idx ? "done" : i === idx ? "now" : "todo";
     });
@@ -907,6 +1059,329 @@ function init() {
     });
 }
 document.addEventListener("DOMContentLoaded", init);
+
+"use strict";
+/* =========================================================
+   PHASE 1 — the season loop
+   Field generation, race simulation, standings, persistence
+   ========================================================= */
+const POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+const KARTING = {
+    id: "karting", name: "Karting — national",
+    fieldSize: 24,
+    skillBand: [42, 72], carBand: [44, 70],
+    rounds: ["Genk", "Lonato", "Sarno", "Zuera", "Kristianstad", "Adria",
+        "Wackersdorf", "Le Mans", "Portimão", "Franciacorta", "Salbris", "Val d'Argenton"],
+};
+const FIRST_NAMES = ["Luca", "Mateo", "Elias", "Nico", "Théo", "Kai", "Rafa", "Jonas", "Milan", "Otto", "Arno", "Dries",
+    "Sander", "Tomas", "Ravi", "Enzo", "Bruno", "Felix", "Aksel", "Mika", "Pau", "Ivo", "Noah", "Levi"];
+const LAST_NAMES = ["Berger", "Kovač", "Lindqvist", "Moreau", "Sasaki", "Duarte", "Vogel", "Halonen", "Ricci", "Novák",
+    "Baptista", "Ahlberg", "Meijer", "Serrano", "Okada", "Brandt", "Lefèvre", "Marchetti", "Nilsen", "Varga",
+    "Costa", "Zieliński", "Hoffman", "Renard"];
+const TEAM_NAMES = ["Rosso Kart", "Vanguard", "Nordic Racing", "Aeris", "Prima Corse", "Halcyon", "Meridian",
+    "Blackline", "Onyx Motorsport", "Ferrata", "Sable", "Argent"];
+/* seeded RNG so a career is one career — same driver, same story */
+function mulberry(seed) {
+    let a = seed >>> 0;
+    return () => {
+        a += 0x6D2B79F5;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+function hashSeed(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+}
+let rng = Math.random;
+/** normal-ish noise, so results cluster around true pace with rare outliers */
+function noise(scale) {
+    return ((rng() + rng() + rng()) / 3 - 0.5) * 2 * scale;
+}
+const band = ([lo, hi]) => lo + rng() * (hi - lo);
+let season = null;
+/* --------------------------- field --------------------------- */
+function playerRacer(div) {
+    const a = computeAttrs();
+    const skill = (a.qualifying + a.racecraft + a.tyres + a.consistency) / 4;
+    return {
+        id: 0, name: driver.surname.toUpperCase(), team: "",
+        // a rookie sits just under the midfield; traits and decisions move you from there
+        skill: clamp(52 + (skill - 52) * 1.05 + 6, 40, 95),
+        car: band(div.carBand),
+        wetSkill: a.wet,
+        reliability: 55 + (a.consistency - 52) * 0.7,
+        isPlayer: true, isTeamMate: false, points: 0, wins: 0, podiums: 0,
+    };
+}
+function buildField(div) {
+    const player = playerRacer(div);
+    const field = [player];
+    const used = new Set();
+    for (let i = 1; i < div.fieldSize; i++) {
+        let name = "";
+        do {
+            name = `${FIRST_NAMES[Math.floor(rng() * FIRST_NAMES.length)]} ${LAST_NAMES[Math.floor(rng() * LAST_NAMES.length)]}`;
+        } while (used.has(name));
+        used.add(name);
+        field.push({
+            id: i, name, team: "",
+            skill: band(div.skillBand),
+            car: band(div.carBand),
+            wetSkill: 30 + rng() * 60,
+            reliability: 45 + rng() * 45,
+            isPlayer: false, isTeamMate: false, points: 0, wins: 0, podiums: 0,
+        });
+    }
+    // pair into teams of two; the player's pair is the team-mate that matters
+    const teams = [...TEAM_NAMES];
+    for (let i = 0; i < field.length; i += 2) {
+        const team = teams[(i / 2) % teams.length];
+        field[i].team = team;
+        if (field[i + 1])
+            field[i + 1].team = team;
+    }
+    const mate = field.find((r) => !r.isPlayer && r.team === player.team);
+    if (mate) {
+        mate.isTeamMate = true;
+        mate.car = player.car + noise(2); // same machinery, near enough
+        mate.skill = clamp(player.skill + noise(9), 40, 95); // a real benchmark
+    }
+    return field;
+}
+/* --------------------------- one race --------------------------- */
+function runRace(round, div) {
+    const wet = rng() < 0.22;
+    const field = season.field;
+    const pace = field.map((r) => {
+        let p = r.car * 0.46 + r.skill * 0.54;
+        if (wet) {
+            const wetEdge = (r.wetSkill - 50) / 100;
+            p += wetEdge * 14 - 2; // rain flattens the machinery advantage
+            p -= (r.car - 60) * 0.18;
+        }
+        return { r, p };
+    });
+    // qualifying — one-lap pace, with the player's Qualifying attribute biting here
+    const attrs = computeAttrs();
+    const gridOrder = pace
+        .map(({ r, p }) => ({ r, q: p + noise(wet ? 7 : 4.5) + (r.isPlayer ? (attrs.qualifying - 52) * 0.14 : 0) }))
+        .sort((a, b) => b.q - a.q);
+    const gridPos = new Map();
+    gridOrder.forEach((g, i) => gridPos.set(g.r.id, i + 1));
+    // race — racecraft, tyres and consistency decide how the grid gets rearranged
+    const finishers = [];
+    const retired = [];
+    pace.forEach(({ r, p }) => {
+        const dnfChance = clamp(0.10 - (r.reliability - 50) / 900, 0.015, 0.16) + (wet ? 0.035 : 0);
+        if (rng() < dnfChance) {
+            retired.push(r);
+            return;
+        }
+        let score = p - (gridPos.get(r.id) - 1) * 0.55; // track position matters
+        score += noise(wet ? 6 : 3.8);
+        if (r.isPlayer) {
+            score += (attrs.racecraft - 52) * 0.13;
+            score += (attrs.tyres - 52) * 0.10;
+            score += (attrs.consistency - 52) * 0.06;
+        }
+        finishers.push({ r, score });
+    });
+    finishers.sort((a, b) => b.score - a.score);
+    finishers.forEach(({ r }, i) => {
+        const pos = i + 1;
+        const pts = POINTS[i] ?? 0;
+        r.points += pts;
+        if (pos === 1)
+            r.wins++;
+        if (pos <= 3)
+            r.podiums++;
+    });
+    const player = field[0];
+    const mate = field.find((r) => r.isTeamMate);
+    const posOf = (r) => {
+        if (!r)
+            return null;
+        const i = finishers.findIndex((f) => f.r.id === r.id);
+        return i === -1 ? null : i + 1;
+    };
+    const finish = posOf(player);
+    const mateFinish = posOf(mate);
+    return {
+        round, circuit: div.rounds[round - 1], wet,
+        grid: gridPos.get(0), finish,
+        points: finish ? (POINTS[finish - 1] ?? 0) : 0,
+        teamMateFinish: mateFinish,
+        beatTeamMate: finish !== null && (mateFinish === null || finish < mateFinish),
+    };
+}
+/* --------------------------- standings --------------------------- */
+function standings() {
+    return [...season.field].sort((a, b) => b.points - a.points || b.wins - a.wins || b.podiums - a.podiums);
+}
+function championshipPos() {
+    return standings().findIndex((r) => r.isPlayer) + 1;
+}
+/* --------------------------- persistence --------------------------- */
+const SAVE_KEY = "swami-career";
+function saveCareer() {
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({
+            driver: { ...driver, trait: driver.trait?.id, country: driver.country?.code, livery: driver.livery.id },
+            season: season && {
+                year: season.year, division: season.division.id,
+                results: season.results, finished: season.finished,
+                field: season.field.map((r) => ({ ...r })),
+            },
+        }));
+    }
+    catch { /* file:// or private mode — career just won't persist */ }
+}
+
+"use strict";
+/* =========================================================
+   PHASE 1 — season screen
+   Live results, running standings, end-of-season summary
+   ========================================================= */
+const ORD = (n) => {
+    const s = ["th", "st", "nd", "rd"], v = n % 100;
+    return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
+};
+let raceTimer = 0;
+let skipping = false;
+function seasonHeader() {
+    $("#seasonDivision").textContent = season.division.name;
+    $("#seasonYear").textContent = `Season ${season.year}`;
+    $("#seasonDriver").textContent = `${driver.surname.toUpperCase()} · ${driver.number}`;
+}
+function renderResultRow(r) {
+    const body = $("#raceBody");
+    const row = document.createElement("div");
+    row.className = "race-row is-new";
+    const pos = r.finish === null ? "DNF" : ORD(r.finish);
+    const posClass = r.finish === null ? "dnf" : r.finish === 1 ? "win" : r.finish <= 3 ? "pod" : r.points > 0 ? "pts" : "";
+    const mate = r.teamMateFinish === null ? "DNF" : ORD(r.teamMateFinish);
+    row.innerHTML = `
+    <span class="rr-round">R${String(r.round).padStart(2, "0")}</span>
+    <span class="rr-circuit">${r.circuit}${r.wet ? ' <b class="wet">WET</b>' : ""}</span>
+    <span class="rr-grid">P${r.grid}</span>
+    <span class="rr-finish ${posClass}">${pos}</span>
+    <span class="rr-mate ${r.beatTeamMate ? "beat" : "lost"}">${mate}</span>
+    <span class="rr-pts">${r.points || "—"}</span>`;
+    body.appendChild(row);
+    body.scrollTop = body.scrollHeight;
+}
+function renderRunning() {
+    const player = season.field[0];
+    const done = season.results.length;
+    const beat = season.results.filter((r) => r.beatTeamMate).length;
+    $("#statPoints").textContent = String(player.points);
+    $("#statPos").textContent = ORD(championshipPos());
+    $("#statWins").textContent = String(player.wins);
+    $("#statPodiums").textContent = String(player.podiums);
+    $("#statH2H").textContent = `${beat}–${done - beat}`;
+    $("#h2hFill").style.width = `${done ? (beat / done) * 100 : 0}%`;
+    $("#progressFill").style.width = `${(done / season.division.rounds.length) * 100}%`;
+    $("#progressLabel").textContent = `Round ${done} of ${season.division.rounds.length}`;
+    const top = standings().slice(0, 6);
+    $("#tableBody").innerHTML = top.map((r, i) => `
+    <div class="st-row ${r.isPlayer ? "me" : ""} ${r.isTeamMate ? "mate" : ""}">
+      <span>${i + 1}</span>
+      <span class="st-name">${r.name}${r.isTeamMate ? ' <b class="mate-tag">team-mate</b>' : ""}</span>
+      <span class="st-pts">${r.points}</span>
+    </div>`).join("");
+}
+/* --------------------------- summary --------------------------- */
+function bestResult() {
+    const fins = season.results.map((r) => r.finish).filter((f) => f !== null);
+    return fins.length ? ORD(Math.min(...fins)) : "No finishes";
+}
+function showSummary() {
+    const player = season.field[0];
+    const pos = championshipPos();
+    const done = season.results.length;
+    const beat = season.results.filter((r) => r.beatTeamMate).length;
+    const dnfs = season.results.filter((r) => r.finish === null).length;
+    const mate = season.field.find((r) => r.isTeamMate);
+    $("#sumPos").textContent = ORD(pos);
+    $("#sumDivision").textContent = season.division.name;
+    $("#sumPoints").textContent = String(player.points);
+    $("#sumWins").textContent = String(player.wins);
+    $("#sumPodiums").textContent = String(player.podiums);
+    $("#sumBest").textContent = bestResult();
+    $("#sumDnf").textContent = String(dnfs);
+    $("#sumH2H").textContent = `${beat}–${done - beat}`;
+    // the paddock's verdict — flat, never congratulatory
+    let verdict;
+    if (pos === 1)
+        verdict = "Champion. The junior programmes have your number now.";
+    else if (pos <= 3)
+        verdict = "Top three in your first year. People above you noticed.";
+    else if (beat > done - beat)
+        verdict = `You beat ${mate?.name ?? "your team-mate"} more often than not. That's the number the paddock reads first.`;
+    else if (pos <= 8)
+        verdict = "Points, but not enough of them. The car wasn't the problem.";
+    else
+        verdict = "A hard year. Nobody climbs on this.";
+    $("#sumVerdict").textContent = verdict;
+    $("#sumMate").textContent = mate
+        ? `${mate.name} finished ${ORD(standings().findIndex((r) => r.id === mate.id) + 1)} on ${mate.points} points.`
+        : "";
+    show("summary");
+}
+/* --------------------------- the loop --------------------------- */
+function nextRace() {
+    if (!season || season.results.length >= season.division.rounds.length) {
+        if (season) {
+            season.finished = true;
+            saveCareer();
+        }
+        $("#skipSeason").hidden = true;
+        window.setTimeout(showSummary, skipping ? 0 : 600);
+        return;
+    }
+    const r = runRace(season.results.length + 1, season.division);
+    season.results.push(r);
+    renderResultRow(r);
+    renderRunning();
+    saveCareer();
+    raceTimer = window.setTimeout(nextRace, skipping ? 0 : 620);
+}
+function startSeason() {
+    rng = mulberry(hashSeed(`${driver.surname}|${driver.number}|${driver.country?.code}|${driver.trait?.id}`));
+    season = { year: 1, division: KARTING, results: [], field: [], finished: false };
+    season.field = buildField(KARTING);
+    skipping = false;
+    $("#raceBody").innerHTML = "";
+    $("#skipSeason").hidden = false;
+    seasonHeader();
+    renderRunning();
+    show("season");
+    raceTimer = window.setTimeout(nextRace, 500);
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $("#startSeason").addEventListener("click", startSeason);
+    $("#skipSeason").addEventListener("click", () => {
+        skipping = true;
+        window.clearTimeout(raceTimer);
+        nextRace();
+    });
+    $("#backToCard").addEventListener("click", () => {
+        window.clearTimeout(raceTimer);
+        show("card");
+    });
+    $("#summaryNext").addEventListener("click", () => {
+        // Phase 2 lands here: the decision screen, then the promotion roll.
+        $("#summaryNext").textContent = "Decisions arrive in the next build";
+        $("#summaryNext").disabled = true;
+    });
+});
 
 </script>
 </body>

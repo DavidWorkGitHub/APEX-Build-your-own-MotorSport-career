@@ -59,6 +59,18 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Phase 1 — the season loop**
+- Start season 1 now runs a 12-round karting season, race by race, with results appearing live.
+- Each round rolls for weather (about 1 in 5 wet) and reliability. Rain flattens the machinery advantage and hands the race to whoever can drive in it.
+- Your attributes do real work: Qualifying sets your grid slot, Racecraft decides how much of it you keep, Tyres and Consistency decide whether you're still there at the end.
+- Running sidebar: championship position, points, wins, podiums, and the team-mate head-to-head with its own bar.
+- Standings show the top six with you and your team-mate highlighted.
+- Skip to end button for when you don't want to watch all twelve.
+- End-of-season summary with a flat verdict — the game never congratulates you.
+- Seeded RNG derived from your surname, number, nationality and trait. One driver, one career, same story every time.
+- Career saves to `localStorage` after every race.
+- `test-balance.js` runs six full careers headlessly and prints the results, for tuning. Needs `npm install jsdom`.
+
 **Number cap**
 - Race numbers are now 1–99 with a hard cap in the field itself.
 - Removed the two previous exclusions (number 1 reserved for the champion, 17 retired). Any number in range is fair game.
