@@ -1,6 +1,6 @@
 /* =========================================================
-   APEX — Build your own F1 career
-   Driver creator: run mode → identity → grid card
+   Swami Formula — Build your own F1 career
+   Landing → driver creator → grid card
    ========================================================= */
 
 type Mode = "intense" | "normal" | "express";
@@ -164,25 +164,25 @@ function computeAttrs(): Attributes {
 
 /* --------------------------- screen 1: modes --------------------------- */
 
+function selectMode(id: Mode): void {
+  driver.mode = id;
+  const m = MODES.find((x) => x.id === id)!;
+  $$("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === id)));
+  $("#modeDesc").textContent = `${m.blurb} ${m.seasons} across a career.`;
+}
+
 function buildModes(): void {
-  const wrap = $("#modeList");
+  const wrap = $("#modePills");
   wrap.innerHTML = MODES.map((m) => `
-    <button class="mode" type="button" data-mode="${m.id}">
-      <span class="mode__top"><span class="mode__sector">${m.sector}</span><span class="mode__count">${m.seasons}</span></span>
-      <span class="mode__name">${m.name}</span>
-      <span class="mode__cadence"><i></i>${m.cadence}</span>
-      <span class="mode__blurb">${m.blurb}</span>
-      <span class="mode__go">Start career <em>→</em></span>
+    <button class="pill" type="button" data-mode="${m.id}" aria-pressed="false">
+      <b>${m.name}</b><small>${m.cadence}</small>
     </button>`).join("");
 
-  wrap.querySelectorAll<HTMLButtonElement>(".mode").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      driver.mode = btn.dataset.mode as Mode;
-      const m = MODES.find((x) => x.id === driver.mode)!;
-      $("#modeTag").innerHTML = `<i></i>${m.name} · ${m.cadence}`;
-      show("identity");
-    });
+  wrap.querySelectorAll<HTMLButtonElement>(".pill").forEach((btn) => {
+    btn.addEventListener("click", () => selectMode(btn.dataset.mode as Mode));
   });
+
+  selectMode("normal");
 }
 
 /* --------------------------- helmet --------------------------- */
@@ -365,9 +365,35 @@ function buildCard(): void {
   $("#cardTraitBlurb").textContent = t.blurb;
 }
 
+/* --------------------------- theme --------------------------- */
+
+type Theme = "dark" | "light";
+const THEME_KEY = "swami-theme";
+
+function applyTheme(t: Theme): void {
+  document.documentElement.dataset.theme = t;
+  $("#thDark").classList.toggle("on", t === "dark");
+  $("#thLight").classList.toggle("on", t === "light");
+  $("#themeToggle").setAttribute("aria-label",
+    t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  try { localStorage.setItem(THEME_KEY, t); } catch { /* file:// or private mode */ }
+}
+
+function initTheme(): void {
+  let saved: string | null = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch { /* ignore */ }
+  const prefersLight = window.matchMedia?.("(prefers-color-scheme: light)").matches;
+  applyTheme((saved as Theme) ?? (prefersLight ? "light" : "dark"));
+
+  $("#themeToggle").addEventListener("click", () => {
+    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  });
+}
+
 /* --------------------------- init --------------------------- */
 
 function init(): void {
+  initTheme();
   buildModes(); buildLiveries(); renderCountries(); buildTraits(); paintHelmet(); validate();
 
   $<HTMLInputElement>("#surname").addEventListener("input", (e) => {
@@ -399,6 +425,7 @@ function init(): void {
     });
   });
 
+  $("#startCareer").addEventListener("click", () => show("identity"));
   $("#back").addEventListener("click", () => show("mode"));
   $("#restart").addEventListener("click", () => show("identity"));
   $("#confirm").addEventListener("click", () => {
