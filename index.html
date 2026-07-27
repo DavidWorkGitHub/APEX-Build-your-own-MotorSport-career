@@ -66,10 +66,10 @@ h1,h2,h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.03e
 .strip{display:flex;align-items:center;gap:16px;padding-bottom:14px;margin-bottom:clamp(18px,3vw,30px);
   border-bottom:1px solid var(--line);flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px;padding-right:15px;border-right:1px solid var(--line)}
-.brand__car{width:52px;color:var(--accent);display:block}
+.brand__car{width:82px;color:var(--accent);display:block}
 .brand__word{display:grid;line-height:1}
-.brand__word b{font-family:var(--display);font-size:21px;letter-spacing:.16em;font-weight:700}
-.brand__word small{font-family:var(--mono);font-size:8px;letter-spacing:.28em;color:var(--faint);text-transform:uppercase;margin-top:3px}
+.brand__word b{font-family:var(--display);font-size:27px;letter-spacing:.16em;font-weight:700}
+.brand__word small{font-family:var(--mono);font-size:9px;letter-spacing:.28em;color:var(--faint);text-transform:uppercase;margin-top:3px}
 .theme{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--carbon);border:1px solid var(--line);
   border-radius:99px;padding:4px;cursor:pointer;transition:.2s}
 .theme:hover{border-color:var(--line-2)}
@@ -302,7 +302,7 @@ input::placeholder{color:#4A525B}
   .card-wrap{grid-template-columns:1fr}
 }
 @media (max-width:560px){
-  .brand__car{width:40px}.brand__word b{font-size:17px}
+  .brand__car{width:60px}.brand__word b{font-size:21px}
   .steps{display:none}
   .bar{grid-template-columns:1fr;gap:4px}
   .bar__val{text-align:left}
@@ -412,7 +412,7 @@ input::placeholder{color:#4A525B}
             <div>
               <label for="number">Number</label>
               <div class="stepper">
-                <input id="number" type="number" min="2" max="99" value="10" inputmode="numeric" />
+                <input id="number" type="text" maxlength="2" value="10" inputmode="numeric" pattern="[0-9]*" aria-describedby="numberNote" />
                 <span class="stepper__btns">
                   <button type="button" id="numUp" aria-label="Increase number">▲</button>
                   <button type="button" id="numDown" aria-label="Decrease number">▼</button>

@@ -79,8 +79,6 @@ const TRAITS: Trait[] = [
     x: 40, y: 132, mods: { consistency: 24, racecraft: -4, qualifying: -2 } },
 ];
 
-const RETIRED_NUMBERS = new Set<number>([17]);
-
 const COUNTRIES: Country[] = [
   { code: "AR", name: "Argentina", flag: "🇦🇷" }, { code: "AU", name: "Australia", flag: "🇦🇺" },
   { code: "AT", name: "Austria", flag: "🇦🇹" }, { code: "BH", name: "Bahrain", flag: "🇧🇭" },
@@ -298,9 +296,7 @@ function renderTraitDelta(): void {
 /* --------------------------- validation --------------------------- */
 
 function numberError(n: number): string | null {
-  if (!Number.isInteger(n) || n < 2 || n > 99)
-    return "Pick 2–99. Number 1 is reserved for the reigning champion.";
-  if (RETIRED_NUMBERS.has(n)) return `${n} is retired from the grid. Choose another.`;
+  if (!Number.isInteger(n) || n < 1 || n > 99) return "Pick a number from 1 to 99.";
   return null;
 }
 
@@ -408,11 +404,19 @@ function init(): void {
     paintHelmet(); validate();
   };
   numInput.addEventListener("input", () => {
-    driver.number = parseInt(numInput.value, 10);
+    // hard cap: strip anything non-numeric and refuse a third digit / zero
+    const digits = numInput.value.replace(/\D/g, "").slice(0, 2);
+    const n = parseInt(digits, 10);
+    const capped = Number.isNaN(n) ? "" : String(clamp(n, 0, 99));
+    if (numInput.value !== capped) numInput.value = capped;
+    driver.number = capped === "" ? NaN : parseInt(capped, 10);
     paintHelmet(); validate();
   });
-  $("#numUp").addEventListener("click", () => setNumber(clamp((driver.number || 1) + 1, 2, 99)));
-  $("#numDown").addEventListener("click", () => setNumber(clamp((driver.number || 3) - 1, 2, 99)));
+  numInput.addEventListener("blur", () => {
+    if (Number.isNaN(driver.number) || driver.number < 1) setNumber(1);
+  });
+  $("#numUp").addEventListener("click", () => setNumber(clamp((driver.number || 0) + 1, 1, 99)));
+  $("#numDown").addEventListener("click", () => setNumber(clamp((driver.number || 2) - 1, 1, 99)));
 
   $<HTMLInputElement>("#search").addEventListener("input", (e) => {
     renderCountries((e.target as HTMLInputElement).value);

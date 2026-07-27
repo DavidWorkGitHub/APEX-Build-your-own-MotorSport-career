@@ -66,10 +66,10 @@ h1,h2,h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.03e
 .strip{display:flex;align-items:center;gap:16px;padding-bottom:14px;margin-bottom:clamp(18px,3vw,30px);
   border-bottom:1px solid var(--line);flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px;padding-right:15px;border-right:1px solid var(--line)}
-.brand__car{width:52px;color:var(--accent);display:block}
+.brand__car{width:82px;color:var(--accent);display:block}
 .brand__word{display:grid;line-height:1}
-.brand__word b{font-family:var(--display);font-size:21px;letter-spacing:.16em;font-weight:700}
-.brand__word small{font-family:var(--mono);font-size:8px;letter-spacing:.28em;color:var(--faint);text-transform:uppercase;margin-top:3px}
+.brand__word b{font-family:var(--display);font-size:27px;letter-spacing:.16em;font-weight:700}
+.brand__word small{font-family:var(--mono);font-size:9px;letter-spacing:.28em;color:var(--faint);text-transform:uppercase;margin-top:3px}
 .theme{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--carbon);border:1px solid var(--line);
   border-radius:99px;padding:4px;cursor:pointer;transition:.2s}
 .theme:hover{border-color:var(--line-2)}
@@ -302,7 +302,7 @@ input::placeholder{color:#4A525B}
   .card-wrap{grid-template-columns:1fr}
 }
 @media (max-width:560px){
-  .brand__car{width:40px}.brand__word b{font-size:17px}
+  .brand__car{width:60px}.brand__word b{font-size:21px}
   .steps{display:none}
   .bar{grid-template-columns:1fr;gap:4px}
   .bar__val{text-align:left}
@@ -412,7 +412,7 @@ input::placeholder{color:#4A525B}
             <div>
               <label for="number">Number</label>
               <div class="stepper">
-                <input id="number" type="number" min="2" max="99" value="10" inputmode="numeric" />
+                <input id="number" type="text" maxlength="2" value="10" inputmode="numeric" pattern="[0-9]*" aria-describedby="numberNote" />
                 <span class="stepper__btns">
                   <button type="button" id="numUp" aria-label="Increase number">▲</button>
                   <button type="button" id="numDown" aria-label="Decrease number">▼</button>
@@ -569,7 +569,6 @@ const TRAITS = [
         blurb: "No mistakes, no drama. The points pile up while others crash.",
         x: 40, y: 132, mods: { consistency: 24, racecraft: -4, qualifying: -2 } },
 ];
-const RETIRED_NUMBERS = new Set([17]);
 const COUNTRIES = [
     { code: "AR", name: "Argentina", flag: "🇦🇷" }, { code: "AU", name: "Australia", flag: "🇦🇺" },
     { code: "AT", name: "Austria", flag: "🇦🇹" }, { code: "BH", name: "Bahrain", flag: "🇧🇭" },
@@ -611,10 +610,10 @@ const driver = {
 };
 /* --------------------------- helpers --------------------------- */
 const $ = (sel) => document.querySelector(sel);
-const $ = (sel) => Array.from(document.querySelectorAll(sel));
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 function show(name) {
-    $(".screen").forEach((el) => {
+    $$(".screen").forEach((el) => {
         const on = el.dataset.screen === name;
         el.hidden = !on;
         if (on) {
@@ -625,7 +624,7 @@ function show(name) {
     });
     const order = ["mode", "identity", "card"];
     const idx = order.indexOf(name);
-    $(".step").forEach((s, i) => {
+    $$(".step").forEach((s, i) => {
         s.dataset.state = i < idx ? "done" : i === idx ? "now" : "todo";
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -654,7 +653,7 @@ function computeAttrs() {
 function selectMode(id) {
     driver.mode = id;
     const m = MODES.find((x) => x.id === id);
-    $("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === id)));
+    $$("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === id)));
     $("#modeDesc").textContent = `${m.blurb} ${m.seasons} across a career.`;
 }
 function buildModes() {
@@ -673,7 +672,7 @@ function paintHelmet() {
     const { base, shade, accent, trim } = driver.livery;
     $("#lvBase").setAttribute("stop-color", base);
     $("#lvShade").setAttribute("stop-color", shade);
-    $(".hl-accent").forEach((el) => el.setAttribute("fill", accent));
+    $$(".hl-accent").forEach((el) => el.setAttribute("fill", accent));
     const num = $("#helmetNumber");
     num.setAttribute("fill", trim);
     num.textContent = Number.isNaN(driver.number) ? "—" : String(driver.number);
@@ -770,10 +769,8 @@ function renderTraitDelta() {
 }
 /* --------------------------- validation --------------------------- */
 function numberError(n) {
-    if (!Number.isInteger(n) || n < 2 || n > 99)
-        return "Pick 2–99. Number 1 is reserved for the reigning champion.";
-    if (RETIRED_NUMBERS.has(n))
-        return `${n} is retired from the grid. Choose another.`;
+    if (!Number.isInteger(n) || n < 1 || n > 99)
+        return "Pick a number from 1 to 99.";
     return null;
 }
 function validate() {
@@ -820,7 +817,7 @@ function buildCard() {
       <span class="bar__val">${a[key]}</span>
     </div>`).join("");
     requestAnimationFrame(() => {
-        $(".bar__track i").forEach((el, i) => {
+        $$(".bar__track i").forEach((el, i) => {
             setTimeout(() => { el.style.width = `${el.dataset.w}%`; }, 60 * i);
         });
     });
@@ -874,19 +871,29 @@ function init() {
         validate();
     };
     numInput.addEventListener("input", () => {
-        driver.number = parseInt(numInput.value, 10);
+        // hard cap: strip anything non-numeric and refuse a third digit / zero
+        const digits = numInput.value.replace(/\D/g, "").slice(0, 2);
+        const n = parseInt(digits, 10);
+        const capped = Number.isNaN(n) ? "" : String(clamp(n, 0, 99));
+        if (numInput.value !== capped)
+            numInput.value = capped;
+        driver.number = capped === "" ? NaN : parseInt(capped, 10);
         paintHelmet();
         validate();
     });
-    $("#numUp").addEventListener("click", () => setNumber(clamp((driver.number || 1) + 1, 2, 99)));
-    $("#numDown").addEventListener("click", () => setNumber(clamp((driver.number || 3) - 1, 2, 99)));
+    numInput.addEventListener("blur", () => {
+        if (Number.isNaN(driver.number) || driver.number < 1)
+            setNumber(1);
+    });
+    $("#numUp").addEventListener("click", () => setNumber(clamp((driver.number || 0) + 1, 1, 99)));
+    $("#numDown").addEventListener("click", () => setNumber(clamp((driver.number || 2) - 1, 1, 99)));
     $("#search").addEventListener("input", (e) => {
         renderCountries(e.target.value);
     });
-    $("[data-setup]").forEach((btn) => {
+    $$("[data-setup]").forEach((btn) => {
         btn.addEventListener("click", () => {
             driver.setup = btn.dataset.setup;
-            $("[data-setup]").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+            $$("[data-setup]").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
         });
     });
     $("#startCareer").addEventListener("click", () => show("identity"));
