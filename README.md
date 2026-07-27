@@ -59,6 +59,13 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Academy selection + overall rating**
+- After confirming your driver you're offered three seats, generated from your career seed — the same driver always gets the same three doors.
+- A works programme (best kart, established winner as team-mate, podiums expected), a midfield outfit (even team-mate, +5 Racecraft), or a family-run team (slow kart, beatable team-mate, +9 Technical feedback, built around you).
+- Exactly one seat always suits your natural balance and one always fights it. The third is luck. A matching car philosophy is worth real pace.
+- **Overall** rating on the driver card, with a ring gauge and a band (Unproven → Exceptional). Weighted so qualifying and racecraft count most, and it moves once you have machinery.
+- `test-academies.js` runs the same driver through all three seats. Typical spread: works P4 with 135 points but beaten 11–1 by your team-mate; family P14 with 6 points while winning the intra-team battle 10–2.
+
 **Phase 1 — the season loop**
 - Start season 1 now runs a 12-round karting season, race by race, with results appearing live.
 - Each round rolls for weather (about 1 in 5 wet) and reliability. Rain flattens the machinery advantage and hands the race to whoever can drive in it.
