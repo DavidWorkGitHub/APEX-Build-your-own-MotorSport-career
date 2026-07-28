@@ -59,6 +59,48 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Gambles — decisions that can go either way**
+
+- Some options are now **gambles**, marked with a small yellow tag. You can see that an option is risky; you can never see which way it will fall.
+- Eight scenes have them so far: the cut-price engine, the slick-tyre gamble in the rain, the corner you take flat that works three times in four, racing on a cracked bone, double-stacking in the pits, beating the simulator kid, staying out on dead tyres, and accepting a rival team's help in a title fight.
+- Each gamble has weighted branches. Racing on the broken hand: 45% it holds and a scout writes your name down, 35% you finish nowhere in agony, 20% the bone goes properly on lap nine and that's your season. The same option in two different careers came out **+2 overall** and **−2 overall**.
+- **Every decision now shows the swing** — "Overall 56 → 58 +2" — in green or yellow, so you see immediately what a choice bought or cost you.
+- **Decision rewards are no longer capped by your division.** Natural development is still limited by what your level can teach you, but what you win or lose from a choice always counts in full. Before this, a +9 attribute reward in karting was being silently clamped away, which made decisions feel weightless early on.
+
+**Balance and flags — fixes**
+
+- **Flags now render everywhere.** Windows doesn't support regional-indicator emoji at all, so Chrome and Edge were showing two letter boxes instead of a flag. Every flag is now drawn as inline SVG from a small band-and-shape table in `src/flags.ts` — all 65 countries, no font dependency, no internet needed. The awkward ones (UK, US, Brazil, South Africa, Switzerland, Chile, Bahrain, Portugal, Czechia, UAE) are hand-drawn special cases.
+- **Titles were far too easy.** The player's attributes were being counted twice — once inside the skill rating, then again as a per-race bonus — which was worth roughly thirteen points of pace no AI ever received. A career was winning fifteen championships and taking an F1 title in a backmarker car. The per-race bonus is now a fraction of what it was, so attributes still shape *how* you race without deciding every result.
+- **The front of the grid is now genuinely fast.** From F1 upward, four or five drivers are scaled to you *and* put in front-running machinery, because that's why they're at the front. Winning a championship in a backmarker car no longer happens. Twenty-season careers now finish with three to seven titles instead of fifteen, and plenty of seasons with none.
+- **You can't win a division twice.** The lockout applied when dropping back down but not when climbing, so a driver could win F2, fall to F3, and win F2 again. Promotions now skip straight over anything you've already won.
+- **The epilogue reads properly.** Titles are grouped by division ("5 championships — one in F4, one in F2, one in GT3, one in HYP and one in F3") rather than listed season by season and cut off at "and 11 more". The opening line leads with the span of the career, and a comeback is now mentioned explicitly instead of leaving an unexplained jump in age.
+
+**Real grid, mandatory promotion, and sportscars**
+
+- **Grid toggle** on the landing page: *Invented* or *Real*. Real uses the 2026 Formula 1 grid — eleven teams, twenty-two drivers, so you're fighting the actual field — plus real junior teams (Prema, ART, Campos, MP, Rodin…), real karting outfits, and real sportscar teams (Porsche Penske, Toyota Gazoo, AF Corse, Jota…). Your choice is remembered.
+- Everything lives in **`src/roster.ts`** as plain data. Grids change every year: edit that one file and the game follows. Nothing else needs touching.
+- **A title is a promotion.** Win your category and you leave it — you don't get to defend it. The roll says "Champion — moving up" and the seat question becomes where, not whether.
+- **You can never return to a division you've won.** A drop skips past it.
+- **The F2 fork.** Win Formula 2 and the rules won't let you race it again, so you choose: an **F1 reserve seat** (four rounds a year, a simulator programme, and a phone that might ring) or a **works sportscar drive** (a full season, real wins, and a paddock that doesn't care what your junior record said).
+- **GT3 and Hypercar endurance** added as a full branch, with their own calendars — Sebring, Le Mans, Fuji, the Nürburgring. Win your way up it and Hypercar leads *back* to an F1 reserve seat. The long way round genuinely works.
+
+A test career went karting → F4 → F3 → F2 title → sportscars → GT3 title → Hypercar title → F1 reserve → backmarker → midfield → front-running, and retired at 35 with eleven championships.
+
+### On the real grid and publishing
+Real names are fine for playing yourself. If this ever goes public, F1 games license driver likenesses and team marks for a reason — at that point switch the default back to the invented grid, or replace the roster with your own names. That's why it's one editable file.
+
+**The five**
+
+1. **Team-mates who stay.** Your team-mate now has a contract of their own, one to three seasons, and stays put while it runs. The head-to-head accumulates across seasons — "3 seasons · 41–22 lifetime" — and the relationship moves between cordial, tense and open war depending on how badly you beat them and how mercenary or political you've become. A twelve-season career now sees about five team-mates instead of twelve.
+
+2. **Ageing and the comeback.** Attributes fall after 31, and unevenly: qualifying and racecraft go first, tyre management and consistency hold years longer, and technical feedback actually *rises* — you know more than you did. Retirement isn't a wall any more. If you reached F1 and left with credit, the phone can ring one to three seasons later: an injury, a mid-season sacking, a team at the back that wants somebody who can tell them what's wrong with it. Mercenary and fragile reputations don't get the call. One comeback per career, short terms, worse machinery, and the decision pool resets because the questions are different now.
+
+3. **Twenty-two more scenarios**, taking the pool from 10 to 32 and banded by where the career is: junior money and school, an F1 team order in your third race, an engineer who lied about fuel loads, a team-mate veto in your contract, a rule change that kills your driving style, a twenty-year-old team-mate who's quicker, when to stop, a final-round deal a rival team offers you. Scenes come back around every five seasons so a long career never runs dry.
+
+4. **Past runs.** The hall of fame is a place now, not a list. Every retired driver keeps their full season-by-season table, decision log, epilogue and stats — click any of them to walk back in. Pick two and compare them side by side, with the better number in each row highlighted.
+
+5. **Title fights.** A live box in the season sidebar showing who you're actually fighting, the points gap, and how many rounds are left. If you go into the final round within 25 points of the lead, it flags as a decider.
+
 **Phase 5 — retirement, plus the last of Phase 3**
 
 *Retirement* triggers three ways: you run out of road (the roll comes back "out"), you turn 34, or you press Retire on the hub whenever you want.
