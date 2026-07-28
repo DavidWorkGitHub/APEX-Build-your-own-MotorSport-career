@@ -59,6 +59,36 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Phase 5 — retirement, plus the last of Phase 3**
+
+*Retirement* triggers three ways: you run out of road (the roll comes back "out"), you turn 34, or you press Retire on the hub whenever you want.
+
+*The epilogue is assembled from what actually happened* — not generated at the end. Where you started and where you finished, the titles by name and season, how many times a seat came free two levels up, how many seasons ended with nowhere to go, your lifetime head-to-head against team-mates, your rival, and the reputation you ended with.
+
+*Hall of fame* keeps every driver you retire, on the device. It falls back to memory if storage is blocked.
+
+*Contracts* now have a length and a clause — performance, funding, loan, team option, release, or plain terms. A contract protects you: a season bad enough to lose the seat won't, if there are years left on paper.
+
+*A recurring rival* is generated at the start of the career and stays on the grid as you climb, marked in the standings and turning up in the epilogue.
+
+*Cursed items* in the cabinet: a DNF trophy for a season with four or more retirements, a wooden spoon for finishing last, and "Sunday driver" for three poles and no wins.
+
+**UI pass**
+- Seat cards rebuilt: bigger team names, spec rows separated by rules with values right-aligned, machinery bar capped and glowing, the contract clause in its own panel, expectation set in italic.
+- A quieter third button tier for actions like Retire.
+- Panels, headings and stat grids brought onto one spacing and type scale.
+
+**Phase 4 — the trophy cabinet**
+- Reachable from the season hub, and it fills as you play rather than being assembled at the end.
+- **Championships** as trophies you can see. Kart titles are dull bronze and small; F1 trophies are gold, taller and glow. The shelf tells you what level you won at before you read a word.
+- **Race wins** tagged with circuit, season, division and whether it was wet.
+- **Firsts** — first points, first pole, first podium, first win, first championship — each with where it happened and how old you were.
+- **Helmets**, one per team you drove for, coloured from the team name, with the seasons you were there and how many wins you got them.
+- **Rival wall** — every team-mate you've been measured against, with the head-to-head and a bar.
+- **Defining moment** — one framed decision per career, chosen as the choice you made going into your best season.
+- Empty states describe what would go on each shelf, so a new cabinet reads as an invitation rather than a blank.
+- A sixteen-season test career filled it with 5 titles, 38 wins, 88 podiums, 31 poles, 4 helmets and 12 rivals.
+
 **Phase 3 — the ladder, and a season that stops**
 
 *Nothing advances on its own.* When a season ends you land on a hub and stay there until you press Continue. Three tabs:
