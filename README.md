@@ -59,6 +59,12 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Career history, mobile, and staying on in sportscars**
+
+- **Career history** replaces "Back to games" on the landing page. It opens the hall of fame straight from the front screen, so you can read past drivers without finishing a career first, and Back returns you to the landing page rather than dumping you on a retirement screen.
+- **Staying in sportscars.** GT3 and Hypercar no longer push you up the moment you win. When a promotion comes and you're in sportscars, a second button offers to stay: *"There's a car you understand, a team that wants you, and no reason to leave yet."* A test career won GT3, chose to stay, and won it again the following year. Sportscars are now a career you can choose rather than a corridor back to F1.
+- **Full mobile pass.** Several screens built after the last one — the season hub, the cabinet, retirement, the archive, the roll, the fork — had never been checked at phone width. Everything now reflows below 720px: buttons go full-width, tabs and stat grids reflow, the seat cards stack, the standings and race table tighten up, the season-by-season table scrolls sideways instead of crushing to nothing, and the driver card scales down. There's a second breakpoint at 380px for small phones.
+
 **Gambles — decisions that can go either way**
 
 - Some options are now **gambles**, marked with a small yellow tag. You can see that an option is risky; you can never see which way it will fall.

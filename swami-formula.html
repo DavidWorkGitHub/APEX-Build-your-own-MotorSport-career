@@ -681,6 +681,121 @@ input::placeholder{color:#4A525B}
   .academy__flavour{min-height:0}
 }
 
+/* ================= mobile pass =================
+   Everything below 720px. Tested at 380px (iPhone SE / small Android). */
+@media (max-width:720px){
+  body{padding:12px}
+  .strip{gap:10px;padding-bottom:12px;margin-bottom:16px}
+  .brand{padding-right:11px}
+  .brand__car{width:52px}
+  .brand__word b{font-size:19px}
+
+  /* landing */
+  .hero{gap:20px}
+  .hero__copy h1{font-size:clamp(30px,8.6vw,40px)}
+  .sub{font-size:15px}
+  .pills{gap:6px}
+  .pill{flex:1 1 30%;padding:9px 10px;min-width:0}
+  .pill b{font-size:13.5px}
+  .pill small{font-size:7.5px;text-align:center}
+  .hero__actions{gap:8px}
+  .hero__actions .btn{flex:1 1 100%;justify-content:center}
+
+  /* panels and columns */
+  .panel__head{padding:16px}
+  .panel__head h2{font-size:23px}
+  .col{padding:18px 16px}
+  .bar-row{padding:14px 16px;gap:10px}
+  .bar-row .btn{flex:1 1 100%;justify-content:center}
+  .bar-note{order:3;width:100%;justify-content:center}
+  .btn{padding:12px 18px;font-size:14px}
+
+  /* driver creator */
+  .helmet{max-width:200px}
+  .liveries{grid-template-columns:repeat(3,1fr)}
+  .grid{max-height:280px;grid-template-columns:1fr}
+  .circuit{min-height:210px}
+  .trait-read{min-height:0}
+
+  /* seats */
+  .academy{padding:20px 16px}
+  .academy__name{font-size:24px}
+  .academy__flavour{min-height:0;margin-bottom:14px}
+  .academy__row em{width:66px}
+
+  /* season */
+  .season{gap:12px}
+  .season__head{gap:8px}
+  .season__driver{margin-left:0;width:100%}
+  .progress{padding:11px 16px;gap:10px;flex-wrap:wrap}
+  .progress__bar{order:3;flex:1 1 100%}
+  .race-body{max-height:320px}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat b{font-size:18px}
+  .stat--big b{font-size:25px}
+
+  /* hub, cabinet, retirement, archive */
+  .summary,.decision,.retire{padding:20px 16px}
+  .summary__pos b{font-size:52px}
+  .summary__verdict{font-size:15.5px}
+  .summary__grid{grid-template-columns:repeat(3,1fr)}
+  .summary__grid div{padding:12px 10px}
+  .summary__grid b{font-size:17px}
+  .summary__grid span{font-size:7.5px;letter-spacing:.08em}
+  .tabs{gap:5px;margin:18px 0 14px}
+  .tab{padding:8px 12px;font-size:12.5px;flex:1;text-align:center}
+  .hub-list > div{padding:11px 13px;font-size:12.5px;gap:10px}
+  .hub-list b{font-size:12px}
+  .card-actions{gap:8px}
+  .card-actions .btn{flex:1 1 100%;justify-content:center}
+  .log__title{font-size:25px}
+
+  /* decisions */
+  .decision__scene{font-size:16.5px}
+  .option{padding:14px}
+  .option__label{font-size:18px}
+  .gamble-tag{margin-left:6px}
+  .swing{flex-wrap:wrap;gap:8px}
+  .swing em{margin-left:0;width:100%}
+  .decision__foot .btn{margin-left:0;flex:1 1 100%;justify-content:center}
+
+  /* cabinet */
+  .shelf{padding:14px}
+  .shelf--trophies{gap:18px;min-height:0}
+  .trophy__svg{width:36px}
+  .first-row{grid-template-columns:1fr;gap:3px}
+  .first-row small{grid-column:1}
+  .helmet-card{width:88px}
+  .helmet-card svg{width:54px}
+  .moment__choice{font-size:22px}
+
+  /* roll + fork */
+  .roll__move{font-size:16px;gap:10px;padding:14px 16px}
+  .academies{grid-template-columns:1fr}
+
+  /* retirement + archive */
+  .retire__top{grid-template-columns:1fr;gap:18px}
+  .retire__card{min-height:250px}
+  .card__num{font-size:76px}
+  .card__name{font-size:32px}
+  .ovr{top:16px;right:16px}
+  .retire__story p{font-size:14.5px;padding-left:12px}
+  .hall-row{grid-template-columns:44px 1fr;gap:12px}
+  .hall-stats{grid-column:2;white-space:normal}
+  .cmp-head,.cmp-row{padding:11px 13px;gap:8px;font-size:12.5px}
+
+  /* history table scrolls sideways rather than shrinking to nothing */
+  .hist{overflow-x:auto}
+  .hist-head,.hist-row{min-width:520px}
+}
+
+/* very small phones */
+@media (max-width:380px){
+  .summary__grid{grid-template-columns:repeat(2,1fr)}
+  .pill{flex:1 1 100%}
+  .brand__word small{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -727,7 +842,7 @@ input::placeholder{color:#4A525B}
 
         <div class="hero__actions">
           <button class="btn btn--solid" id="startCareer" type="button">Start career<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
-          <button class="btn btn--ghost" type="button">Back to games</button>
+          <button class="btn btn--ghost" id="toHistory" type="button">Career history</button>
         </div>
       </div>
     </div>
@@ -1198,6 +1313,7 @@ input::placeholder{color:#4A525B}
         <span id="rollTo">—</span>
       </div>
       <div class="card-actions">
+        <button class="btn btn--ghost" id="rollStay" type="button" hidden>Stay in sportscars</button>
         <button class="btn btn--solid" id="rollNext" type="button" data-action="race">Continue</button>
       </div>
     </div>
@@ -3042,7 +3158,9 @@ function showHubTab(tab) {
         renderHubContract();
 }
 /* --------------------------- promotion screen --------------------------- */
+let tierBeforeRoll = 0;
 function showRoll() {
+    tierBeforeRoll = tier;
     const roll = promotionRoll();
     lastRoll = roll;
     recordSeason(roll.outcome);
@@ -3073,6 +3191,12 @@ function showRoll() {
         btn.textContent = `Start season ${(season?.year ?? 1) + 1}`;
         btn.dataset.action = "race";
     }
+    // sportscars are a career in their own right — you're allowed to turn the move down
+    const stay = $("#rollStay");
+    const wasGT = tierBeforeRoll >= 8;
+    const moving = roll.outcome === "promote" || roll.outcome === "jump";
+    stay.hidden = !(wasGT && moving);
+    stay.textContent = `Stay in ${DIVISIONS[tierBeforeRoll].name}`;
     show("roll");
 }
 let pendingYear = 1;
@@ -3101,6 +3225,17 @@ document.addEventListener("DOMContentLoaded", () => {
         t.addEventListener("click", () => showHubTab(t.dataset.tab));
     });
     $("#rollNext").addEventListener("click", afterRoll);
+    $("#rollStay").addEventListener("click", () => {
+        // turn the promotion down and re-sign where you are
+        tier = tierBeforeRoll;
+        yearsInTier++;
+        const btn = $("#rollNext");
+        btn.dataset.action = "race";
+        $("#rollHeadline").textContent = "You stay where you are";
+        $("#rollDetail").textContent = `${DIVISIONS[tier].name}. There's a car you understand, a team that wants you, and no reason to leave yet.`;
+        $("#rollTo").textContent = DIVISIONS[tier].name;
+        afterRoll();
+    });
 });
 /* --------------------------- the F2 fork --------------------------- */
 let forkChoice = null;
@@ -3465,6 +3600,7 @@ const HALL_KEY = "swami-hall";
 let retired = false;
 /** Storage can be blocked (file://, private mode). The hall still works this session. */
 let hallMemory = [];
+let hallOrigin = "retire";
 function hallOfFame() {
     try {
         const stored = JSON.parse(localStorage.getItem(HALL_KEY) ?? "[]");
@@ -3692,8 +3828,9 @@ document.addEventListener("DOMContentLoaded", () => {
             showRetirement();
     });
     $("#retCabinet").addEventListener("click", () => { renderCabinet(); show("cabinet"); });
-    $("#retHall").addEventListener("click", () => { renderHall(); show("hall"); });
-    $("#hallBack").addEventListener("click", () => show("retire"));
+    $("#retHall").addEventListener("click", () => { hallOrigin = "retire"; renderHall(); show("hall"); });
+    $("#hallBack").addEventListener("click", () => show(hallOrigin));
+    $("#toHistory").addEventListener("click", () => { hallOrigin = "mode"; renderHall(); show("hall"); });
     $("#arcBack").addEventListener("click", () => { renderHall(); show("hall"); });
     $("#arcCompare").addEventListener("click", () => {
         const i = parseInt($("#arcCompare").dataset.idx ?? "0", 10);
