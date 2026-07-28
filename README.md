@@ -59,6 +59,25 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Phase 3 — the ladder, and a season that stops**
+
+*Nothing advances on its own.* When a season ends you land on a hub and stay there until you press Continue. Three tabs:
+- **This season** — points, wins, podiums, poles, points finishes, DNFs, average grid slot, average finish, net places gained on track, best and worst result, wet races, head-to-head.
+- **Season by season** — every year of the career in one table: age, division, team, championship position, points, wins, podiums, head-to-head and what the end-of-season roll did.
+- **Team & contract** — your seat, what they expect of you, whether the car suits your balance, development support, seasons in this division, reputation, consequences still pending, and your team-mate's season next to yours.
+
+*Eight divisions:* karting, F4, F3, F2, F1 reserve, then F1 backmarker, midfield and front-running. Each has its own field strength, machinery band, calendar and odds of a seat opening above you.
+
+*The five-outcome roll.* Every season ends with one roll: jump two rungs, promote, stall, drop, or out. Seat availability is generated independently of how you drove — you can win a title and be told nobody above you retired. Stalling is the default and it is not a punishment.
+
+*Promotion means new offers.* Every time you move, three seats in the new division are generated and you pick one, same as the academy.
+
+*Development ceilings.* You can't develop past what your current level can teach you, so climbing is the only way to keep improving. This is what stops a good driver dominating karting forever.
+
+*Age.* You start at 15. Past 26 without reaching F1, the phone stops ringing.
+
+`test-ladder.js` plays a fourteen-season career and prints every roll.
+
 **Phase 2 — decisions**
 - Careers now run season after season. Attributes develop each year, fast early and flattening out, and your overall climbs with them.
 - A decision fires at your chosen cadence: every season on Intense, every second on Normal, every third on Express.

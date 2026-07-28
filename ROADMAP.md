@@ -2,8 +2,8 @@
 
 Where the game goes from here. Tick things off as they land; the ideas section is a menu, not a promise.
 
-**Done:** landing page · driver creator · driver card · academy selection · overall rating · season loop · decisions
-**Next up:** Phase 3 — the ladder
+**Done:** landing page · driver creator · driver card · academy selection · overall rating · season loop · decisions · the ladder · season hub · trophy cabinet · retirement · hall of fame
+**Next up:** all five phases done — polish, more decisions, sound
 
 ---
 
@@ -98,26 +98,31 @@ The reward for the whole thing. A room you can walk back into.
 - [x] Multi-season progression with attribute development
 - [ ] More scenes — ten is enough to prove it, not enough for a full career
 
-### Phase 3 — the ladder
-- [ ] Eight divisions, with the five-outcome end-of-season roll
-- [ ] Seat availability generated independently of the player
-- [ ] Jump-two-rungs path, gated behind a dominant season plus a lucky opening
-- [ ] Stalling stays playable — you're the veteran, the rival is new, the decisions change
-- [ ] Named teams per division with a car philosophy (matches oversteer or understeer)
-- [ ] Contracts: length, salary, and a clause you might regret
-- [ ] Recurring rival who climbs with you
-- [ ] Age clock and the seats that stop appearing
+### Phase 3 — the ladder ✅ mostly done
+- [x] Eight divisions, with the five-outcome end-of-season roll
+- [x] Seat availability generated independently of the player
+- [x] Jump-two-rungs path, gated behind a dominant season plus a lucky opening
+- [x] Stalling is the default outcome, not a punishment
+- [x] Named teams per division with a car philosophy (matches oversteer or understeer)
+- [x] Age clock and the seats that stop appearing
+- [x] Development ceilings — a division can only teach you so much
+- [x] Season hub: the season ends and waits for you
+- [x] Contracts: length and a clause you might regret
+- [x] Recurring rival who climbs with you
 
-### Phase 4 — trophy cabinet
-- [ ] Cabinet screen, fills as you go
-- [ ] Trophies, helmets, rival wall, defining moment
-- [ ] Career stats page: wins, podiums, poles, DNFs, best season, points per season
+### Phase 4 — trophy cabinet ✅ done
+- [x] Cabinet screen, fills as you go
+- [x] Trophies, helmets, rival wall, defining moment
+- [x] Career stats: wins, podiums, poles, DNFs, races
+- [x] Firsts shelf
+- [x] Kart titles deliberately look cheaper than F1 ones
+- [x] Cursed items — DNF trophy, wooden spoon, Sunday driver
 
-### Phase 5 — retirement
-- [ ] Retirement trigger — age, or a decision to walk away
-- [ ] Career summary written from the log, not generated at the end
-- [ ] A shareable card: name, number, titles, defining moment
-- [ ] Start a new career keeping the cabinet as a hall of fame
+### Phase 5 — retirement ✅ done
+- [x] Retirement trigger — age, running out of road, or walking away
+- [x] Career summary written from the log, not generated at the end
+- [x] A career card: name, number, peak division, defining moment
+- [x] Start a new career, keeping a hall of fame
 
 ### Polish, ongoing
 - [ ] Sound: a single engine note on season start, nothing more

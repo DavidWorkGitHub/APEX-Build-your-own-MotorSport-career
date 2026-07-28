@@ -330,6 +330,101 @@ input::placeholder{color:#4A525B}
 .ovr span{position:absolute;bottom:-15px;font-family:var(--mono);font-size:7.5px;letter-spacing:.16em;
   text-transform:uppercase;opacity:.7}
 
+/* ================= trophy cabinet ================= */
+.cabinet .hub-sub{margin-top:34px;margin-bottom:12px}
+.shelf{border:1px solid var(--line);border-radius:var(--rl);background:var(--carbon-2);padding:18px;
+  position:relative}
+.shelf::after{content:"";position:absolute;left:18px;right:18px;bottom:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--line-2),transparent)}
+.shelf .empty{padding:6px 0;margin:0}
+.shelf--trophies{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-end;min-height:120px}
+.trophy{display:grid;justify-items:center;gap:4px;text-align:center;animation:rise .4s var(--ease) both}
+.trophy__svg{width:44px;height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
+.trophy b{font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-top:6px}
+.trophy span{font-family:var(--mono);font-size:9px;color:var(--faint)}
+.shelf--wins{display:flex;gap:8px;flex-wrap:wrap}
+.win-chip{background:var(--carbon);border:1px solid var(--line);border-left:2px solid var(--green);
+  border-radius:var(--r);padding:9px 13px;display:grid;gap:2px}
+.win-chip b{font-size:13px;font-weight:500}
+.win-chip span{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:.06em}
+.shelf--firsts{display:grid;gap:1px;background:var(--line);padding:0;overflow:hidden}
+.first-row{background:var(--carbon);padding:13px 18px;display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:baseline}
+.first-row b{font-family:var(--display);font-size:17px;text-transform:uppercase;letter-spacing:.03em;color:var(--accent-2)}
+.first-row span{font-size:13.5px}
+.first-row small{grid-column:2;color:var(--faint);font-size:12px}
+.shelf--helmets{display:flex;gap:20px;flex-wrap:wrap}
+.helmet-card{display:grid;justify-items:center;gap:3px;text-align:center;width:110px}
+.helmet-card svg{width:64px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
+.helmet-card b{font-size:12.5px;font-weight:500;margin-top:5px}
+.helmet-card span{font-family:var(--mono);font-size:8.5px;color:var(--faint);line-height:1.5}
+.shelf--rivals{display:grid;gap:16px}
+.rival__top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.rival__top b{font-size:14px;font-weight:500}
+.rival__top .up{color:var(--green)} .rival__top .down{color:var(--yellow)}
+.rival__top .mono{font-family:var(--mono);font-size:12px}
+.rival__bar{height:5px;border-radius:3px;background:var(--carbon-3);overflow:hidden;margin:8px 0 6px}
+.rival__bar i{display:block;height:100%;background:var(--green);border-radius:3px}
+.rival small{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:.05em}
+.moment{border:1px solid var(--accent);border-radius:var(--rl);padding:22px;background:rgba(220,0,26,.06)}
+.moment__eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent-2);margin:0}
+.moment__choice{font-family:var(--display);font-size:28px;text-transform:uppercase;letter-spacing:.03em;margin:8px 0 0}
+.moment__outcome{color:var(--dim);font-size:14.5px;line-height:1.6;margin:8px 0 0}
+
+/* ================= hub ================= */
+.tabs{display:flex;gap:6px;margin:26px 0 18px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}
+.tab{font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;padding:8px 16px;border-radius:99px;
+  background:transparent;border:1px solid var(--line);color:var(--dim);transition:.2s var(--ease)}
+.tab:hover{color:var(--ink);border-color:var(--line-2)}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--asphalt);border-color:var(--ink)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hub-list{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--rl);
+  overflow:hidden;margin-top:14px}
+.hub-list > div{background:var(--carbon-2);padding:13px 18px;display:flex;justify-content:space-between;
+  align-items:baseline;gap:16px;font-size:13.5px}
+.hub-list span{color:var(--dim)}
+.hub-list b{font-weight:500;font-family:var(--mono);font-size:13px;text-align:right}
+.hub-list b.up{color:var(--green)} .hub-list b.down{color:var(--yellow)}
+.hub-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  margin:22px 0 0;font-weight:500}
+
+/* season by season */
+.hist{border:1px solid var(--line);border-radius:var(--rl);overflow:hidden;margin-top:14px}
+.hist-head,.hist-row{display:grid;grid-template-columns:38px 34px 48px 1fr 42px 46px 28px 34px 52px 62px;
+  gap:8px;padding:10px 14px;align-items:center;font-size:13px}
+.hist-head{background:var(--carbon-3);font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--faint)}
+.hist-row{background:var(--carbon-2);border-top:1px solid var(--line)}
+.hist-row .mono{font-family:var(--mono);font-size:11.5px}
+.hist-row .gold{color:var(--green)}
+.hist-row .up{color:var(--green)} .hist-row .down{color:var(--faint)}
+.hist-team{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)}
+.tag-div{color:var(--accent-2)}
+.outcome{font-size:8.5px!important;letter-spacing:.1em;text-transform:uppercase;text-align:right;color:var(--faint)}
+.outcome--promote,.outcome--jump{color:var(--green)}
+.outcome--drop,.outcome--out{color:var(--yellow)}
+
+/* ================= roll ================= */
+.roll{text-align:left}
+.roll__badge{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  border-radius:99px;padding:5px 13px;border:1px solid var(--line-2);color:var(--dim)}
+.roll__badge--promote,.roll__badge--jump{color:var(--green);border-color:rgba(0,230,118,.4);background:rgba(0,230,118,.08)}
+.roll__badge--drop,.roll__badge--out{color:var(--yellow);border-color:rgba(255,212,0,.35);background:rgba(255,212,0,.06)}
+.roll__move{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:26px 0 30px;padding:18px 20px;
+  background:var(--carbon-2);border:1px solid var(--line);border-radius:var(--rl);font-family:var(--display);
+  font-size:20px;text-transform:uppercase;letter-spacing:.03em}
+.roll__arrow{color:var(--faint);font-family:var(--body)}
+.roll__arrow--promote,.roll__arrow--jump{color:var(--green)}
+.roll__arrow--drop,.roll__arrow--out{color:var(--yellow)}
+
+@media (max-width:660px){
+  .hist-head,.hist-row{grid-template-columns:34px 44px 1fr 38px 44px 50px;font-size:12px}
+  .hist-head span:nth-child(2),.hist-row span:nth-child(2),
+  .hist-head span:nth-child(7),.hist-row span:nth-child(7),
+  .hist-head span:nth-child(8),.hist-row span:nth-child(8),
+  .hist-head span:nth-child(10),.hist-row span:nth-child(10){display:none}
+}
+
 /* ================= decision ================= */
 .decision{max-width:720px;margin:0 auto;background:var(--carbon);border:1px solid var(--line);
   border-radius:var(--rl);padding:clamp(26px,4vw,46px);box-shadow:0 24px 60px rgba(0,0,0,.45)}
@@ -463,6 +558,79 @@ input::placeholder{color:#4A525B}
   .hero__actions .btn{flex:1}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ================= polish pass ================= */
+/* seat cards: clearer hierarchy, real spacing, readable spec rows */
+.academies{gap:1px}
+.academy{padding:26px 24px;gap:0;border-top-width:3px}
+.academy__top{margin-bottom:14px;gap:10px}
+.academy__name{font-size:29px;line-height:1}
+.academy__fit,.academy__misfit{font-size:8px;padding:4px 10px;letter-spacing:.12em}
+.academy__flavour{font-size:13.5px;line-height:1.6;min-height:66px;margin-bottom:18px}
+.academy__row{padding:9px 0;border-top:1px solid var(--line);gap:12px;font-size:13.5px}
+.academy__row em{width:76px;font-size:8.5px}
+.academy__row b{font-weight:500;margin-left:auto;text-align:right}
+.ac-bar{flex:1;height:6px;border-radius:99px;background:var(--carbon-3);margin-left:auto;max-width:118px}
+.ac-bar i{background:linear-gradient(90deg,var(--accent-deep),var(--accent-2));box-shadow:0 0 10px rgba(220,0,26,.35)}
+.academy__clause{display:grid;gap:3px;margin-top:14px;padding:11px 13px;border-radius:var(--r);
+  background:var(--carbon-3);border:1px solid var(--line)}
+.academy__clause b{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow)}
+.academy__clause small{font-size:12px;color:var(--dim);line-height:1.5}
+.academy__perk{margin-top:12px;justify-self:stretch;text-align:center}
+.academy__exp{margin-top:14px;font-size:12.5px;font-style:italic}
+.academy[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--accent)}
+
+/* buttons: a quieter third tier for destructive-ish actions */
+.btn--quiet{border-color:transparent;color:var(--faint);padding-left:14px;padding-right:14px}
+.btn--quiet:hover{color:var(--yellow);border-color:var(--line-2)}
+
+/* panels breathe more */
+.panel__head{padding:20px 24px}
+.panel__head h2{font-size:29px}
+.col{padding:24px}
+.bar-row{padding:18px 24px;gap:16px}
+
+/* headings share one scale */
+.log__title{font-size:clamp(28px,3.6vw,38px);letter-spacing:-.022em}
+.hub-sub{font-size:10px;letter-spacing:.16em}
+
+/* the summary grid is used everywhere — make it feel deliberate */
+.summary__grid div{padding:18px}
+.summary__grid b{font-size:24px;letter-spacing:-.02em}
+
+/* ================= retirement ================= */
+.retire{max-width:900px;margin:0 auto;background:var(--carbon);border:1px solid var(--line);
+  border-radius:var(--rl);padding:clamp(26px,4vw,46px);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.retire__top{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:28px;align-items:start}
+.retire__card{min-height:320px}
+.retire__head .summary__grid{margin-top:22px}
+.retire__story{display:grid;gap:12px;margin-top:14px}
+.retire__story p{margin:0;font-size:15.5px;line-height:1.65;color:var(--ink);
+  padding-left:16px;border-left:2px solid var(--line-2)}
+.retire .moment{margin-top:30px}
+.retire .card-actions{margin-top:30px}
+
+/* ================= hall of fame ================= */
+.hall{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--rl);
+  overflow:hidden;margin:20px 0 26px}
+.hall-row{background:var(--carbon-2);padding:16px 20px;display:grid;grid-template-columns:56px 1fr auto;
+  gap:16px;align-items:center}
+.hall-num{font-family:var(--mono);font-weight:700;font-size:26px;color:var(--accent-2);text-align:center}
+.hall-main b{display:block;font-size:15px;font-weight:600}
+.hall-main small{display:block;color:var(--dim);font-size:12.5px;margin-top:4px;line-height:1.5}
+.hall-stats{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap}
+
+/* rival marker in standings */
+.st-row.rival{background:rgba(220,0,26,.12)}
+.rival-tag{color:var(--accent-2);border-color:rgba(220,0,26,.4)}
+
+/* cursed items read differently to firsts */
+.first-row--cursed b{color:var(--yellow)}
+
+@media (max-width:820px){
+  .retire__top{grid-template-columns:1fr}
+  .academy__flavour{min-height:0}
+}
+
 </style>
 </head>
 <body>
@@ -772,30 +940,129 @@ input::placeholder{color:#4A525B}
     </div>
   </section>
 
-  <!-- ============ SUMMARY ============ -->
+  <!-- ============ SEASON HUB (paused) ============ -->
   <section class="screen" data-screen="summary" hidden>
     <div class="summary">
-      <p class="eyebrow" id="sumDivision">Karting</p>
+      <p class="eyebrow" id="hubTitle">Season 1</p>
       <h2 class="summary__pos"><b id="sumPos">—</b><span>in the championship</span></h2>
       <p class="summary__verdict" id="sumVerdict"></p>
-
-      <div class="summary__grid">
-        <div><b id="sumPoints">0</b><span>Points</span></div>
-        <div><b id="sumWins">0</b><span>Wins</span></div>
-        <div><b id="sumPodiums">0</b><span>Podiums</span></div>
-        <div><b id="sumBest">—</b><span>Best finish</span></div>
-        <div><b id="sumDnf">0</b><span>DNFs</span></div>
-        <div><b id="sumH2H">0–0</b><span>vs team-mate</span></div>
-      </div>
-
       <p class="summary__mate" id="sumMate"></p>
+      <p class="eyebrow" id="sumDivision" hidden></p>
+      <span hidden><i id="sumPoints"></i><i id="sumWins"></i><i id="sumPodiums"></i><i id="sumBest"></i><i id="sumDnf"></i><i id="sumH2H"></i></span>
+
+      <div class="tabs">
+        <button class="tab" type="button" data-tab="season" aria-pressed="true">This season</button>
+        <button class="tab" type="button" data-tab="career" aria-pressed="false">Season by season</button>
+        <button class="tab" type="button" data-tab="contract" aria-pressed="false">Team &amp; contract</button>
+      </div>
+      <div id="hubBody"></div>
 
       <div class="card-actions">
+        <button class="btn btn--ghost" id="openCabinet" type="button">Trophy cabinet</button>
         <button class="btn btn--ghost" id="openLog" type="button">Decision log</button>
-        <button class="btn btn--solid" id="summaryNext" type="button">Continue</button>
+        <button class="btn btn--quiet" id="hubRetire" type="button">Retire</button>
+        <button class="btn btn--solid" id="hubContinue" type="button">Continue when you're ready</button>
       </div>
     </div>
   </section>
+
+  <!-- ============ TROPHY CABINET ============ -->
+  <section class="screen" data-screen="cabinet" hidden>
+    <div class="summary cabinet">
+      <p class="eyebrow">The cabinet</p>
+      <h2 class="log__title">Everything you've won</h2>
+
+      <div class="summary__grid" id="cabCounts"></div>
+
+      <h4 class="hub-sub">Championships</h4>
+      <div class="shelf shelf--trophies" id="cabTitles"></div>
+
+      <h4 class="hub-sub">Race wins</h4>
+      <div class="shelf shelf--wins" id="cabWins"></div>
+
+      <h4 class="hub-sub">Firsts</h4>
+      <div class="shelf shelf--firsts" id="cabFirsts"></div>
+
+      <h4 class="hub-sub">Cursed items</h4>
+      <div class="shelf shelf--firsts" id="cabCursed"></div>
+
+      <h4 class="hub-sub">Helmets</h4>
+      <div class="shelf shelf--helmets" id="cabHelmets"></div>
+
+      <h4 class="hub-sub">Rival wall</h4>
+      <div class="shelf shelf--rivals" id="cabRivals"></div>
+
+      <h4 class="hub-sub">Defining moment</h4>
+      <div id="cabMoment"></div>
+
+      <div class="card-actions">
+        <button class="btn btn--ghost" id="cabinetBack" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RETIREMENT ============ -->
+  <section class="screen" data-screen="retire" hidden>
+    <div class="retire">
+      <div class="retire__top">
+        <div class="card retire__card" id="retCard">
+          <div class="card__eyebrow">Career closed</div>
+          <div class="card__num" id="retNumber">10</div>
+          <div class="card__name" id="retName">SURNAME</div>
+          <div class="card__foot">
+            <div class="card__nat"><span id="retFlag">🏁</span><span id="retPeak">—</span></div>
+          </div>
+        </div>
+
+        <div class="retire__head">
+          <p class="eyebrow">The end of it</p>
+          <h2 class="log__title" id="retHeadline">—</h2>
+          <p class="summary__verdict" id="retDetail"></p>
+          <div class="summary__grid" id="retStats"></div>
+        </div>
+      </div>
+
+      <h4 class="hub-sub">How it read</h4>
+      <div class="retire__story" id="retStory"></div>
+
+      <div class="moment" id="retMoment"></div>
+
+      <div class="card-actions">
+        <button class="btn btn--ghost" id="retCabinet" type="button">Trophy cabinet</button>
+        <button class="btn btn--ghost" id="retHall" type="button">Hall of fame</button>
+        <button class="btn btn--solid" id="retNew" type="button">Start a new career</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HALL OF FAME ============ -->
+  <section class="screen" data-screen="hall" hidden>
+    <div class="summary">
+      <p class="eyebrow">Hall of fame</p>
+      <h2 class="log__title">Every driver you've retired</h2>
+      <p class="summary__mate">Kept between careers on this device.</p>
+      <div class="hall" id="hallBody"></div>
+      <div class="card-actions"><button class="btn btn--ghost" id="hallBack" type="button">Back</button></div>
+    </div>
+  </section>
+
+  <!-- ============ PROMOTION ROLL ============ -->
+  <section class="screen" data-screen="roll" hidden>
+    <div class="summary roll">
+      <span class="roll__badge" id="rollOutcome">—</span>
+      <h2 class="log__title" id="rollHeadline">—</h2>
+      <p class="summary__verdict" id="rollDetail"></p>
+      <div class="roll__move">
+        <span id="rollFrom">—</span>
+        <span class="roll__arrow" id="rollArrow">→</span>
+        <span id="rollTo">—</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn--solid" id="rollNext" type="button" data-action="race">Continue</button>
+      </div>
+    </div>
+  </section>
+
 </div>
 <script>
 /* ---- app.js ---- */
@@ -908,7 +1175,7 @@ function show(name) {
         }
     });
     const order = ["mode", "identity", "card", "academy", "season"];
-    const idx = (name === "summary" || name === "decision" || name === "log") ? 4 : order.indexOf(name);
+    const idx = (name === "summary" || name === "decision" || name === "log" || name === "roll" || name === "cabinet" || name === "retire" || name === "hall") ? 4 : order.indexOf(name);
     $$(".step").forEach((s, i) => {
         s.dataset.state = i < idx ? "done" : i === idx ? "now" : "todo";
     });
@@ -934,10 +1201,12 @@ function computeAttrs() {
     if (typeof careerGrowth !== "undefined") {
         Object.keys(careerGrowth).forEach((k) => { a[k] += careerGrowth[k]; });
     }
-    if (typeof chosenAcademy !== "undefined" && chosenAcademy?.perk) {
-        a[chosenAcademy.perk.key] += chosenAcademy.perk.value;
+    if (typeof currentSeat !== "undefined" && currentSeat?.perk) {
+        a[currentSeat.perk.key] += currentSeat.perk.value;
     }
-    Object.keys(a).forEach((k) => { a[k] = clamp(a[k], 5, 99); });
+    // you cannot develop past what the level you're racing in can teach you
+    const ceiling = typeof tier !== "undefined" ? 58 + tier * 5 : 99;
+    Object.keys(a).forEach((k) => { a[k] = clamp(a[k], 5, Math.min(99, ceiling)); });
     return a;
 }
 /* --------------------------- screen 1: modes --------------------------- */
@@ -1209,13 +1478,6 @@ document.addEventListener("DOMContentLoaded", init);
    Field generation, race simulation, standings, persistence
    ========================================================= */
 const POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
-const KARTING = {
-    id: "karting", name: "Karting — national",
-    fieldSize: 24,
-    skillBand: [42, 72], carBand: [44, 70],
-    rounds: ["Genk", "Lonato", "Sarno", "Zuera", "Kristianstad", "Adria",
-        "Wackersdorf", "Le Mans", "Portimão", "Franciacorta", "Salbris", "Val d'Argenton"],
-};
 const FIRST_NAMES = ["Luca", "Mateo", "Elias", "Nico", "Théo", "Kai", "Rafa", "Jonas", "Milan", "Otto", "Arno", "Dries",
     "Sander", "Tomas", "Ravi", "Enzo", "Bruno", "Felix", "Aksel", "Mika", "Pau", "Ivo", "Noah", "Levi"];
 const LAST_NAMES = ["Berger", "Kovač", "Lindqvist", "Moreau", "Sasaki", "Duarte", "Vogel", "Halonen", "Ricci", "Novák",
@@ -1249,6 +1511,16 @@ function noise(scale) {
 }
 const band = ([lo, hi]) => lo + rng() * (hi - lo);
 let season = null;
+/** One rival, generated at the start, who follows you up the ladder. */
+const nemesis = {
+    name: "",
+    edge: 0, // how much faster than you he is, this season
+    metIn: 0,
+    beat: 0, lost: 0,
+};
+function namePool() {
+    return `${FIRST_NAMES[Math.floor(rng() * FIRST_NAMES.length)]} ${LAST_NAMES[Math.floor(rng() * LAST_NAMES.length)]}`;
+}
 /* --------------------------- field --------------------------- */
 function playerRacer(div) {
     const a = computeAttrs();
@@ -1257,7 +1529,7 @@ function playerRacer(div) {
         id: 0, name: driver.surname.toUpperCase(), team: "",
         // a rookie sits just under the midfield; traits and decisions move you from there
         skill: clamp(52 + (skill - 52) * 1.05 + 6, 40, 95),
-        car: clamp((chosenAcademy ? academyCar(chosenAcademy) : band(div.carBand)) + (typeof carBonus !== "undefined" ? carBonus : 0), 40, 95),
+        car: clamp((currentSeat ? academyCar(currentSeat) : band(div.carBand)) + (typeof carBonus !== "undefined" ? carBonus : 0), 40, 95),
         wetSkill: a.wet,
         reliability: 55 + (a.consistency - 52) * 0.7,
         isPlayer: true, isTeamMate: false, points: 0, wins: 0, podiums: 0,
@@ -1265,6 +1537,11 @@ function playerRacer(div) {
 }
 function buildField(div) {
     const player = playerRacer(div);
+    if (!nemesis.name) {
+        nemesis.name = namePool();
+        nemesis.edge = 2 + rng() * 4;
+        nemesis.metIn = season?.year ?? 1;
+    }
     const field = [player];
     const used = new Set();
     for (let i = 1; i < div.fieldSize; i++) {
@@ -1282,10 +1559,16 @@ function buildField(div) {
             isPlayer: false, isTeamMate: false, points: 0, wins: 0, podiums: 0,
         });
     }
+    // the rival is always on the grid, always just about quicker than you deserve
+    const rivalSlot = field[1 + Math.floor(rng() * (field.length - 2))];
+    rivalSlot.name = nemesis.name;
+    rivalSlot.isNemesis = true;
+    rivalSlot.skill = clamp(player.skill + nemesis.edge, 40, 96);
+    rivalSlot.car = clamp(band(div.carBand) + 4, 40, 95);
     // pair into teams of two; the player's pair is the team-mate that matters
     const teams = [...TEAM_NAMES];
-    if (chosenAcademy)
-        teams.unshift(chosenAcademy.name);
+    if (currentSeat)
+        teams.unshift(currentSeat.name);
     for (let i = 0; i < field.length; i += 2) {
         const team = teams[(i / 2) % teams.length];
         field[i].team = team;
@@ -1297,7 +1580,7 @@ function buildField(div) {
         mate.isTeamMate = true;
         mate.car = player.car + noise(2); // same machinery, near enough
         // the academy decides how hard the benchmark is
-        mate.skill = clamp(player.skill + (chosenAcademy?.mateEdge ?? 0) + noise(7), 40, 95);
+        mate.skill = clamp(player.skill + (currentSeat?.mateEdge ?? 0) + noise(7), 40, 95);
     }
     return field;
 }
@@ -1401,34 +1684,65 @@ const ACADEMY_POOL = [
     "Rosso Kart", "Vanguard", "Nordic Racing", "Aeris", "Prima Corse", "Halcyon",
     "Meridian", "Blackline", "Onyx Motorsport", "Ferrata", "Sable", "Argent",
 ];
-let academies = [];
-let chosenAcademy = null;
-function makeAcademies() {
+let seatOffers = [];
+/** Same three archetypes, told in the language of the division you're in. */
+const CLAUSES = [
+    { id: "performance", label: "Performance clause", detail: "Finish in the bottom half and they can release you at any point." },
+    { id: "pay", label: "Funding clause", detail: "You bring a third of the budget. Miss a payment and the seat goes." },
+    { id: "loan", label: "Loan clause", detail: "They can place you at another team mid-season without asking." },
+    { id: "option", label: "Team option", detail: "They decide whether you stay. You don't." },
+    { id: "release", label: "Release clause", detail: "A bigger team can buy you out cheaply. That cuts both ways." },
+    { id: "clean", label: "No unusual terms", detail: "A plain contract. Rare, and worth something." },
+];
+function seatFlavour(kind) {
+    const junior = typeof tier !== "undefined" && tier <= 3;
+    const car = junior ? (tier === 0 ? "kart" : "car") : "car";
+    return {
+        works: `The strongest ${car} on the grid, and a team-mate who has been winning in it for two years. There is a queue of drivers behind you.`,
+        midfield: `A serious outfit that races hard and expects the same from you. Nobody's favourite. Nobody's whipping boy either.`,
+        family: `A small team that builds everything around one driver. The ${car} is slow and they will change it to whatever you ask for.`,
+    }[kind];
+}
+let currentSeat = null;
+function makeSeats() {
+    const div = typeof currentDivision === "function" ? currentDivision() : null;
+    const lo = div ? div.carBand[0] : 44;
+    const hi = div ? div.carBand[1] : 70;
+    const at = (f) => lo + (hi - lo) * f + rng() * 4;
     const pool = [...ACADEMY_POOL];
     const pick = () => pool.splice(Math.floor(rng() * pool.length), 1)[0];
     const phil = () => (rng() < 0.5 ? "oversteer" : "understeer");
+    const blank = { years: 1, clause: CLAUSES[5] };
     const offers = [
         {
-            id: "works", name: pick(), archetype: "works",
-            car: 68 + rng() * 6, philosophy: phil(), perk: null, mateEdge: 7,
+            id: "works", name: pick(), archetype: "works", ...blank,
+            car: at(0.92), philosophy: phil(), perk: null, mateEdge: 7,
             expectation: "Podiums, or they find someone else",
-            flavour: "A works programme with a queue of drivers behind you. The best kart on the grid, and a team-mate who has been winning in it for two years.",
+            flavour: seatFlavour("works"),
         },
         {
-            id: "midfield", name: pick(), archetype: "midfield",
-            car: 57 + rng() * 6, philosophy: phil(),
+            id: "midfield", name: pick(), archetype: "midfield", ...blank,
+            car: at(0.55), philosophy: phil(),
             perk: { key: "racecraft", value: 5, label: "+5 Racecraft" }, mateEdge: 1,
             expectation: "Points, and beat the other car",
-            flavour: "A serious midfield outfit that races hard and expects you to do the same. Nobody's favourite. Nobody's whipping boy either.",
+            flavour: seatFlavour("midfield"),
         },
         {
-            id: "family", name: pick(), archetype: "family",
-            car: 52 + rng() * 6, philosophy: phil(),
+            id: "family", name: pick(), archetype: "family", ...blank,
+            car: at(0.2), philosophy: phil(),
             perk: { key: "feedback", value: 9, label: "+9 Technical feedback" }, mateEdge: -6,
-            expectation: "Learn, and tell them what the kart needs",
-            flavour: "A family-run team that builds everything around one driver. The kart is slow and they will change it to whatever you ask for.",
+            expectation: "Learn, and tell them what the car needs",
+            flavour: seatFlavour("family"),
         },
     ];
+    offers.forEach((o) => {
+        o.years = o.archetype === "works" ? 1 + Math.floor(rng() * 2) : 2 + Math.floor(rng() * 2);
+        // the better the seat, the more likely it comes with strings
+        const pool = o.archetype === "works" ? CLAUSES.slice(0, 4)
+            : o.archetype === "midfield" ? CLAUSES.slice(0, 6)
+                : CLAUSES.slice(3);
+        o.clause = pool[Math.floor(rng() * pool.length)];
+    });
     // one seat always suits your balance, one always fights it — the third is luck
     const suits = Math.floor(rng() * 3);
     const fights = (suits + 1 + Math.floor(rng() * 2)) % 3;
@@ -1447,7 +1761,7 @@ function overall() {
     const raw = a.qualifying * 0.22 + a.racecraft * 0.24 + a.tyres * 0.16 +
         a.wet * 0.10 + a.feedback * 0.12 + a.consistency * 0.16;
     const bonus = typeof carBonus !== "undefined" ? carBonus : 0;
-    const machinery = chosenAcademy ? (academyCar(chosenAcademy) + bonus - 58) * 0.18 : 0;
+    const machinery = currentSeat ? (academyCar(currentSeat) + bonus - 58) * 0.18 : 0;
     return Math.round(clamp(raw + machinery, 1, 99));
 }
 function ovrBand(n) {
@@ -1463,13 +1777,13 @@ function ovrBand(n) {
 }
 /* --------------------------- screen --------------------------- */
 function renderAcademies() {
-    academies = makeAcademies();
-    chosenAcademy = null;
+    seatOffers = makeSeats();
+    currentSeat = null;
     const bar = (v) => {
         const pct = clamp((v - 40) / 45 * 100, 4, 100);
         return `<span class="ac-bar"><i style="width:${pct}%"></i></span>`;
     };
-    $("#academyList").innerHTML = academies.map((a) => {
+    $("#academyList").innerHTML = seatOffers.map((a) => {
         const fits = a.philosophy === driver.setup;
         return `
     <button class="academy" type="button" data-academy="${a.id}" aria-pressed="false">
@@ -1482,17 +1796,19 @@ function renderAcademies() {
       <span class="academy__row"><em>Machinery</em>${bar(a.car)}</span>
       <span class="academy__row"><em>Car balance</em><b>${a.philosophy === "oversteer" ? "Loose rear" : "Stable front"}</b></span>
       <span class="academy__row"><em>Team-mate</em><b>${a.mateEdge > 4 ? "Established winner" : a.mateEdge > 0 ? "Evenly matched" : "Beatable"}</b></span>
+      <span class="academy__row"><em>Contract</em><b>${a.years} season${a.years > 1 ? "s" : ""}</b></span>
+      <span class="academy__clause" title="${a.clause.detail}"><b>${a.clause.label}</b><small>${a.clause.detail}</small></span>
       ${a.perk ? `<span class="academy__perk">${a.perk.label}</span>` : '<span class="academy__perk academy__perk--none">No development support</span>'}
       <span class="academy__exp">${a.expectation}</span>
     </button>`;
     }).join("");
     $$(".academy").forEach((btn) => {
         btn.addEventListener("click", () => {
-            chosenAcademy = academies.find((a) => a.id === btn.dataset.academy);
+            currentSeat = seatOffers.find((a) => a.id === btn.dataset.academy);
             $$(".academy").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
             $("#confirmAcademy").disabled = false;
             $("#academyNote").innerHTML =
-                `<i class="dot dot--go"></i>${chosenAcademy.name} · overall now ${overall()}`;
+                `<i class="dot dot--go"></i>${currentSeat.name} · overall now ${overall()}`;
             renderOverall();
         });
     });
@@ -1514,9 +1830,159 @@ function renderOverall() {
 document.addEventListener("DOMContentLoaded", () => {
     $("#toAcademy").addEventListener("click", () => { renderAcademies(); show("academy"); });
     $("#academyBack").addEventListener("click", () => show("card"));
-    $("#confirmAcademy").addEventListener("click", () => { if (chosenAcademy)
-        startSeason(); });
+    $("#confirmAcademy").addEventListener("click", () => {
+        if (!currentSeat)
+            return;
+        contractLeft = currentSeat.years;
+        startSeason(typeof pendingYear !== "undefined" ? pendingYear : 1);
+    });
 });
+
+/* ---- ladder.js ---- */
+"use strict";
+/* =========================================================
+   PHASE 3 — the ladder
+   Eight divisions, a five-outcome end-of-season roll, and
+   seats that exist whether or not you deserve them.
+   ========================================================= */
+const CIRCUITS = {
+    kart: ["Genk", "Lonato", "Sarno", "Zuera", "Kristianstad", "Adria", "Wackersdorf", "Le Mans",
+        "Portimão", "Franciacorta", "Salbris", "Val d'Argenton"],
+    junior: ["Oschersleben", "Zandvoort", "Imola", "Red Bull Ring", "Hungaroring", "Spa-Francorchamps",
+        "Monza", "Barcelona", "Paul Ricard", "Silverstone"],
+    f1: ["Melbourne", "Jeddah", "Suzuka", "Shanghai", "Miami", "Imola", "Monaco", "Montréal",
+        "Barcelona", "Red Bull Ring", "Silverstone", "Budapest", "Spa-Francorchamps", "Zandvoort",
+        "Monza", "Singapore", "Austin", "Mexico City", "São Paulo", "Abu Dhabi"],
+};
+const DIVISIONS = [
+    { id: "karting", name: "Karting — national", label: "KART", tier: 0, fieldSize: 24,
+        rounds: CIRCUITS.kart, skillBand: [42, 72], carBand: [44, 70], seatChance: 0.85 },
+    { id: "f4", name: "Formula 4", label: "F4", tier: 1, fieldSize: 22,
+        rounds: CIRCUITS.junior, skillBand: [50, 76], carBand: [48, 72], seatChance: 0.65 },
+    { id: "f3", name: "Formula 3", label: "F3", tier: 2, fieldSize: 20,
+        rounds: CIRCUITS.junior.slice(0, 9), skillBand: [56, 80], carBand: [52, 76], seatChance: 0.5 },
+    { id: "f2", name: "Formula 2", label: "F2", tier: 3, fieldSize: 18,
+        rounds: CIRCUITS.junior, skillBand: [62, 84], carBand: [56, 80], seatChance: 0.3 },
+    { id: "reserve", name: "F1 reserve driver", label: "RES", tier: 4, fieldSize: 20,
+        rounds: CIRCUITS.f1.slice(0, 4), skillBand: [70, 92], carBand: [50, 74], seatChance: 0.45 },
+    { id: "backmarker", name: "Formula 1 — backmarker", label: "F1", tier: 5, fieldSize: 20,
+        rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [42, 58], seatChance: 0.35 },
+    { id: "midfield", name: "Formula 1 — midfield", label: "F1", tier: 6, fieldSize: 20,
+        rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [60, 76], seatChance: 0.3 },
+    { id: "front", name: "Formula 1 — front-running", label: "F1", tier: 7, fieldSize: 20,
+        rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [80, 94], seatChance: 0 },
+];
+const careerHistory = [];
+let tier = 0;
+let age = 15;
+let yearsInTier = 0;
+let contractLeft = 0;
+let lastRoll = null;
+const currentDivision = () => DIVISIONS[tier];
+function seasonStats() {
+    const rs = season.results;
+    const fins = rs.map((r) => r.finish).filter((f) => f !== null);
+    const gained = rs.reduce((n, r) => n + (r.finish === null ? 0 : r.grid - r.finish), 0);
+    const beat = rs.filter((r) => r.beatTeamMate).length;
+    return {
+        races: rs.length,
+        poles: rs.filter((r) => r.grid === 1).length,
+        wins: fins.filter((f) => f === 1).length,
+        podiums: fins.filter((f) => f <= 3).length,
+        pointsFinishes: rs.filter((r) => r.points > 0).length,
+        dnfs: rs.filter((r) => r.finish === null).length,
+        avgGrid: rs.length ? rs.reduce((n, r) => n + r.grid, 0) / rs.length : 0,
+        avgFinish: fins.length ? fins.reduce((n, f) => n + f, 0) / fins.length : 0,
+        gained,
+        best: fins.length ? Math.min(...fins) : null,
+        worst: fins.length ? Math.max(...fins) : null,
+        beat, lost: rs.length - beat,
+        points: season.field[0].points,
+        wetRaces: rs.filter((r) => r.wet).length,
+    };
+}
+/* --------------------------- the roll --------------------------- */
+function promotionRoll() {
+    const div = currentDivision();
+    const pos = championshipPos();
+    const st = seasonStats();
+    const top = tier >= DIVISIONS.length - 1;
+    // results score
+    let score = pos === 1 ? 42 : pos === 2 ? 32 : pos === 3 ? 26 : pos <= 5 ? 17 : pos <= 8 ? 9 : 2;
+    score += st.beat > st.lost ? 10 : st.beat === st.lost ? 2 : -8; // the team-mate is the benchmark
+    score += Math.min(reputation.political, 4);
+    score += Math.min(reputation.loyal, 3);
+    score -= Math.min(reputation.fragile * 2, 8);
+    score -= Math.min(yearsInTier * 2, 6); // the door narrows, but never shuts entirely                                          // the door narrows
+    // a seat above you exists, or it doesn't — nothing to do with how you drove
+    const seatOpen = !top && rng() < div.seatChance;
+    const secondSeat = seatOpen && tier < DIVISIONS.length - 2 && rng() < 0.22;
+    const teamMate = season.field.find((r) => r.isTeamMate);
+    const mateName = teamMate?.name ?? "your team-mate";
+    if (age >= 34) {
+        return { outcome: "out", headline: "The last season",
+            detail: `You're ${age}. There is one more contract on the table and you already know you won't sign it.` };
+    }
+    if (top) {
+        return { outcome: "stall", headline: "You're already there",
+            detail: `${div.name}. There is no rung above this one — only the championship.` };
+    }
+    if (age >= 26 && tier < 4) {
+        return { outcome: "out", headline: "The phone stops ringing",
+            detail: `You're ${age}. Junior programmes want teenagers, and the seats you could have taken went to them.` };
+    }
+    if (score >= 40 && secondSeat && rng() < 0.55) {
+        return { outcome: "jump", headline: "Two rungs at once",
+            detail: `A dominant season, and then the luck: a seat two levels up came free mid-winter. ${DIVISIONS[Math.min(tier + 2, 7)].name} wants you now, ready or not.` };
+    }
+    // the junior rungs turn over faster than the ones above them
+    const bar = tier === 0 ? 13 : tier === 1 ? 17 : 20;
+    if (score >= bar && seatOpen) {
+        return { outcome: "promote", headline: "Moving up",
+            detail: `${DIVISIONS[tier + 1].name}. The results were there and, for once, so was the seat.` };
+    }
+    if (score >= bar && !seatOpen) {
+        return { outcome: "stall", headline: "Nowhere to go",
+            detail: "You did enough. Nobody above you retired, crashed out of a contract or got sacked. Another year here." };
+    }
+    // stalling is the default. You have to be genuinely going nowhere to lose a seat.
+    if (score >= 2 || yearsInTier < 3) {
+        return { outcome: "stall", headline: "Another year",
+            detail: `Not enough to move, not bad enough to lose the seat. ${mateName} is staying too.` };
+    }
+    if (tier === 0) {
+        return { outcome: "out", headline: "The money runs out",
+            detail: `Four seasons and you're still ${ORD(pos)}. The family budget is gone and nobody else is offering.` };
+    }
+    if (contractLeft > 0) {
+        return { outcome: "stall", headline: "The contract holds",
+            detail: `A season this poor would normally cost you the seat. You have ${contractLeft} year${contractLeft > 1 ? "s" : ""} left on paper, and they honour it.` };
+    }
+    return { outcome: "drop", headline: "Back down",
+        detail: `${DIVISIONS[tier - 1].name}. Nobody says it's a demotion. Everybody knows it is.` };
+}
+function applyRoll(r) {
+    const prev = tier;
+    contractLeft = Math.max(0, contractLeft - 1);
+    if (r.outcome === "jump")
+        tier = Math.min(tier + 2, DIVISIONS.length - 1);
+    else if (r.outcome === "promote")
+        tier = Math.min(tier + 1, DIVISIONS.length - 1);
+    else if (r.outcome === "drop")
+        tier = Math.max(tier - 1, 0);
+    yearsInTier = tier === prev ? yearsInTier + 1 : 0;
+}
+function recordSeason(outcome) {
+    const st = seasonStats();
+    ingestSeason();
+    careerHistory.push({
+        year: season.year, age, division: currentDivision().name, label: currentDivision().label,
+        team: currentSeat?.name ?? "—", pos: championshipPos(), points: st.points,
+        wins: st.wins, podiums: st.podiums, poles: st.poles, dnfs: st.dnfs,
+        beat: st.beat, lost: st.lost, gained: st.gained,
+        avgFinish: st.avgFinish, outcome,
+    });
+}
 
 /* ---- decisions.js ---- */
 "use strict";
@@ -1765,11 +2231,514 @@ function resolveDue(year) {
 }
 /** Natural development — fast early, flattening out. */
 function growSeason(year) {
-    const rate = year <= 3 ? 3 : year <= 6 ? 2 : 1;
+    const rate = year <= 3 ? 2.2 : year <= 6 ? 1.5 : 0.8;
     Object.keys(careerGrowth).forEach((k) => {
         careerGrowth[k] += rate * (0.5 + rng() * 0.9);
     });
 }
+
+/* ---- hub.js ---- */
+"use strict";
+/* =========================================================
+   PHASE 3 — season hub + promotion
+   The season ends and stops. Nothing advances until you
+   choose to advance it.
+   ========================================================= */
+const ONE_DP = (n) => (Math.round(n * 10) / 10).toFixed(1);
+/* --------------------------- hub tabs --------------------------- */
+function renderHubSeason() {
+    const st = seasonStats();
+    const div = currentDivision();
+    $("#hubBody").innerHTML = `
+    <div class="summary__grid">
+      <div><b>${st.points}</b><span>Points</span></div>
+      <div><b>${st.wins}</b><span>Wins</span></div>
+      <div><b>${st.podiums}</b><span>Podiums</span></div>
+      <div><b>${st.poles}</b><span>Poles</span></div>
+      <div><b>${st.pointsFinishes}</b><span>Points finishes</span></div>
+      <div><b>${st.dnfs}</b><span>DNFs</span></div>
+    </div>
+    <div class="hub-list">
+      <div><span>Average grid slot</span><b>P${ONE_DP(st.avgGrid)}</b></div>
+      <div><span>Average finish</span><b>${st.avgFinish ? "P" + ONE_DP(st.avgFinish) : "—"}</b></div>
+      <div><span>Net places gained on track</span><b class="${st.gained >= 0 ? "up" : "down"}">${st.gained >= 0 ? "+" : ""}${st.gained}</b></div>
+      <div><span>Best finish</span><b>${st.best ? ORD(st.best) : "—"}</b></div>
+      <div><span>Worst finish</span><b>${st.worst ? ORD(st.worst) : "—"}</b></div>
+      <div><span>Wet races</span><b>${st.wetRaces} of ${st.races}</b></div>
+      <div><span>Head-to-head vs team-mate</span><b>${st.beat}–${st.lost}</b></div>
+      <div><span>Division</span><b>${div.name}</b></div>
+    </div>`;
+}
+function renderHubCareer() {
+    if (careerHistory.length === 0) {
+        $("#hubBody").innerHTML = `<p class="empty">This is your first season. Come back next year.</p>`;
+        return;
+    }
+    $("#hubBody").innerHTML = `
+    <div class="hist">
+      <div class="hist-head">
+        <span>Yr</span><span>Age</span><span>Division</span><span>Team</span>
+        <span>Pos</span><span>Pts</span><span>W</span><span>Pod</span><span>H2H</span><span></span>
+      </div>
+      ${careerHistory.map((h) => `
+        <div class="hist-row">
+          <span class="mono">S${h.year}</span>
+          <span class="mono">${h.age}</span>
+          <span class="mono tag-div">${h.label}</span>
+          <span class="hist-team">${h.team}</span>
+          <span class="mono ${h.pos === 1 ? "gold" : ""}">P${h.pos}</span>
+          <span class="mono">${h.points}</span>
+          <span class="mono">${h.wins}</span>
+          <span class="mono">${h.podiums}</span>
+          <span class="mono ${h.beat > h.lost ? "up" : "down"}">${h.beat}–${h.lost}</span>
+          <span class="mono outcome outcome--${h.outcome}">${h.outcome}</span>
+        </div>`).join("")}
+    </div>`;
+}
+function renderHubContract() {
+    const s = currentSeat;
+    const st = seasonStats();
+    const mate = season.field.find((r) => r.isTeamMate);
+    const matePos = mate ? standings().findIndex((r) => r.id === mate.id) + 1 : null;
+    $("#hubBody").innerHTML = `
+    <div class="hub-list">
+      <div><span>Team</span><b>${s?.name ?? "—"}</b></div>
+      <div><span>Seat type</span><b>${s ? { works: "Works programme", midfield: "Midfield outfit", family: "Family-run team" }[s.archetype] : "—"}</b></div>
+      <div><span>They expect</span><b>${s?.expectation ?? "—"}</b></div>
+      <div><span>Car balance</span><b>${s ? (s.philosophy === "oversteer" ? "Loose rear" : "Stable front") : "—"}${s && s.philosophy === driver.setup ? " · suits you" : " · fights you"}</b></div>
+      <div><span>Development support</span><b>${s?.perk?.label ?? "None"}</b></div>
+      <div><span>Contract</span><b>${s ? s.years + " season" + (s.years > 1 ? "s" : "") : "—"} · ${contractLeft} left</b></div>
+      <div><span>Clause</span><b title="${s?.clause.detail ?? ""}">${s?.clause.label ?? "—"}</b></div>
+      <div><span>Age</span><b>${age}</b></div>
+      <div><span>Seasons in this division</span><b>${yearsInTier + 1}</b></div>
+      <div><span>Your reputation</span><b>${repLabel()}</b></div>
+      <div><span>Consequences still to land</span><b>${pending.length || "None"}</b></div>
+    </div>
+    <h4 class="hub-sub">Team-mate</h4>
+    <div class="hub-list">
+      <div><span>Name</span><b>${mate?.name ?? "—"}</b></div>
+      <div><span>Championship</span><b>${matePos ? "P" + matePos : "—"} on ${mate?.points ?? 0} points</b></div>
+      <div><span>You beat him</span><b class="${st.beat > st.lost ? "up" : "down"}">${st.beat} of ${st.races} races</b></div>
+    </div>`;
+}
+function showHubTab(tab) {
+    $$(".tab").forEach((t) => t.setAttribute("aria-pressed", String(t.dataset.tab === tab)));
+    if (tab === "season")
+        renderHubSeason();
+    else if (tab === "career")
+        renderHubCareer();
+    else
+        renderHubContract();
+}
+/* --------------------------- promotion screen --------------------------- */
+function showRoll() {
+    const roll = promotionRoll();
+    lastRoll = roll;
+    recordSeason(roll.outcome);
+    $("#rollOutcome").textContent = roll.outcome === "jump" ? "Two rungs" : roll.outcome;
+    $("#rollOutcome").className = `roll__badge roll__badge--${roll.outcome}`;
+    $("#rollHeadline").textContent = roll.headline;
+    $("#rollDetail").textContent = roll.detail;
+    $("#rollFrom").textContent = currentDivision().name;
+    applyRoll(roll);
+    $("#rollTo").textContent = roll.outcome === "out" ? "Career over" : currentDivision().name;
+    $("#rollArrow").className = `roll__arrow roll__arrow--${roll.outcome}`;
+    const btn = $("#rollNext");
+    if (roll.outcome === "out") {
+        btn.textContent = "See how it ended";
+        btn.dataset.action = "end";
+    }
+    else if (roll.outcome === "promote" || roll.outcome === "jump") {
+        btn.textContent = "See who's offering";
+        btn.dataset.action = "seats";
+    }
+    else {
+        btn.textContent = `Start season ${(season?.year ?? 1) + 1}`;
+        btn.dataset.action = "race";
+    }
+    show("roll");
+}
+let pendingYear = 1;
+function afterRoll() {
+    const action = $("#rollNext").dataset.action;
+    age++;
+    const nextYear = (season?.year ?? 1) + 1;
+    pendingYear = nextYear;
+    if (action === "end") {
+        showRetirement();
+        return;
+    }
+    if (action === "seats") {
+        renderAcademies();
+        show("academy");
+        return;
+    }
+    startSeason(nextYear);
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $$(".tab").forEach((t) => {
+        t.addEventListener("click", () => showHubTab(t.dataset.tab));
+    });
+    $("#rollNext").addEventListener("click", afterRoll);
+});
+
+/* ---- cabinet.js ---- */
+"use strict";
+/* =========================================================
+   PHASE 4 — the trophy cabinet
+   A room you can walk back into. Everything here is earned
+   during play and recorded as it happens.
+   ========================================================= */
+const cabinet = {
+    titles: [],
+    wins: [],
+    podiums: 0,
+    poles: 0,
+    dnfs: 0,
+    races: 0,
+    helmets: [],
+    rivals: [],
+    firsts: [],
+    cursed: [],
+};
+/** Called once per season, after the results are final. */
+function ingestSeason() {
+    const div = currentDivision();
+    const team = currentSeat?.name ?? "—";
+    const st = seasonStats();
+    const yr = season.year;
+    cabinet.races += st.races;
+    cabinet.podiums += st.podiums;
+    cabinet.poles += st.poles;
+    cabinet.dnfs += st.dnfs;
+    // race wins, tagged by circuit and year
+    season.results.forEach((r) => {
+        if (r.finish === 1)
+            cabinet.wins.push({ year: yr, circuit: r.circuit, label: div.label, team, wet: r.wet });
+    });
+    // championships
+    if (championshipPos() === 1) {
+        cabinet.titles.push({ year: yr, division: div.name, label: div.label, team, tier: div.tier });
+    }
+    // helmets — one per team you drove for
+    const helmet = cabinet.helmets.find((h) => h.team === team && h.label === div.label);
+    const seasonWins = season.results.filter((r) => r.finish === 1).length;
+    if (helmet) {
+        helmet.seasons++;
+        helmet.wins += seasonWins;
+        helmet.to = yr;
+    }
+    else
+        cabinet.helmets.push({ team, label: div.label, seasons: 1, wins: seasonWins, from: yr, to: yr });
+    // rivals — every team-mate you've been measured against
+    const mate = season.field.find((r) => r.isTeamMate);
+    if (mate) {
+        const rival = cabinet.rivals.find((r) => r.name === mate.name);
+        if (rival) {
+            rival.beat += st.beat;
+            rival.lost += st.lost;
+            rival.years.push(yr);
+        }
+        else
+            cabinet.rivals.push({ name: mate.name, team, label: div.label, beat: st.beat, lost: st.lost, years: [yr] });
+    }
+    // firsts — small trophies, disproportionate weight
+    const add = (what, where, note) => {
+        if (!cabinet.firsts.some((f) => f.what === what))
+            cabinet.firsts.push({ what, year: yr, where, note });
+    };
+    const firstPoints = season.results.find((r) => r.points > 0);
+    const firstPodium = season.results.find((r) => r.finish !== null && r.finish <= 3);
+    const firstWin = season.results.find((r) => r.finish === 1);
+    const firstPole = season.results.find((r) => r.grid === 1);
+    if (firstPoints)
+        add("First points", firstPoints.circuit, `${ORD(firstPoints.finish)} in ${div.name}`);
+    if (firstPole)
+        add("First pole", firstPole.circuit, `${div.name}, season ${yr}`);
+    if (firstPodium)
+        add("First podium", firstPodium.circuit, `${ORD(firstPodium.finish)}, ${div.name}`);
+    if (firstWin)
+        add("First win", firstWin.circuit, `${div.name}, aged ${age}`);
+    const curse = (what, where, note) => {
+        if (!cabinet.cursed.some((f) => f.what === what))
+            cabinet.cursed.push({ what, year: yr, where, note });
+    };
+    if (st.dnfs >= 4)
+        curse("The DNF trophy", `${st.dnfs} retirements`, `Season ${yr} in ${div.name}. You saw the flag ${st.races - st.dnfs} times.`);
+    if (championshipPos() >= div.fieldSize - 1)
+        curse("Wooden spoon", `P${championshipPos()} of ${div.fieldSize}`, `Season ${yr}. Somebody has to be last.`);
+    if (st.poles >= 3 && st.wins === 0)
+        curse("Sunday driver", `${st.poles} poles, no wins`, `Season ${yr}. Fast on Saturday. Ask again on Sunday.`);
+    if (cabinet.titles.length === 1 && championshipPos() === 1)
+        add("First championship", div.name, `Season ${yr}, aged ${age}`);
+}
+/** One framed item per career: the choice that turned it. */
+function definingMoment() {
+    if (decisionLog.length === 0)
+        return null;
+    // the choice made in the season before your best year
+    const best = careerHistory.reduce((b, h) => {
+        if (!b)
+            return h;
+        const score = (r) => (r.outcome === "jump" ? 40 : 0) + (r.pos === 1 ? 30 : 0) + r.wins * 3 - r.pos;
+        return score(h) > score(b) ? h : b;
+    }, null);
+    if (!best)
+        return decisionLog[decisionLog.length - 1];
+    const before = [...decisionLog].reverse().find((e) => e.year <= best.year);
+    return before ?? decisionLog[0];
+}
+/* --------------------------- rendering --------------------------- */
+const teamHue = (name) => {
+    let h = 0;
+    for (let i = 0; i < name.length; i++)
+        h = (h * 31 + name.charCodeAt(i)) % 360;
+    return h;
+};
+function trophySvg(tier) {
+    // kart trophies look cheap next to an F1 one, deliberately
+    const gold = tier >= 5 ? "#F5C518" : tier >= 3 ? "#D8D3C4" : "#B08A57";
+    const glow = tier >= 5 ? .5 : tier >= 3 ? .3 : .15;
+    const h = 20 + tier * 2.5;
+    return `<svg viewBox="0 0 60 ${h + 34}" class="trophy__svg" aria-hidden="true">
+    <ellipse cx="30" cy="${h + 30}" rx="16" ry="3" fill="${gold}" opacity="${glow}"/>
+    <rect x="21" y="${h + 20}" width="18" height="8" rx="2" fill="${gold}"/>
+    <rect x="26" y="${h + 12}" width="8" height="9" fill="${gold}" opacity=".8"/>
+    <path d="M16 6h28v${h * 0.55}c0 8-6 ${h * 0.4} -14 ${h * 0.4}S16 ${h * 0.55 + 8} 16 ${h * 0.55 + 6}z" fill="${gold}"/>
+    <path d="M16 10H9a6 6 0 006 10zM44 10h7a6 6 0 01-6 10z" fill="${gold}" opacity=".75"/>
+  </svg>`;
+}
+function renderCabinet() {
+    const c = cabinet;
+    const empty = (t) => `<p class="empty">${t}</p>`;
+    // championships
+    $("#cabTitles").innerHTML = c.titles.length
+        ? c.titles.map((t) => `
+        <div class="trophy" title="${t.division}">
+          ${trophySvg(t.tier)}
+          <b>${t.label}</b>
+          <span>S${t.year} · ${t.team}</span>
+        </div>`).join("")
+        : empty("No championships yet. A title in any division puts a trophy on this shelf — and they don't all look the same.");
+    // wins
+    $("#cabWins").innerHTML = c.wins.length
+        ? c.wins.map((w) => `
+        <div class="win-chip">
+          <b>${w.circuit}</b>
+          <span>S${w.year} · ${w.label}${w.wet ? " · wet" : ""}</span>
+        </div>`).join("")
+        : empty("The win shelf is empty. Every race you win gets tagged here with the circuit and the year.");
+    // counters
+    $("#cabCounts").innerHTML = `
+    <div><b>${c.titles.length}</b><span>Titles</span></div>
+    <div><b>${c.wins.length}</b><span>Wins</span></div>
+    <div><b>${c.podiums}</b><span>Podiums</span></div>
+    <div><b>${c.poles}</b><span>Poles</span></div>
+    <div><b>${c.races}</b><span>Races</span></div>
+    <div><b>${c.dnfs}</b><span>DNFs</span></div>`;
+    // helmets
+    $("#cabHelmets").innerHTML = c.helmets.length
+        ? c.helmets.map((h) => {
+            const hue = teamHue(h.team);
+            return `<div class="helmet-card">
+          <svg viewBox="0 0 100 84" aria-hidden="true">
+            <path d="M50 8c20 0 32 13 32 31 0 8-2 14-5 18-2 3-6 5-10 5H28c-7 0-11-5-12-12-1-4-2-8-2-11 0-18 13-31 36-31z"
+              fill="hsl(${hue} 62% 42%)"/>
+            <path d="M50 8c3 0 7 0 10 1l-5 53h-9L40 9c3-1 7-1 10-1z" fill="hsl(${(hue + 40) % 360} 70% 68%)"/>
+            <path d="M22 36c6-7 16-10 28-10s22 3 28 10c1 5 0 9-1 12-9 3-17 4-27 4s-18-1-27-4c-1-3-2-7-1-12z" fill="#0A0C0E"/>
+          </svg>
+          <b>${h.team}</b>
+          <span>${h.label} · S${h.from}${h.to !== h.from ? `–${h.to}` : ""} · ${h.wins} win${h.wins === 1 ? "" : "s"}</span>
+        </div>`;
+        }).join("")
+        : empty("A helmet appears here for every team you drive for.");
+    // firsts
+    $("#cabFirsts").innerHTML = c.firsts.length
+        ? c.firsts.map((f) => `
+        <div class="first-row">
+          <b>${f.what}</b>
+          <span>${f.where}</span>
+          <small>${f.note}</small>
+        </div>`).join("")
+        : empty("First points, first pole, first podium, first win. Small trophies, disproportionate weight.");
+    // rivals
+    $("#cabRivals").innerHTML = c.rivals.length
+        ? c.rivals.map((r) => {
+            const total = r.beat + r.lost;
+            const pct = total ? (r.beat / total) * 100 : 0;
+            return `<div class="rival">
+          <div class="rival__top"><b>${r.name}</b><span class="mono ${r.beat > r.lost ? "up" : "down"}">${r.beat}–${r.lost}</span></div>
+          <div class="rival__bar"><i style="width:${pct}%"></i></div>
+          <small>${r.team} · ${r.label} · season${r.years.length > 1 ? "s" : ""} ${r.years.join(", ")}</small>
+        </div>`;
+        }).join("")
+        : empty("Every team-mate you're measured against ends up on this wall.");
+    // cursed items
+    $("#cabCursed").innerHTML = c.cursed.length
+        ? c.cursed.map((f) => `
+        <div class="first-row first-row--cursed">
+          <b>${f.what}</b><span>${f.where}</span><small>${f.note}</small>
+        </div>`).join("")
+        : empty("Nothing cursed yet. Retire enough times in one season and something will appear here.");
+    // defining moment
+    const dm = definingMoment();
+    $("#cabMoment").innerHTML = dm
+        ? `<div class="moment">
+         <p class="moment__eyebrow">Season ${dm.year}</p>
+         <p class="moment__choice">${dm.chose}</p>
+         <p class="moment__outcome">${dm.outcome}</p>
+       </div>`
+        : empty("Every career has exactly one defining moment. Yours hasn't happened yet.");
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $("#openCabinet").addEventListener("click", () => { renderCabinet(); show("cabinet"); });
+    $("#cabinetBack").addEventListener("click", () => show("summary"));
+});
+
+/* ---- retire.js ---- */
+"use strict";
+/* =========================================================
+   PHASE 5 — retirement
+   The career ends, gets written up from what actually
+   happened, and goes into the hall of fame.
+   ========================================================= */
+const HALL_KEY = "swami-hall";
+let retired = false;
+/** Storage can be blocked (file://, private mode). The hall still works this session. */
+let hallMemory = [];
+function hallOfFame() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(HALL_KEY) ?? "[]");
+        if (stored.length >= hallMemory.length)
+            return stored;
+    }
+    catch { /* fall through to memory */ }
+    return hallMemory;
+}
+function saveToHall(e) {
+    hallMemory = [e, ...hallMemory].slice(0, 12);
+    try {
+        localStorage.setItem(HALL_KEY, JSON.stringify(hallMemory));
+    }
+    catch { /* kept in memory for this session only */ }
+}
+/** The highest rung you ever reached, named. */
+function peakDivision() {
+    const best = careerHistory.reduce((b, h) => {
+        const t = DIVISIONS.findIndex((d) => d.name === h.division);
+        return t > b ? t : b;
+    }, 0);
+    return DIVISIONS[best].name;
+}
+/** Retirement can be forced, or chosen. */
+function retirementReason() {
+    const t = cabinet.titles.length;
+    const peak = peakDivision();
+    if (lastRoll?.outcome === "out") {
+        return { headline: "It stopped", detail: lastRoll.detail };
+    }
+    if (age >= 34) {
+        return { headline: "You walk away", detail: `You're ${age}. The seat is still yours, and you hand it back before anyone asks you to.` };
+    }
+    if (t > 0) {
+        return { headline: "You walk away on your terms", detail: `${t} title${t > 1 ? "s" : ""}, and you stop while ${peak} still wants you.` };
+    }
+    return { headline: "You walk away", detail: `No titles, ${cabinet.wins.length} win${cabinet.wins.length === 1 ? "" : "s"}, and a career that got as far as ${peak}.` };
+}
+/** The epilogue is assembled from the log and the history, never invented at the end. */
+function epilogue() {
+    const lines = [];
+    const t = cabinet.titles.length;
+    const peak = peakDivision();
+    const first = careerHistory[0];
+    const last = careerHistory[careerHistory.length - 1];
+    const jumps = careerHistory.filter((h) => h.outcome === "jump").length;
+    const drops = careerHistory.filter((h) => h.outcome === "drop").length;
+    const stalls = careerHistory.filter((h) => h.outcome === "stall").length;
+    const totalBeat = careerHistory.reduce((n, h) => n + h.beat, 0);
+    const totalLost = careerHistory.reduce((n, h) => n + h.lost, 0);
+    lines.push(`${driver.surname.toUpperCase()} started at ${first?.age ?? 15} in ${first?.division ?? "karting"} and finished at ${age} in ${last?.division ?? peak}.`);
+    if (t > 0) {
+        const named = cabinet.titles.slice(0, 4).map((x) => `${x.label} in season ${x.year}`).join(", ");
+        lines.push(`${t} championship${t > 1 ? "s" : ""}: ${named}${t > 4 ? `, and ${t - 4} more` : ""}.`);
+    }
+    else
+        lines.push("No championship. That is true of almost everyone who ever raced.");
+    if (jumps)
+        lines.push(`${jumps === 1 ? "Once" : `${jumps} times`} a seat came free two levels above and you took it before you were ready.`);
+    if (stalls >= 3)
+        lines.push(`${stalls} seasons ended with nowhere to go — the results were there and the seat wasn't.`);
+    if (drops)
+        lines.push(`You went backwards ${drops === 1 ? "once" : `${drops} times`}, and came back.`);
+    lines.push(totalBeat > totalLost
+        ? `Across ${totalBeat + totalLost} races you out-scored your team-mate ${totalBeat} times. The paddock reads that number first, and it read well.`
+        : `Across ${totalBeat + totalLost} races your team-mates finished ahead ${totalLost} times. That is the number people remembered.`);
+    if (nemesis.name)
+        lines.push(`${nemesis.name} was on the grid for most of it.`);
+    lines.push(`Reputation at the end: ${repLabel().toLowerCase()}.`);
+    return lines;
+}
+function showRetirement() {
+    retired = true;
+    const r = retirementReason();
+    const dm = definingMoment();
+    $("#retHeadline").textContent = r.headline;
+    $("#retDetail").textContent = r.detail;
+    $("#retName").textContent = driver.surname.toUpperCase();
+    $("#retNumber").textContent = String(driver.number);
+    $("#retFlag").textContent = driver.country?.flag ?? "🏁";
+    $("#retPeak").textContent = peakDivision();
+    const art = $("#retCard");
+    art.style.setProperty("--card-base", driver.livery.base);
+    art.style.setProperty("--card-shade", driver.livery.shade);
+    art.style.setProperty("--card-accent", driver.livery.accent);
+    art.style.setProperty("--card-trim", driver.livery.trim);
+    $("#retStats").innerHTML = `
+    <div><b>${careerHistory.length}</b><span>Seasons</span></div>
+    <div><b>${cabinet.titles.length}</b><span>Titles</span></div>
+    <div><b>${cabinet.wins.length}</b><span>Wins</span></div>
+    <div><b>${cabinet.podiums}</b><span>Podiums</span></div>
+    <div><b>${cabinet.poles}</b><span>Poles</span></div>
+    <div><b>${cabinet.races}</b><span>Races</span></div>`;
+    $("#retStory").innerHTML = epilogue().map((l) => `<p>${l}</p>`).join("");
+    $("#retMoment").innerHTML = dm
+        ? `<p class="moment__eyebrow">Defining moment · season ${dm.year}</p>
+       <p class="moment__choice">${dm.chose}</p>
+       <p class="moment__outcome">${dm.outcome}</p>`
+        : `<p class="moment__outcome">No single choice defined this one.</p>`;
+    saveToHall({
+        surname: driver.surname.toUpperCase(), number: driver.number,
+        flag: driver.country?.flag ?? "🏁", trait: driver.trait?.full ?? "—",
+        seasons: careerHistory.length, titles: cabinet.titles.length,
+        wins: cabinet.wins.length, podiums: cabinet.podiums,
+        peak: peakDivision(), ending: r.headline, moment: dm?.chose ?? "—",
+    });
+    show("retire");
+}
+function renderHall() {
+    const hall = hallOfFame();
+    $("#hallBody").innerHTML = hall.length
+        ? hall.map((h) => `
+      <div class="hall-row">
+        <span class="hall-num">${h.number}</span>
+        <span class="hall-main">
+          <b>${h.flag} ${h.surname}</b>
+          <small>${h.trait} · peaked at ${h.peak} · ${h.ending.toLowerCase()}</small>
+        </span>
+        <span class="hall-stats mono">${h.titles}T · ${h.wins}W · ${h.seasons} seasons</span>
+      </div>`).join("")
+        : `<p class="empty">No drivers here yet. Finish a career and it lands on this wall.</p>`;
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $("#hubRetire").addEventListener("click", () => {
+        if (window.confirm("Retire now? The career ends here and goes into the hall of fame."))
+            showRetirement();
+    });
+    $("#retCabinet").addEventListener("click", () => { renderCabinet(); show("cabinet"); });
+    $("#retHall").addEventListener("click", () => { renderHall(); show("hall"); });
+    $("#hallBack").addEventListener("click", () => show("retire"));
+    $("#retNew").addEventListener("click", () => window.location.reload());
+});
 
 /* ---- decisions-ui.js ---- */
 "use strict";
@@ -1802,10 +2771,9 @@ function renderDecision(d) {
     });
     show("decision");
 }
-/** Season 2 onward: grow, resolve what's come due, then race or decide. */
+/** Leaving the hub: bank the season, take a decision if one is due, then roll. */
 function advanceSeason() {
     const year = (season?.year ?? 1) + 1;
-    // bank the season that just ended
     if (season) {
         const p = season.field[0];
         const beat = season.results.filter((r) => r.beatTeamMate).length;
@@ -1823,16 +2791,14 @@ function advanceSeason() {
     if (decisionDue(year)) {
         const d = pickDecision();
         if (d) {
-            season.year = year;
             renderDecision(d);
             return;
         }
     }
-    startSeason(year);
+    showRoll();
 }
 document.addEventListener("DOMContentLoaded", () => {
-    $("#decContinue").addEventListener("click", () => startSeason(season?.year ?? 1));
-    $("#summaryNext").addEventListener("click", advanceSeason);
+    $("#decContinue").addEventListener("click", showRoll);
     $("#openLog").addEventListener("click", () => {
         const log = $("#logBody");
         log.innerHTML = decisionLog.length
@@ -1857,6 +2823,7 @@ document.addEventListener("DOMContentLoaded", () => {
         show("log");
     });
     $("#logBack").addEventListener("click", () => show("summary"));
+    $("#hubContinue").addEventListener("click", advanceSeason);
 });
 
 /* ---- season-ui.js ---- */
@@ -1875,7 +2842,7 @@ function seasonHeader() {
     $("#seasonDivision").textContent = season.division.name;
     $("#seasonYear").textContent = `Season ${season.year}`;
     $("#seasonRep").textContent = typeof repLabel === "function" ? repLabel() : "";
-    $("#seasonDriver").textContent = `${driver.surname.toUpperCase()} · ${driver.number}${chosenAcademy ? " · " + chosenAcademy.name : ""}`;
+    $("#seasonDriver").textContent = `${driver.surname.toUpperCase()} · ${driver.number}${currentSeat ? " · " + currentSeat.name : ""}`;
 }
 function renderResultRow(r) {
     const body = $("#raceBody");
@@ -1908,9 +2875,9 @@ function renderRunning() {
     $("#progressLabel").textContent = `Round ${done} of ${season.division.rounds.length}`;
     const top = standings().slice(0, 6);
     $("#tableBody").innerHTML = top.map((r, i) => `
-    <div class="st-row ${r.isPlayer ? "me" : ""} ${r.isTeamMate ? "mate" : ""}">
+    <div class="st-row ${r.isPlayer ? "me" : ""} ${r.isTeamMate ? "mate" : ""} ${r.isNemesis ? "rival" : ""}">
       <span>${i + 1}</span>
-      <span class="st-name">${r.name}${r.isTeamMate ? ' <b class="mate-tag">team-mate</b>' : ""}</span>
+      <span class="st-name">${r.name}${r.isTeamMate ? ' <b class="mate-tag">team-mate</b>' : ""}${r.isNemesis ? ' <b class="mate-tag rival-tag">rival</b>' : ""}</span>
       <span class="st-pts">${r.points}</span>
     </div>`).join("");
 }
@@ -1950,6 +2917,8 @@ function showSummary() {
     $("#sumMate").textContent = mate
         ? `${mate.name} finished ${ORD(standings().findIndex((r) => r.id === mate.id) + 1)} on ${mate.points} points.`
         : "";
+    $("#hubTitle").textContent = `Season ${season.year} · ${currentDivision().name}`;
+    showHubTab("season");
     show("summary");
 }
 /* --------------------------- the loop --------------------------- */
@@ -1971,8 +2940,8 @@ function nextRace() {
     raceTimer = window.setTimeout(nextRace, skipping ? 0 : 620);
 }
 function startSeason(year = 1) {
-    season = { year, division: KARTING, results: [], field: [], finished: false };
-    season.field = buildField(KARTING);
+    season = { year, division: currentDivision(), results: [], field: [], finished: false };
+    season.field = buildField(currentDivision());
     skipping = false;
     $("#raceBody").innerHTML = "";
     const cb = $("#callbacks");
