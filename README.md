@@ -34,6 +34,8 @@ You can also just open `index.html` directly while developing — it loads `app.
 | `swami-formula/build.js` | Bundler. |
 | `swami-formula/hero.jpg` | Landing image. Swap it for a different photo without touching code. |
 | `swami-formula/logo.svg` | The car silhouette, traced to vector. Uses `currentColor`, so it picks up whatever colour you set. |
+| `swami-formula/favicon.svg` | The tab icon — the same car, red on a dark rounded square. |
+| `swami-formula/favicon.png` | 180px PNG for iOS home-screen bookmarks. |
 
 ---
 
@@ -58,6 +60,16 @@ You can also just open `index.html` directly while developing — it loads `app.
 ---
 
 ## Changelog
+
+**Fix — you could refuse to retire**
+- After the career ended, opening the trophy cabinet or the decision log and pressing Back landed you on the *season hub* rather than the ending. Continue was still live from there, so you could keep racing seasons indefinitely after retiring — and each pass wrote another hall-of-fame entry.
+- Back now returns to the ending once you've retired, the hub's Continue refuses to advance a finished career, retiring twice does nothing, and the hall entry is written exactly once per career. A comeback deliberately un-retires you and earns its own entry when *it* ends.
+
+**Favicon**
+- The car logo is now the tab icon, red on a dark rounded square with the corner radius matching the panels.
+- It's **embedded as a data URI** in the `<head>`, so the single-file build keeps its icon no matter where you move it — no separate file to lose.
+- `favicon.svg` and a 180px `favicon.png` are in the project folder for anywhere that wants real files (iOS home-screen bookmarks use the PNG).
+- Added `theme-color`, so mobile browsers tint their chrome to match the app background instead of flashing white.
 
 **Career history, mobile, and staying on in sportscars**
 
