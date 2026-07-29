@@ -61,6 +61,28 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**More scenarios — 32 → 54**
+
+Twenty-two new scenes, aimed squarely at the parts of a career that had nothing in them:
+
+- **Sportscars** had no decisions at all despite being a whole branch. Now there's Le Mans at 03:40 behind a weaving driver who's been in the seat too long, the paying amateur co-driver who's four seconds off and also the reason the team exists, a manufacturer hypercar programme that arrives the same week as an F1 reserve seat, and a performance-balance row you can either defuse or pour petrol on.
+- **The reserve year** was a dead season. Now it asks what you do with your one Friday practice all year — send it on low fuel for a headline lap, or run the programme they actually asked for — and whether to go race something, anything, in a lesser series to stay sharp.
+- **Team-mate at war** scenes, which only appear once the relationship has actually broken down: data arriving an hour late every time, and a second collision the board wants explained.
+- **The comeback** now has its own questions. Eight tenths off a twenty-three-year-old, and a live interviewer asking whether you came back for money, ego, or because you had nothing else.
+- Plus more junior scenes (the last good engine, a coach who'll be hard on you, a team that folds four rounds from the end) and more F1 (declaring yourself number one, a final-lap title fight where neither of you has to yield, a fuel-save call you think is wrong).
+
+**Repeats fixed properly.** Scenes used to be released back into the pool every five seasons whether or not they were needed. Now a scene only comes round again when that stage of the career has genuinely run out — so an Intense career, which asks a question *every* season, went twenty seasons with **twenty distinct decisions and no repeats**.
+
+The pool now stands at 54 scenes, 41 of them gated to a context, 16 containing gambles across 39 weighted branches, and 36 options that plant a consequence landing seasons later.
+
+**Multiple drivers, and a bug sweep**
+
+*Career history.* You can now have up to **six careers on the go at once**. Each one saves automatically at the start of every season and picks up exactly where it left off — same seed, same story, right down to which decisions you'd already seen. One screen holds everything, reached from **Career history** on the landing page: **Still racing** at the top with division, team, season, age, titles and the run mode each was started on, and **Finished** underneath with every retired driver — click any of them to read their full career back. Delete a career and it's gone without going into the hall of fame. Retiring frees the slot and moves that driver to the hall; a comeback opens a fresh slot for the second career.
+
+This also closes the old gap where the game saved after every race and never once read it back. Close the tab now and nothing is lost.
+
+*Bug sweep.* Wrote a stress harness (`test-stress.js`) that plays whole careers with randomised choices — random mode, roster, surname, number, nationality, trait, seat and decision at every turn — while checking for script errors, `NaN`/`undefined` leaking into any screen, empty outcomes, negative career stats, dead-ends and wrong Back destinations. It also walks the endgame: comeback offer, hall, archive, compare, theme toggle. Sixteen randomised careers came back clean. The only two flags were the harness itself typing a one-letter surname and a zero race number, which validation correctly refuses.
+
 **Fix — you could refuse to retire**
 - After the career ended, opening the trophy cabinet or the decision log and pressing Back landed you on the *season hub* rather than the ending. Continue was still live from there, so you could keep racing seasons indefinitely after retiring — and each pass wrote another hall-of-fame entry.
 - Back now returns to the ending once you've retired, the hub's Continue refuses to advance a finished career, retiring twice does nothing, and the hall entry is written exactly once per career. A comeback deliberately un-retires you and earns its own entry when *it* ends.
