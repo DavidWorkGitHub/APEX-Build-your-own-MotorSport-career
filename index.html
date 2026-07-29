@@ -597,6 +597,46 @@ input::placeholder{color:#4A525B}
 .mode-tag{display:inline-block;font-family:var(--mono);font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;
   font-style:normal;color:var(--faint);border:1px solid var(--line-2);border-radius:99px;padding:2px 7px;margin-left:8px}
 
+/* ================= achievements ================= */
+.ach-progress{display:flex;align-items:center;gap:14px;margin:16px 0 6px}
+.ach-progress span:first-child{font-family:var(--mono);font-size:12px;color:var(--ink);white-space:nowrap}
+.ach-progress__bar{flex:1;height:5px;border-radius:3px;background:var(--carbon-3);overflow:hidden}
+.ach-progress__bar i{display:block;height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),var(--green));transition:width .7s var(--ease)}
+.ach-list{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--rl);
+  overflow:hidden;margin:20px 0 26px}
+.ach{background:var(--carbon-2);padding:14px 18px;display:grid;grid-template-columns:26px 1fr auto;
+  gap:14px;align-items:center}
+.ach__mark{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;
+  background:var(--green);color:#03170C;font-weight:700}
+.ach--rare .ach__mark{background:var(--accent-2);color:#fff}
+.ach--legendary .ach__mark{background:linear-gradient(140deg,#F5C518,#E08A00);color:#241a00}
+.ach__main b{display:block;font-size:14.5px;font-weight:600}
+.ach__main small{display:block;color:var(--dim);font-size:12.5px;margin-top:3px;line-height:1.5}
+.ach__meta{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  white-space:nowrap}
+.ach--locked{background:var(--carbon)}
+.ach--locked .ach__mark{background:none;border:1px dashed var(--line-2)}
+.ach--locked .ach__main b{color:var(--faint)}
+.ach--locked .ach__main small{color:#4A525B}
+
+/* toast */
+.ach-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:60;opacity:0;
+  background:var(--carbon-2);border:1px solid var(--line-2);border-left:3px solid var(--green);
+  border-radius:var(--rl);padding:14px 20px;max-width:min(420px,90vw);
+  box-shadow:0 20px 50px rgba(0,0,0,.6);transition:opacity .35s var(--ease),transform .35s var(--ease)}
+.ach-toast.is-in{opacity:1;transform:translate(-50%,0)}
+.ach-toast--rare{border-left-color:var(--accent-2)}
+.ach-toast--legendary{border-left-color:#F5C518}
+.ach-toast span{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.ach-toast b{display:block;font-size:17px;margin-top:4px}
+.ach-toast small{display:block;color:var(--dim);font-size:12.5px;margin-top:4px;line-height:1.5}
+@media (max-width:720px){
+  .ach{grid-template-columns:24px 1fr;gap:12px}
+  .ach__meta{grid-column:2;font-size:8px}
+  .ach-toast{bottom:14px}
+}
+
 /* ================= garage ================= */
 .slots{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--rl);
   overflow:hidden;margin:20px 0 26px}
@@ -865,6 +905,7 @@ input::placeholder{color:#4A525B}
         <div class="hero__actions">
           <button class="btn btn--solid" id="startCareer" type="button">Start career<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
           <button class="btn btn--ghost" id="toHistory" type="button">Career history</button>
+          <button class="btn btn--ghost" id="toAchievements" type="button">Achievements</button>
         </div>
       </div>
     </div>
@@ -1198,6 +1239,7 @@ input::placeholder{color:#4A525B}
 
       <div class="card-actions">
         <button class="btn btn--ghost" id="cabinetBack" type="button">Back</button>
+        <button class="btn btn--ghost" id="cabAchievements" type="button">Achievements</button>
       </div>
     </div>
   </section>
@@ -1332,6 +1374,23 @@ input::placeholder{color:#4A525B}
     </div>
   </section>
 
+
+  <!-- ============ ACHIEVEMENTS ============ -->
+  <section class="screen" data-screen="achievements" hidden>
+    <div class="summary">
+      <p class="eyebrow">Achievements</p>
+      <h2 class="log__title">Everything there is to do</h2>
+      <div class="ach-progress">
+        <span id="achCount">0 of 0</span>
+        <span class="ach-progress__bar"><i id="achBar"></i></span>
+      </div>
+      <p class="summary__mate">Earned across every driver you've run, not just this one.</p>
+      <div class="ach-list" id="achBody"></div>
+      <div class="card-actions">
+        <button class="btn btn--ghost" id="achBack" type="button">Back</button>
+      </div>
+    </div>
+  </section>
   <!-- ============ PROMOTION ROLL ============ -->
   <section class="screen" data-screen="roll" hidden>
     <div class="summary roll">
@@ -1351,6 +1410,7 @@ input::placeholder{color:#4A525B}
   </section>
 
 </div>
+<div class="ach-toast" id="achToast" hidden></div>
 <script>
 /* ---- app.js ---- */
 "use strict";
@@ -1462,7 +1522,7 @@ function show(name) {
         }
     });
     const order = ["mode", "identity", "card", "academy", "season"];
-    const idx = (name === "summary" || name === "decision" || name === "log" || name === "roll" || name === "cabinet" || name === "retire" || name === "comeback" || name === "archive" || name === "fork" || name === "garage") ? 4 : order.indexOf(name);
+    const idx = (name === "summary" || name === "decision" || name === "log" || name === "roll" || name === "cabinet" || name === "retire" || name === "comeback" || name === "archive" || name === "fork" || name === "garage" || name === "achievements") ? 4 : order.indexOf(name);
     $$(".step").forEach((s, i) => {
         s.dataset.state = i < idx ? "done" : i === idx ? "now" : "todo";
     });
@@ -2202,7 +2262,17 @@ function runRace(round, div) {
     const finishers = [];
     const retired = [];
     pace.forEach(({ r, p }) => {
-        const dnfChance = clamp(0.10 - (r.reliability - 50) / 900, 0.015, 0.16) + (wet ? 0.035 : 0);
+        let dnfChance = clamp(0.10 - (r.reliability - 50) / 900, 0.015, 0.16) + (wet ? 0.035 : 0);
+        // a title fight in the closing rounds weighs on the people in it
+        if (typeof pressureFor === "function")
+            dnfChance += pressureFor(r);
+        if (typeof raceMods !== "undefined") {
+            if (r.isPlayer)
+                dnfChance += raceMods.dnf;
+            else if (contender && r.id === contender.id)
+                dnfChance += raceMods.rivalDnf;
+        }
+        dnfChance = clamp(dnfChance, 0.005, 0.4);
         if (rng() < dnfChance) {
             retired.push(r);
             return;
@@ -2618,6 +2688,8 @@ function takeFork(choice) {
 function recordSeason(outcome) {
     const st = seasonStats();
     ingestSeason();
+    if (typeof checkAchievements === "function")
+        checkAchievements();
     careerHistory.push({
         year: season.year, age, division: currentDivision().name, label: currentDivision().label,
         team: currentSeat?.name ?? "—", pos: championshipPos(), points: st.points,
@@ -2658,7 +2730,8 @@ function applyEffect(e) {
         return;
     if (e.attrs) {
         Object.keys(e.attrs).forEach((k) => {
-            earnedGrowth[k] += e.attrs[k] ?? 0;
+            // a single choice always counts, but twenty of them can't make you untouchable
+            earnedGrowth[k] = clamp(earnedGrowth[k] + (e.attrs[k] ?? 0), -22, 22);
         });
     }
     if (e.car)
@@ -3394,6 +3467,130 @@ const EXTRA_DECISIONS = [
 ];
 DECISIONS.push(...EXTRA_DECISIONS);
 
+/* ---- titlefight.js ---- */
+"use strict";
+/* =========================================================
+   TITLE FIGHTS
+   The championship stops being a readout. A named rival is
+   locked in for the season, the closing rounds put both of
+   you under pressure, and a decider is a decision.
+   ========================================================= */
+let contender = null;
+let deciderShown = false;
+/** One-race modifiers, set by the decider and consumed by the next race. */
+const raceMods = { pace: 0, dnf: 0, rivalDnf: 0 };
+function clearRaceMods() { raceMods.pace = 0; raceMods.dnf = 0; raceMods.rivalDnf = 0; }
+/** Locks the fight to whoever you're actually racing, once the season has shape. */
+function updateContender() {
+    if (!season)
+        return;
+    const table = standings();
+    const me = table.findIndex((r) => r.isPlayer);
+    const near = me === 0 ? table[1] : table[me - 1];
+    if (!near)
+        return;
+    if (!contender) {
+        contender = { id: near.id, name: near.name, locked: false };
+        return;
+    }
+    const current = table.find((r) => r.id === contender.id);
+    const gapToCurrent = current ? Math.abs(table[me].points - current.points) : 999;
+    // once it's close and late, the fight is fixed — no swapping rivals round to round
+    const late = season.results.length > season.division.rounds.length * 0.6;
+    if (late && gapToCurrent <= 50) {
+        contender.locked = true;
+        return;
+    }
+    if (!contender.locked && near.id !== contender.id)
+        contender = { id: near.id, name: near.name, locked: false };
+}
+function contenderRacer() {
+    return contender ? season?.field.find((r) => r.id === contender.id) : undefined;
+}
+/** True when the last round decides a championship you're actually in. */
+function isTitleDecider() {
+    if (!season || !contender)
+        return false;
+    const table = standings();
+    const me = table.findIndex((r) => r.isPlayer);
+    const rival = contenderRacer();
+    if (!rival || me > 1)
+        return false;
+    const roundsLeft = season.division.rounds.length - season.results.length;
+    return roundsLeft === 1 && Math.abs(table[me].points - rival.points) <= 26;
+}
+/** The closing rounds of a title fight are heavier for everyone in them. */
+function pressureFor(r) {
+    if (!season)
+        return 0;
+    const roundsLeft = season.division.rounds.length - season.results.length;
+    if (roundsLeft > 3)
+        return 0;
+    const inFight = r.isPlayer || r.id === contender?.id;
+    if (!inFight)
+        return 0;
+    // a settled driver handles it; a fragile reputation does not
+    const steady = r.isPlayer ? (computeAttrs().consistency - 52) / 100 : 0.1;
+    return 0.035 - steady * 0.05;
+}
+/* --------------------------- the decider --------------------------- */
+const DECIDER = {
+    id: "__decider",
+    eyebrow: "Final round",
+    scene: "",
+    question: "One race. However this goes, it's the thing you'll be asked about for the rest of your life.",
+    options: [
+        { label: "Drive it flat out", detail: "Take the race to him from lap one.",
+            outcome: "You attack from the start.",
+            effect: { rep: { fragile: 1 } },
+            roll: [
+                { w: 55, outcome: "It works. You're past him by lap nine and he never gets back on terms.", effect: { attrs: { racecraft: 4 } } },
+                { w: 45, outcome: "You overdrive it, cook the tyres by half distance and spend the last twenty laps hanging on.", effect: { attrs: { tyres: -2 } } },
+            ] },
+        { label: "Race the points, not the man", detail: "Take what the day gives you.",
+            outcome: "You drive a careful, calculated race.",
+            effect: { attrs: { consistency: 3 }, rep: { loyal: 1 } } },
+        { label: "Make him beat you", detail: "Sit on him and wait for the mistake.",
+            outcome: "You shadow him and refuse to go away.",
+            effect: { rep: { political: 1 } },
+            roll: [
+                { w: 50, outcome: "He cracks at half distance, runs wide, and hands you the corner and the year.", effect: { attrs: { racecraft: 3, consistency: 2 } } },
+                { w: 50, outcome: "He doesn't crack. He never once looks like cracking.", effect: { attrs: { consistency: 2 } } },
+            ] },
+    ],
+};
+/** Modifiers each decider option puts on the final race. */
+const DECIDER_MODS = {
+    "Drive it flat out": { pace: 4.5, dnf: 0.06, rivalDnf: 0 },
+    "Race the points, not the man": { pace: 1, dnf: -0.03, rivalDnf: 0 },
+    "Make him beat you": { pace: 2, dnf: 0.01, rivalDnf: 0.07 },
+};
+function showDecider() {
+    const rival = contenderRacer();
+    const table = standings();
+    const me = table.find((r) => r.isPlayer);
+    const gap = rival ? me.points - rival.points : 0;
+    const where = season.division.rounds[season.division.rounds.length - 1];
+    DECIDER.scene = gap === 0
+        ? `${where}. You and ${rival?.name ?? "your rival"} are level on points with one race left. Whoever finishes ahead is champion.`
+        : gap > 0
+            ? `${where}. You lead ${rival?.name ?? "your rival"} by ${gap} points with one race to go. Finish near him and it's yours.`
+            : `${where}. You're ${Math.abs(gap)} points behind ${rival?.name ?? "your rival"} with one race left. You need to beat him, and you need help.`;
+    deciderShown = true;
+    renderDecision(DECIDER);
+    // the decider resolves back into the season, not into the next one
+    $("#decContinue").textContent = "Go racing";
+    $("#decContinue").dataset.decider = "1";
+}
+function applyDeciderChoice(label) {
+    const m = DECIDER_MODS[label];
+    if (!m)
+        return;
+    raceMods.pace = m.pace;
+    raceMods.dnf = m.dnf;
+    raceMods.rivalDnf = m.rivalDnf;
+}
+
 /* ---- hub.js ---- */
 "use strict";
 /* =========================================================
@@ -3814,7 +4011,8 @@ function titleRival() {
     const table = standings();
     const me = table.findIndex((r) => r.isPlayer);
     const player = table[me];
-    const rival = me === 0 ? table[1] : table[me - 1];
+    const rival = (typeof contenderRacer === "function" ? contenderRacer() : undefined)
+        ?? (me === 0 ? table[1] : table[me - 1]);
     if (!rival)
         return null;
     return {
@@ -3841,7 +4039,7 @@ function renderTitleFight() {
         return;
     }
     box.hidden = false;
-    const decider = isDecider();
+    const decider = typeof isTitleDecider === "function" ? isTitleDecider() : isDecider();
     box.className = `fight${decider ? " fight--decider" : ""}`;
     $("#fightName").textContent = t.name;
     $("#fightGap").textContent = t.gap === 0 ? "level" : `${t.leading ? "+" : "−"}${t.gap}`;
@@ -4070,6 +4268,8 @@ function showRetirement() {
     comebackOffer = makeComeback();
     const cb = $("#retComeback");
     cb.hidden = !comebackOffer;
+    if (typeof checkAchievements === "function")
+        checkAchievements();
     show("retire");
 }
 function renderHall() {
@@ -4173,6 +4373,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     $("#retCabinet").addEventListener("click", () => { renderCabinet(); show("cabinet"); });
     $("#retHall").addEventListener("click", () => { hallOrigin = "retire"; renderGarage(); show("garage"); });
+    $("#toAchievements").addEventListener("click", () => { achOrigin = "mode"; });
     $("#toHistory").addEventListener("click", () => { hallOrigin = "mode"; renderGarage(); show("garage"); });
     $("#arcBack").addEventListener("click", () => { renderGarage(); show("garage"); });
     $("#arcCompare").addEventListener("click", () => {
@@ -4338,6 +4539,214 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#garageNew").addEventListener("click", () => show("identity"));
 });
 
+/* ---- achievements.js ---- */
+"use strict";
+/* =========================================================
+   ACHIEVEMENTS
+   Earned across every career, not just the current one.
+   Checked at the end of each season and at retirement.
+   ========================================================= */
+const ACH_KEY = "swami-achievements";
+let unlockedCache = null;
+let unlockedMemory = [];
+function unlockedList() {
+    if (unlockedCache)
+        return unlockedCache;
+    try {
+        const stored = JSON.parse(localStorage.getItem(ACH_KEY) ?? "[]");
+        unlockedCache = stored.length >= unlockedMemory.length ? stored : unlockedMemory;
+    }
+    catch {
+        unlockedCache = unlockedMemory;
+    }
+    return unlockedCache;
+}
+function isUnlocked(id) {
+    return unlockedList().some((u) => u.id === id);
+}
+function unlock(a) {
+    const entry = {
+        id: a.id, driver: driver.surname.toUpperCase() || "—",
+        year: season?.year ?? 0, at: Date.now(),
+    };
+    unlockedMemory = [...unlockedList(), entry];
+    unlockedCache = unlockedMemory;
+    try {
+        localStorage.setItem(ACH_KEY, JSON.stringify(unlockedMemory));
+    }
+    catch { /* session only */ }
+    toastAchievement(a);
+}
+/* --------------------------- the list --------------------------- */
+const st = () => (season && season.results.length ? seasonStats() : null);
+const lifetimeH2H = () => [
+    careerHistory.reduce((n, h) => n + h.beat, 0),
+    careerHistory.reduce((n, h) => n + h.lost, 0),
+];
+const ACHIEVEMENTS = [
+    /* ---- first steps ---- */
+    { id: "first-points", name: "On the board", how: "Score your first points", tier: "common",
+        flavour: "Everything else follows from this.", test: () => cabinet.firsts.some((f) => f.what === "First points") },
+    { id: "first-pole", name: "Saturday man", how: "Take your first pole", tier: "common",
+        flavour: "One lap, everything on it.", test: () => cabinet.poles > 0 },
+    { id: "first-win", name: "First win", how: "Win a race", tier: "common",
+        flavour: "You'll remember the circuit for the rest of your life.", test: () => cabinet.wins.length > 0 },
+    { id: "first-title", name: "Champion", how: "Win any championship", tier: "common",
+        flavour: "One down.", test: () => cabinet.titles.length > 0 },
+    /* ---- the climb ---- */
+    { id: "reach-f1", name: "You're in", how: "Reach a Formula 1 seat", tier: "rare",
+        flavour: "Everything up to here was the queue.", test: () => tier >= 5 },
+    { id: "reach-front", name: "The front", how: "Reach a front-running F1 seat", tier: "rare",
+        flavour: "No excuses left.", test: () => tier >= 7 },
+    { id: "the-jump", name: "Two rungs", how: "Skip a division entirely", tier: "rare",
+        flavour: "A dominant season, and then the luck.", test: () => careerHistory.some((h) => h.outcome === "jump") },
+    { id: "f1-title", name: "World champion", how: "Win a Formula 1 championship", tier: "legendary",
+        flavour: "The only one that gets remembered by people who don't watch.", test: () => cabinet.titles.some((t) => t.tier >= 5) },
+    { id: "triple", name: "Three in a row", how: "Win three championships in consecutive seasons", tier: "legendary",
+        flavour: "Nobody argues with three.", test: () => {
+            const yrs = cabinet.titles.map((t) => t.year).sort((a, b) => a - b);
+            return yrs.some((y) => yrs.includes(y + 1) && yrs.includes(y + 2));
+        } },
+    /* ---- the long way ---- */
+    { id: "sportscars", name: "The long way round", how: "Take the sportscar fork out of F2", tier: "rare",
+        flavour: "Headlights at three in the morning.", test: () => tier >= 8 || careerHistory.some((h) => h.label === "GT3" || h.label === "HYP") },
+    { id: "hypercar-title", name: "Overall win", how: "Win a Hypercar championship", tier: "legendary",
+        flavour: "Twenty-four hours is a long time to be right.", test: () => cabinet.titles.some((t) => t.label === "HYP") },
+    { id: "round-trip", name: "Round trip", how: "Reach F1 after racing sportscars", tier: "legendary",
+        flavour: "They said it was a detour.", test: () => tier >= 4 && careerHistory.some((h) => h.label === "GT3" || h.label === "HYP") },
+    { id: "comeback", name: "One more year", how: "Come back after retiring", tier: "rare",
+        flavour: "The phone rang and you picked it up.", test: () => comebacks > 0 },
+    /* ---- team-mates ---- */
+    { id: "clean-sweep", name: "Whitewash", how: "Beat your team-mate at every round of a season", tier: "rare",
+        flavour: "Twelve out of twelve. He asked to be moved.", test: () => { const s = st(); return !!s && s.races >= 8 && s.lost === 0; } },
+    { id: "hundred-h2h", name: "The benchmark", how: "Out-score team-mates 100 times", tier: "rare",
+        flavour: "The first number the paddock reads.", test: () => lifetimeH2H()[0] >= 100 },
+    { id: "at-war", name: "Open war", how: "Fall out with a team-mate completely", tier: "common",
+        flavour: "Two garages, one team, no conversation.", test: () => teamMate.relationship === "war" },
+    { id: "long-partner", name: "Four years", how: "Spend four seasons with the same team-mate", tier: "rare",
+        flavour: "You know exactly what he'll do at turn one.", test: () => teamMate.seasons >= 4 },
+    /* ---- how you drive ---- */
+    { id: "wet-master", name: "Rain man", how: "Win a wet race", tier: "common",
+        flavour: "Rain flattens the grid and you climb over it.", test: () => cabinet.wins.some((w) => w.wet) },
+    { id: "pole-sweep", name: "Six poles", how: "Take six poles in one season", tier: "rare",
+        flavour: "Saturdays belonged to you.", test: () => { const s = st(); return !!s && s.poles >= 6; } },
+    { id: "recovery", name: "Twenty places", how: "Gain 20 net places on track in a season", tier: "rare",
+        flavour: "You start badly and finish angry.", test: () => { const s = st(); return !!s && s.gained >= 20; } },
+    { id: "perfect", name: "No mistakes", how: "Finish every race of a season", tier: "rare",
+        flavour: "Not dramatic. Just there, every time.", test: () => { const s = st(); return !!s && s.races >= 8 && s.dnfs === 0; } },
+    { id: "double-figures", name: "Ten in a year", how: "Win ten races in one season", tier: "legendary",
+        flavour: "A season nobody else got a say in.", test: () => { const s = st(); return !!s && s.wins >= 10; } },
+    /* ---- the other kind ---- */
+    { id: "dnf-trophy", name: "The DNF trophy", how: "Retire from four races in one season", tier: "common",
+        flavour: "You saw the flag less often than the barriers.", test: () => cabinet.cursed.some((c) => c.what === "The DNF trophy") },
+    { id: "wooden-spoon", name: "Wooden spoon", how: "Finish last in a championship", tier: "common",
+        flavour: "Somebody has to be.", test: () => cabinet.cursed.some((c) => c.what === "Wooden spoon") },
+    { id: "sunday-driver", name: "Sunday driver", how: "Take three poles and no wins in a season", tier: "common",
+        flavour: "Fast on Saturday. Ask again tomorrow.", test: () => cabinet.cursed.some((c) => c.what === "Sunday driver") },
+    { id: "stalled", name: "Nowhere to go", how: "Have five seasons end with no seat above you", tier: "common",
+        flavour: "The results were there. The seat wasn't.", test: () => careerHistory.filter((h) => h.outcome === "stall").length >= 5 },
+    { id: "dropped", name: "Back down", how: "Get relegated a division", tier: "common",
+        flavour: "Nobody calls it a demotion.", test: () => careerHistory.some((h) => h.outcome === "drop") },
+    /* ---- who you are ---- */
+    { id: "loyal", name: "Company man", how: "Build a strongly loyal reputation", tier: "common",
+        flavour: "They knew where you'd be.", test: () => reputation.loyal >= 12 },
+    { id: "mercenary", name: "Gun for hire", how: "Build a strongly mercenary reputation", tier: "common",
+        flavour: "Nothing personal. It never was.", test: () => reputation.mercenary >= 12 },
+    { id: "political", name: "Paddock operator", how: "Build a strongly political reputation", tier: "common",
+        flavour: "You won more meetings than races, for a while.", test: () => reputation.political >= 12 },
+    { id: "gambler", name: "Roll of the dice", how: "Take ten gambles in one career", tier: "rare",
+        flavour: "Some of them even worked.", test: () => decisionLog.length >= 10 && decisionLog.filter((l) => l.outcome.length > 90).length >= 6 },
+    /* ---- long haul ---- */
+    { id: "veteran", name: "Twenty seasons", how: "Race twenty seasons", tier: "rare",
+        flavour: "Most people don't get five.", test: () => careerHistory.length >= 20 },
+    { id: "old-man", name: "Still here", how: "Still racing at 38", tier: "rare",
+        flavour: "The kids in the paddock were born after your debut.", test: () => age >= 38 },
+    { id: "century", name: "A hundred starts", how: "Start 100 races", tier: "common",
+        flavour: "Longevity is its own achievement.", test: () => cabinet.races >= 100 },
+    { id: "collector", name: "Five teams", how: "Drive for five different teams", tier: "common",
+        flavour: "Five helmets on the shelf.", test: () => cabinet.helmets.length >= 5 },
+    /* ---- hidden ---- */
+    { id: "no-titles", name: "Nearly", how: "Hidden", hidden: true, tier: "rare",
+        flavour: "Fifteen seasons, a hundred races, and never once a champion. That's most careers.",
+        test: () => retired && careerHistory.length >= 15 && cabinet.titles.length === 0 },
+    { id: "decider-win", name: "Down to the last round", how: "Hidden", hidden: true, tier: "legendary",
+        flavour: "It came down to one race, and you were the one holding the trophy.",
+        test: () => !!season && deciderShown && championshipPos() === 1 && season.finished },
+    { id: "two-careers", name: "Second life", how: "Hidden", hidden: true, tier: "rare",
+        flavour: "You retired, came back, and won something after.",
+        test: () => comebacks > 0 && cabinet.titles.some((t) => t.year > (careerHistory.find((h) => h.outcome === "out")?.year ?? 99)) },
+];
+/** Checked at the end of every season and at retirement. */
+function checkAchievements() {
+    ACHIEVEMENTS.forEach((a) => {
+        if (isUnlocked(a.id))
+            return;
+        let passed = false;
+        try {
+            passed = a.test();
+        }
+        catch {
+            passed = false;
+        }
+        if (passed)
+            unlock(a);
+    });
+}
+/* --------------------------- display --------------------------- */
+let toastQueue = [];
+function toastAchievement(a) {
+    toastQueue.push(a);
+    if (toastQueue.length > 1)
+        return;
+    showNextToast();
+}
+function showNextToast() {
+    const a = toastQueue[0];
+    if (!a)
+        return;
+    const el = $("#achToast");
+    el.className = `ach-toast ach-toast--${a.tier} is-in`;
+    el.innerHTML = `<span>Achievement</span><b>${a.name}</b><small>${a.flavour}</small>`;
+    el.hidden = false;
+    window.setTimeout(() => {
+        el.classList.remove("is-in");
+        window.setTimeout(() => {
+            el.hidden = true;
+            toastQueue.shift();
+            showNextToast();
+        }, 400);
+    }, 3200);
+}
+function renderAchievements() {
+    const got = unlockedList();
+    const total = ACHIEVEMENTS.length;
+    $("#achCount").textContent = `${got.length} of ${total}`;
+    $("#achBar").style.width = `${(got.length / total) * 100}%`;
+    const order = { legendary: 0, rare: 1, common: 2 };
+    const sorted = [...ACHIEVEMENTS].sort((a, b) => Number(isUnlocked(b.id)) - Number(isUnlocked(a.id)) || order[a.tier] - order[b.tier]);
+    $("#achBody").innerHTML = sorted.map((a) => {
+        const u = got.find((g) => g.id === a.id);
+        const locked = !u;
+        const name = locked && a.hidden ? "???" : a.name;
+        const text = locked ? (a.hidden ? "Something you haven't done yet." : a.how) : a.flavour;
+        return `
+      <div class="ach ${locked ? "ach--locked" : ""} ach--${a.tier}">
+        <span class="ach__mark">${locked ? "" : "✓"}</span>
+        <span class="ach__main">
+          <b>${name}</b>
+          <small>${text}</small>
+        </span>
+        <span class="ach__meta">${u ? `${u.driver}${u.year ? ` · S${u.year}` : ""}` : a.tier}</span>
+      </div>`;
+    }).join("");
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $("#toAchievements").addEventListener("click", () => { renderAchievements(); show("achievements"); });
+    $("#achBack").addEventListener("click", () => show(achOrigin));
+    $("#cabAchievements").addEventListener("click", () => { achOrigin = "cabinet"; renderAchievements(); show("achievements"); });
+});
+let achOrigin = "mode";
+
 /* ---- decisions-ui.js ---- */
 "use strict";
 /* =========================================================
@@ -4359,6 +4768,8 @@ function renderDecision(d) {
     $$(".option").forEach((btn) => {
         btn.addEventListener("click", () => {
             const opt = d.options[parseInt(btn.dataset.opt, 10)];
+            if (d.id === "__decider" && typeof applyDeciderChoice === "function")
+                applyDeciderChoice(opt.label);
             const before = overall();
             const text = chooseOption(opt);
             const after = overall();
@@ -4405,7 +4816,17 @@ function advanceSeason() {
     showRoll();
 }
 document.addEventListener("DOMContentLoaded", () => {
-    $("#decContinue").addEventListener("click", showRoll);
+    $("#decContinue").addEventListener("click", () => {
+        const btn = $("#decContinue");
+        if (btn.dataset.decider === "1") { // back into the final race
+            delete btn.dataset.decider;
+            btn.textContent = "Race the season";
+            show("season");
+            nextRace();
+            return;
+        }
+        showRoll();
+    });
     $("#openLog").addEventListener("click", () => {
         const log = $("#logBody");
         log.innerHTML = decisionLog.length
@@ -4538,6 +4959,15 @@ function showSummary() {
 }
 /* --------------------------- the loop --------------------------- */
 function nextRace() {
+    // the last round of a live title fight is a decision, not a simulation
+    // fires even mid-skip: this is the one race nobody should be able to skip past
+    if (season && typeof isTitleDecider === "function" && isTitleDecider() && !deciderShown) {
+        window.clearTimeout(raceTimer);
+        skipping = false;
+        $("#skipSeason").hidden = true;
+        showDecider();
+        return;
+    }
     if (!season || season.results.length >= season.division.rounds.length) {
         if (season) {
             season.finished = true;
@@ -4548,7 +4978,9 @@ function nextRace() {
         return;
     }
     const r = runRace(season.results.length + 1, season.division);
+    clearRaceMods();
     season.results.push(r);
+    updateContender();
     renderResultRow(r);
     renderRunning();
     saveCareer();
@@ -4558,6 +4990,9 @@ function startSeason(year = 1) {
     season = { year, division: currentDivision(), results: [], field: [], finished: false };
     season.field = buildField(currentDivision());
     skipping = false;
+    contender = null;
+    deciderShown = false;
+    clearRaceMods();
     $("#raceBody").innerHTML = "";
     const cb = $("#callbacks");
     if (typeof callbacks !== "undefined" && callbacks.length) {

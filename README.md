@@ -61,6 +61,23 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Title fights, and achievements**
+
+*The title fight is a mechanic now, not a readout.*
+- A **named rival locks in** once the season has shape. No more recalculating who you're fighting every round — past 60% distance and within 50 points, that's your fight for the year.
+- **The closing rounds carry pressure.** In the last three races, both you and your rival are more likely to make a mistake. A high Consistency rating cancels most of it; a fragile reputation doesn't.
+- **The final round is a decision.** Go into the last race in the top two and within 26 points and the season *stops*: the circuit, the gap and the name, then three ways to play it — drive it flat out, race the points rather than the man, or sit on him and wait for the mistake. Each carries real modifiers into the race: pace, your own risk of retiring, and his. Two of the three are gambles.
+- It **interrupts a skip**. This is the one race you shouldn't be able to fast-forward past.
+- A test career hit seven deciders across twenty seasons, at real circuits, with gaps from 2 to 22 points.
+
+*Achievements — 38 of them, with a viewer.* Reachable from **Achievements** on the landing page or from inside the trophy cabinet. Progress bar, three rarity tiers, and each one shows the driver and season that earned it. They're tracked **across every career**, not per driver.
+
+They cover first steps (first points, pole, win, title), the climb (reaching F1, the front, skipping a division, three titles in a row), the long way round (taking the sportscar fork, winning Hypercar, getting back to F1 afterwards, coming out of retirement), team-mates (a whitewash season, 100 lifetime wins over team-mates, open war, four years alongside the same driver), how you drive (winning in the wet, six poles, twenty net places gained, a season with no retirements), the other kind (the DNF trophy, wooden spoon, five seasons going nowhere), who you became (loyal, mercenary, political), and the long haul (twenty seasons, still racing at 38, a hundred starts, five teams).
+
+**Three are hidden** and show as ??? until earned. One of them can only come from winning a final-round decider.
+
+Unlocks pop up as a toast while you play, colour-coded by rarity.
+
 **More scenarios — 32 → 54**
 
 Twenty-two new scenes, aimed squarely at the parts of a career that had nothing in them:
