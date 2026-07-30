@@ -585,6 +585,26 @@ input::placeholder{color:#4A525B}
 .chip .flag{vertical-align:-4px}
 .card__nat .flag,.hall-main .flag{vertical-align:-4px}
 
+/* mid-season events, inline in the race table */
+.mid{display:flex;align-items:flex-start;gap:11px;padding:12px 22px;border-bottom:1px solid var(--line);
+  font-size:13px;line-height:1.5;background:var(--carbon-2)}
+.mid i{width:6px;height:6px;border-radius:50%;flex:none;margin-top:6px;background:var(--faint)}
+.mid--good{background:rgba(0,230,118,.06)}
+.mid--good i{background:var(--green)}
+.mid--bad{background:rgba(255,212,0,.05)}
+.mid--bad i{background:var(--yellow)}
+.mid span{color:var(--ink)}
+
+/* perk chips on seat cards */
+.academy__perk{display:grid;gap:4px;text-align:left}
+.academy__perk b{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--green)}
+.academy__perk small{color:var(--dim);font-size:12px;line-height:1.45;font-family:var(--body);letter-spacing:0}
+.academy__perk--none b{color:var(--faint)}
+.perk-mods{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.perk-mods em{font-family:var(--mono);font-size:9px;font-style:normal;border-radius:3px;padding:3px 7px;border:1px solid}
+.perk-mods .up{color:var(--green);border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.07)}
+.perk-mods .down{color:var(--yellow);border-color:rgba(255,212,0,.28);background:rgba(255,212,0,.06)}
+
 /* ================= title fight ================= */
 .fight{background:var(--carbon);border:1px solid var(--line);border-left:3px solid var(--accent);
   border-radius:var(--rl);padding:16px}
@@ -1390,8 +1410,8 @@ input::placeholder{color:#4A525B}
   <section class="screen" data-screen="fork" hidden>
     <div class="panel">
       <div class="panel__head">
-        <h2>Two doors</h2>
-        <span>You've won Formula 2. You can't race it again</span>
+        <h2>Three roads</h2>
+        <span>You're done with Formula 2, and they don't lead to the same place</span>
       </div>
       <div class="academies">
         <button class="academy" type="button" data-fork="reserve">
@@ -1409,6 +1429,14 @@ input::placeholder{color:#4A525B}
           <span class="academy__row"><em>Racing</em><b>Full season</b></span>
           <span class="academy__row"><em>Route</em><b>GT3 → Hypercar → maybe back</b></span>
           <span class="academy__exp">Win Le Mans and F1 might remember your name</span>
+        </button>
+        <button class="academy" type="button" data-fork="indy">
+          <span class="academy__top"><span class="academy__name">IndyCar</span>
+            <span class="academy__fit">Race every week</span></span>
+          <span class="academy__flavour">Ovals, street circuits and road courses in the same season, in a car nobody has aerodynamically solved. Everyone runs the same chassis, so the field is close enough to be frightening.</span>
+          <span class="academy__row"><em>Racing</em><b>14 rounds, plus the 500</b></span>
+          <span class="academy__row"><em>Route</em><b>A career of its own</b></span>
+          <span class="academy__exp">Win the 500 and it stops mattering what F1 thought</span>
         </button>
       </div>
       <div class="bar-row">
@@ -1607,7 +1635,9 @@ function computeAttrs() {
         Object.keys(careerGrowth).forEach((k) => { a[k] += careerGrowth[k]; });
     }
     if (typeof currentSeat !== "undefined" && currentSeat?.perk) {
-        a[currentSeat.perk.key] += currentSeat.perk.value;
+        Object.keys(currentSeat.perk.mods).forEach((k) => {
+            a[k] += currentSeat.perk.mods[k] ?? 0;
+        });
     }
     // age: reflexes go first, judgement holds for years after
     if (typeof age !== "undefined") {
@@ -1622,7 +1652,7 @@ function computeAttrs() {
         }
     }
     // grinding is capped by the level you're racing in, what you win from decisions is not
-    const ceiling = typeof tier !== "undefined" ? 56 + tier * 4.6 : 99;
+    const ceiling = typeof tier !== "undefined" ? 58 + tier * 5 : 99;
     Object.keys(a).forEach((k) => {
         a[k] = clamp(a[k], 5, Math.min(99, ceiling));
         if (typeof earnedGrowth !== "undefined")
@@ -2065,6 +2095,10 @@ const REAL_JUNIOR_TEAMS = [
     "Prema", "ART Grand Prix", "Campos Racing", "Hitech", "MP Motorsport", "Rodin Motorsport",
     "Invicta Racing", "DAMS Lucas Oil", "Trident", "AIX Racing", "Van Amersfoort Racing", "PHM Racing",
 ];
+const REAL_INDY_TEAMS = [
+    "Team Penske", "Chip Ganassi Racing", "Andretti Global", "Arrow McLaren", "Meyer Shank Racing",
+    "Rahal Letterman Lanigan", "Ed Carpenter Racing", "Dale Coyne Racing", "Juncos Hollinger", "AJ Foyt Racing",
+];
 const REAL_GT_TEAMS = [
     "AF Corse", "Team WRT", "Manthey", "Jota", "Iron Lynx", "Toyota Gazoo Racing",
     "Porsche Penske", "Peugeot TotalEnergies", "Alpine Endurance", "Cadillac Racing",
@@ -2098,6 +2132,8 @@ function applyRoster(real) {
 function teamPool(t) {
     if (!useRealRoster)
         return [...FICTIONAL_TEAMS];
+    if (t === 10)
+        return [...REAL_INDY_TEAMS];
     if (t >= 8)
         return [...REAL_GT_TEAMS];
     if (t >= 4)
@@ -2403,6 +2439,33 @@ function saveCareer() {
    Generated from the career seed, so a driver always gets
    the same three doors to choose between.
    ========================================================= */
+/** Development support a team can actually offer. Not all of it is free. */
+const PERKS = [
+    { label: "Race engineer of their own", detail: "A dedicated engineer who has done this before.",
+        mods: { feedback: 8, consistency: 3 } },
+    { label: "Qualifying programme", detail: "Low-fuel running every Friday, at the cost of race preparation.",
+        mods: { qualifying: 9, tyres: -4 } },
+    { label: "Long-run focus", detail: "Every Friday spent on race pace. Saturdays suffer.",
+        mods: { tyres: 9, consistency: 4, qualifying: -5 } },
+    { label: "Wet running", detail: "They will send you out in anything.",
+        mods: { wet: 12, consistency: -2 } },
+    { label: "Simulator access", detail: "Unlimited rig time, and the travel that comes with it.",
+        mods: { feedback: 6, racecraft: 3, consistency: -2 } },
+    { label: "Racecraft coaching", detail: "A former driver in your ear about wheel-to-wheel work.",
+        mods: { racecraft: 8, tyres: -2 } },
+    { label: "Data from the lead car", detail: "You see everything your team-mate does. He sees everything you do.",
+        mods: { racecraft: 4, qualifying: 4, feedback: -3 } },
+    { label: "Physio and conditioning", detail: "A programme built around you finishing races strongly.",
+        mods: { consistency: 8, tyres: 3 } },
+    { label: "Aggressive setup philosophy", detail: "They build the car on the edge and expect you to hold it.",
+        mods: { qualifying: 7, racecraft: 4, consistency: -5 } },
+    { label: "Conservative setup philosophy", detail: "Nothing exciting, nothing broken.",
+        mods: { consistency: 6, tyres: 5, qualifying: -4 } },
+    { label: "Development driver duties", detail: "You test their new parts, which is time you don't spend racing.",
+        mods: { feedback: 10, racecraft: -4 } },
+    { label: "Left to get on with it", detail: "No programme, no interference, no help.",
+        mods: {} },
+];
 const ACADEMY_POOL = [
     "Rosso Kart", "Vanguard", "Nordic Racing", "Aeris", "Prima Corse", "Halcyon",
     "Meridian", "Blackline", "Onyx Motorsport", "Ferrata", "Sable", "Argent",
@@ -2416,6 +2479,14 @@ const CLAUSES = [
     { id: "option", label: "Team option", detail: "They decide whether you stay. You don't." },
     { id: "release", label: "Release clause", detail: "A bigger team can buy you out cheaply. That cuts both ways." },
     { id: "clean", label: "No unusual terms", detail: "A plain contract. Rare, and worth something." },
+    { id: "results", label: "Results trigger", detail: "Beat your team-mate over the year and the next season is automatically yours." },
+    { id: "buyout", label: "Buy-out clause", detail: "Any team can take you for a fixed fee. You don't get asked first." },
+    { id: "media", label: "Media obligation", detail: "Forty appearance days a year, and they choose the dates." },
+    { id: "testing", label: "Testing commitment", detail: "Every test day is yours, whether you want it or not." },
+    { id: "veto", label: "Team-mate veto", detail: "They can put anyone they like in the other car, including someone quicker." },
+    { id: "no-1", label: "Number two by contract", detail: "If the other car is fighting for something, you move over." },
+    { id: "wage-cut", label: "Deferred terms", detail: "You take less now. If they score, you are paid properly later." },
+    { id: "loyalty", label: "Loyalty term", detail: "Leave early and you cannot race against them for a season." },
 ];
 function seatFlavour(kind) {
     const junior = typeof tier !== "undefined" && tier <= 3;
@@ -2446,25 +2517,29 @@ function makeSeats() {
         {
             id: "midfield", name: pick(), archetype: "midfield", ...blank,
             car: at(0.55), philosophy: phil(),
-            perk: { key: "racecraft", value: 5, label: "+5 Racecraft" }, mateEdge: 1,
+            perk: null, mateEdge: 1,
             expectation: "Points, and beat the other car",
             flavour: seatFlavour("midfield"),
         },
         {
             id: "family", name: pick(), archetype: "family", ...blank,
             car: at(0.2), philosophy: phil(),
-            perk: { key: "feedback", value: 9, label: "+9 Technical feedback" }, mateEdge: -6,
+            perk: null, mateEdge: -6,
             expectation: "Learn, and tell them what the car needs",
             flavour: seatFlavour("family"),
         },
     ];
     offers.forEach((o) => {
+        // a works programme is less likely to build anything around you
+        o.perk = (o.archetype === "works" && rng() < 0.45)
+            ? PERKS[PERKS.length - 1]
+            : PERKS[Math.floor(rng() * (PERKS.length - 1))];
         o.years = o.archetype === "works" ? 1 + Math.floor(rng() * 2) : 2 + Math.floor(rng() * 2);
         // the better the seat, the more likely it comes with strings
-        const pool = o.archetype === "works" ? CLAUSES.slice(0, 4)
-            : o.archetype === "midfield" ? CLAUSES.slice(0, 6)
-                : CLAUSES.slice(3);
-        o.clause = pool[Math.floor(rng() * pool.length)];
+        const clausePool = o.archetype === "works" ? CLAUSES.slice(0, 8)
+            : o.archetype === "midfield" ? CLAUSES.slice(0, 11)
+                : CLAUSES.slice(4);
+        o.clause = clausePool[Math.floor(rng() * clausePool.length)];
     });
     // one seat always suits your balance, one always fights it, the third is luck
     const suits = Math.floor(rng() * 3);
@@ -2474,6 +2549,14 @@ function makeSeats() {
     return offers;
 }
 /** Machinery the player actually gets, once balance compatibility is applied. */
+/** The give and take of a perk, as chips. */
+function perkMods(p) {
+    return Object.keys(p.mods).map((k) => {
+        const v = p.mods[k] ?? 0;
+        const label = ATTR_LABELS.find(([key]) => key === k)[1];
+        return `<em class="${v > 0 ? "up" : "down"}">${v > 0 ? "+" : ""}${v} ${label}</em>`;
+    }).join("");
+}
 function academyCar(a) {
     return a.car + (a.philosophy === driver.setup ? 4 : -3);
 }
@@ -2579,6 +2662,8 @@ const CIRCUITS = {
         "Monza", "Barcelona", "Paul Ricard", "Silverstone"],
     gt: ["Sebring", "Imola", "Spa-Francorchamps", "Le Mans", "Interlagos", "Fuji",
         "Bahrain", "Monza", "Nürburgring", "Road Atlanta"],
+    indy: ["St Petersburg", "Long Beach", "Barber", "Indianapolis GP", "Indianapolis 500", "Detroit",
+        "Road America", "Mid-Ohio", "Toronto", "Iowa", "Gateway", "Portland", "Laguna Seca", "Nashville"],
     f1: ["Melbourne", "Jeddah", "Suzuka", "Shanghai", "Miami", "Imola", "Monaco", "Montréal",
         "Barcelona", "Red Bull Ring", "Silverstone", "Budapest", "Spa-Francorchamps", "Zandvoort",
         "Monza", "Singapore", "Austin", "Mexico City", "São Paulo", "Abu Dhabi"],
@@ -2591,7 +2676,7 @@ const DIVISIONS = [
     { id: "f3", name: "Formula 3", label: "F3", tier: 2, fieldSize: 20,
         rounds: CIRCUITS.junior.slice(0, 9), skillBand: [56, 80], carBand: [52, 76], seatChance: 0.5, next: [3] },
     { id: "f2", name: "Formula 2", label: "F2", tier: 3, fieldSize: 18,
-        rounds: CIRCUITS.junior, skillBand: [62, 84], carBand: [56, 80], seatChance: 0.3, next: [4, 8] },
+        rounds: CIRCUITS.junior, skillBand: [62, 84], carBand: [56, 80], seatChance: 0.3, next: [4, 8, 10] },
     { id: "reserve", name: "F1 reserve driver", label: "RES", tier: 4, fieldSize: 20,
         rounds: CIRCUITS.f1.slice(0, 4), skillBand: [70, 92], carBand: [50, 74], seatChance: 0.45, next: [5] },
     { id: "backmarker", name: "Formula 1, backmarker", label: "F1", tier: 5, fieldSize: 20,
@@ -2604,6 +2689,8 @@ const DIVISIONS = [
         rounds: CIRCUITS.gt, skillBand: [58, 82], carBand: [54, 78], seatChance: 0.45, next: [9] },
     { id: "hypercar", name: "Hypercar endurance", label: "HYP", tier: 9, fieldSize: 18,
         rounds: CIRCUITS.gt.slice(0, 6), skillBand: [66, 88], carBand: [62, 84], seatChance: 0.14, next: [4] },
+    { id: "indycar", name: "IndyCar", label: "INDY", tier: 10, fieldSize: 24,
+        rounds: CIRCUITS.indy, skillBand: [64, 88], carBand: [60, 82], seatChance: 0.16, next: [4] },
 ];
 /** Divisions you've won and can't go back to. */
 const lockedOut = new Set();
@@ -2647,7 +2734,7 @@ function promotionRoll() {
     const div = currentDivision();
     const pos = championshipPos();
     const st = seasonStats();
-    const top = tier >= DIVISIONS.length - 1;
+    const top = div.next.length === 0; // the top is where the road ends, not the end of the list
     // results score
     let score = pos === 1 ? 42 : pos === 2 ? 32 : pos === 3 ? 26 : pos <= 5 ? 17 : pos <= 8 ? 9 : 2;
     score += st.beat > st.lost ? 10 : st.beat === st.lost ? 2 : -8; // the team-mate is the benchmark
@@ -2674,7 +2761,7 @@ function promotionRoll() {
     if (pos === 1 && div.next.length > 0) {
         if (div.next.length > 1) {
             return { outcome: "fork", headline: "Champion, and out of F2",
-                detail: "You've won Formula 2 and the rules won't let you race it again. Two doors: an F1 reserve seat, or a works drive in sportscars." };
+                detail: "You've won Formula 2 and the rules won't let you race it again. Three roads out, and they don't lead to the same place." };
         }
         return { outcome: "promote", headline: "Champion, moving up",
             detail: `You won it, so you leave it. ${DIVISIONS[div.next[0]].name} next, ready or not.` };
@@ -2683,7 +2770,9 @@ function promotionRoll() {
         return { outcome: "stall", headline: "You're already there",
             detail: `${div.name}. There is no rung above this one, only the championship.` };
     }
-    if (age >= 26 && tier < 4) {
+    // F2 keeps you around longer than the lower rungs do
+    const juniorLimit = tier === 3 ? 29 : tier === 2 ? 27 : 26;
+    if (age >= juniorLimit && tier < 4) {
         return { outcome: "out", headline: "The phone stops ringing",
             detail: `You're ${age}. Junior programmes want teenagers, and the seats you could have taken went to them.` };
     }
@@ -2693,6 +2782,11 @@ function promotionRoll() {
     }
     // the junior rungs turn over faster than the ones above them
     const bar = tier === 0 ? 13 : tier === 1 ? 17 : 20;
+    // leaving a division with several roads out is always a choice, title or not
+    if (score >= bar && seatOpen && div.next.length > 1) {
+        return { outcome: "fork", headline: "Time to leave Formula 2",
+            detail: "You've done what you can here. Three roads out, and they don't lead to the same place." };
+    }
     if (score >= bar && seatOpen) {
         return { outcome: "promote", headline: "Moving up",
             detail: `${DIVISIONS[div.next[0]].name}. The results were there and, for once, so was the seat.` };
@@ -2705,6 +2799,10 @@ function promotionRoll() {
     if (score >= 2 || yearsInTier < 3) {
         return { outcome: "stall", headline: "Another year",
             detail: `Not enough to move, not bad enough to lose the seat. ${mateName} is staying too.` };
+    }
+    if (tier === 0 && pos <= Math.round(div.fieldSize * 0.55)) {
+        return { outcome: "stall", headline: "One more year of it",
+            detail: "The money is thin and the results are not bad enough to give up on. Somebody finds the entry fee." };
     }
     if (tier === 0) {
         return { outcome: "out", headline: "The money runs out",
@@ -2744,10 +2842,10 @@ function applyRoll(r) {
     }
     yearsInTier = tier === prev ? yearsInTier + 1 : 0;
 }
-/** The F2 champion's fork. */
+/** Where you go when you leave Formula 2. */
 function takeFork(choice) {
     lockedOut.add(3);
-    tier = choice === "reserve" ? 4 : 8;
+    tier = choice === "reserve" ? 4 : choice === "gt" ? 8 : 10;
     yearsInTier = 0;
 }
 function recordSeason(outcome) {
@@ -3536,6 +3634,108 @@ const EXTRA_DECISIONS = [
         ], when: () => tier >= 3 },
 ];
 DECISIONS.push(...EXTRA_DECISIONS);
+/* =========================================================
+   A further batch, weighted towards the middle of a career
+   and the things a season throws at you.
+   ========================================================= */
+const EXTRA_TWO = [
+    { id: "clause-called", eyebrow: "Contract", scene: "The clause in your contract has been triggered. A rival team has paid the fee and your current team cannot stop it, and did not try very hard.",
+        question: "You find out from a journalist.",
+        options: [
+            { label: "Go, and say nothing", detail: "Take the seat. Keep the grievance.",
+                outcome: "You move without comment. The old team's statement thanks you warmly.",
+                effect: { car: 4, rep: { political: 2 } } },
+            { label: "Say they let you go", detail: "Publicly, on the record.",
+                outcome: "You tell the truth about who did not fight to keep you.",
+                effect: { attrs: { racecraft: 2 }, rep: { mercenary: 3 } },
+                later: { inSeasons: 2, text: "Your honesty about that transfer is quoted back at you in every contract meeting since.", effect: { car: -2 } } },
+        ], when: () => tier >= 4 },
+    { id: "loan-out", eyebrow: "Mid-season", scene: "The loan clause has been used. You are being placed at another team for the rest of the year, in a worse car, to keep a sponsor happy.",
+        question: "Nobody asked you.",
+        options: [
+            { label: "Go and win them over", detail: "New garage, new people, prove it again.",
+                outcome: "You arrive as an inconvenience and leave as the reason they had a good year.",
+                effect: { attrs: { feedback: 5, racecraft: 4 }, car: -3, rep: { loyal: 3 } },
+                later: { inSeasons: 2, text: "The team you were loaned to want you permanently, and they are paying.", effect: { car: 6 } } },
+            { label: "Refuse to go", detail: "Sit the season out if you have to.",
+                outcome: "You refuse. Lawyers get involved and you miss four rounds.",
+                effect: { attrs: { racecraft: -3, consistency: -2 }, rep: { mercenary: 4, fragile: 2 } } },
+        ], when: () => currentSeat?.clause.id === "loan" || tier >= 4 },
+    { id: "second-driver-clause", eyebrow: "Mid-season", scene: "Your contract says you move over if the other car is fighting for something. The other car is now fighting for something, and you are quicker.",
+        question: "The radio call is coming this weekend.",
+        options: [
+            { label: "Honour it", detail: "You signed it.",
+                outcome: "You move over. You keep doing it for eleven rounds.",
+                effect: { attrs: { consistency: 4 }, rep: { loyal: 5 } },
+                later: { inSeasons: 2, text: "The team remember you kept to a deal that cost you. The next contract has no such clause.", effect: { car: 5 } } },
+            { label: "Ignore it once", detail: "One race. See what happens.",
+                outcome: "You stay ahead at the one race you badly wanted.",
+                effect: { attrs: { racecraft: 4 }, rep: { mercenary: 3, fragile: 1 } },
+                roll: [
+                    { w: 50, outcome: "They fine you and nothing else changes.", effect: {} },
+                    { w: 50, outcome: "They put it in writing that you are replaceable, and start looking.", effect: { car: -4 } },
+                ] },
+        ], when: () => currentSeat?.clause.id === "no-1" || tier >= 5 },
+    { id: "media-days", eyebrow: "Off-track", scene: "Forty appearance days is more than three a month, and the team have scheduled six of them in a triple-header week.",
+        question: "You can push back once a year without it becoming a story.",
+        options: [
+            { label: "Do them all", detail: "Smile in six countries.",
+                outcome: "You do every one and arrive at the third race running on nothing.",
+                effect: { attrs: { consistency: -4 }, rep: { loyal: 3, political: 2 } } },
+            { label: "Cancel half of them", detail: "Use the goodwill now.",
+                outcome: "You cancel three and the sponsor's people are cold with you for months.",
+                effect: { attrs: { consistency: 3 }, rep: { mercenary: 2 } } },
+        ], when: () => currentSeat?.clause.id === "media" || tier >= 4 },
+    { id: "junior-quicker", eyebrow: "Mid-season", scene: "The team's junior did a Friday session in your car and was two tenths quicker than you were on the same fuel.",
+        question: "Everyone in the garage saw the trace.",
+        options: [
+            { label: "Ask for his data", detail: "Learn from a nineteen-year-old.",
+                outcome: "You go through his lap corner by corner. He is braking later at three of them and it works.",
+                effect: { attrs: { qualifying: 6, feedback: 3 } } },
+            { label: "Put it down to fuel", detail: "Say nothing, believe nothing.",
+                outcome: "You dismiss it publicly. Privately it sits with you all season.",
+                effect: { attrs: { consistency: -3, racecraft: 2 }, rep: { fragile: 2 } } },
+        ], when: () => tier >= 4 && age >= 27 },
+    { id: "weather-call", eyebrow: "Mid-season", scene: "Qualifying is drying and there is one lap left. Slicks are half a second quicker if the last sector has dried, and four seconds slower if it has not.",
+        question: "Your engineer will not make the call for you.",
+        options: [
+            { label: "Slicks", detail: "Bet on the sector.",
+                outcome: "You take slicks.",
+                effect: {},
+                roll: [
+                    { w: 45, outcome: "It has dried. Pole by three tenths, and nobody else even gets a lap in.", effect: { attrs: { qualifying: 8, wet: 4 } } },
+                    { w: 55, outcome: "It has not. You cross the line seventeenth and the team say nothing on the radio.", effect: { attrs: { qualifying: -3, wet: 2 } } },
+                ] },
+            { label: "Stay on wets", detail: "Bank a lap you know is there.",
+                outcome: "You bank the lap. Sixth, and no drama.",
+                effect: { attrs: { consistency: 3, wet: 2 } } },
+        ] },
+    { id: "team-radio-leak", eyebrow: "Off-track", scene: "A radio message of yours, sworn at and unflattering about the pit wall, has been broadcast and clipped everywhere.",
+        question: "You did say it.",
+        options: [
+            { label: "Own it", detail: "It was a bad day and you meant it.",
+                outcome: "You own it without excuses. It becomes a shirt within a fortnight.",
+                effect: { rep: { political: 2, mercenary: 1 } } },
+            { label: "Apologise to the wall privately", detail: "Fix the relationship, ignore the noise.",
+                outcome: "You apologise to the people it was actually about and say nothing publicly.",
+                effect: { attrs: { feedback: 4 }, rep: { loyal: 3 } } },
+        ], when: () => tier >= 4 },
+    { id: "final-seat", eyebrow: "Late career", scene: "One seat is left on the grid for next year and there are three of you in the running. Two are younger than you and one of them is quicker.",
+        question: "Your manager wants to know how hard to push.",
+        options: [
+            { label: "Push with everything", detail: "Call in every favour you have.",
+                outcome: "You spend every bit of goodwill you have accumulated.",
+                effect: { rep: { political: 4 } },
+                roll: [
+                    { w: 55, outcome: "It works. You get the seat and owe several people something unspecified.", effect: { car: 4 } },
+                    { w: 45, outcome: "It does not. Everyone now knows how badly you wanted it.", effect: { rep: { fragile: 2 } } },
+                ] },
+            { label: "Let the results argue", detail: "If it is not enough, it is not enough.",
+                outcome: "You do nothing except drive well, and wait.",
+                effect: { attrs: { consistency: 4 }, rep: { loyal: 2 } } },
+        ], when: () => age >= 31 },
+];
+DECISIONS.push(...EXTRA_TWO);
 
 /* ---- titlefight.js ---- */
 "use strict";
@@ -3661,6 +3861,102 @@ function applyDeciderChoice(label) {
     raceMods.rivalDnf = m.rivalDnf;
 }
 
+/* ---- midseason.js ---- */
+"use strict";
+/* =========================================================
+   MID-SEASON EVENTS
+   Things that happen *during* a season rather than between
+   them. Some are luck, some are the garage, and several are
+   your team-mate relationship finally costing you something.
+   ========================================================= */
+const MID_EVENTS = [
+    /* ---- the garage ---- */
+    { id: "upgrade-works", tone: "good", text: "The upgrade package lands and it works. The car is a step quicker from here.",
+        carShift: 4 },
+    { id: "upgrade-fails", tone: "bad", text: "The upgrade package lands and it is slower than the old floor. Nobody will admit it for six weeks.",
+        carShift: -4 },
+    { id: "engineer-swap", tone: "neutral", text: "Your race engineer has been moved to the other car. His replacement is younger and talks less.",
+        effect: { attrs: { feedback: -3, consistency: 2 } } },
+    { id: "reliability-run", tone: "bad", text: "Three failures in four rounds. The team have found the cause and cannot fix it until winter.",
+        carShift: -2, effect: { attrs: { consistency: -2 } } },
+    { id: "setup-breakthrough", tone: "good", text: "You and your engineer find something in the rear suspension that nobody else has.",
+        effect: { attrs: { tyres: 4, feedback: 3 } } },
+    /* ---- the team-mate ---- */
+    { id: "mate-favoured", tone: "bad", text: "The new parts went to the other car first. They say it is a supply issue. It is the third time.",
+        carShift: -3, when: () => teamMate.relationship !== "cordial" },
+    { id: "mate-strategy", tone: "bad", text: "You were left out a lap longer than him at two consecutive races. Nobody explains it.",
+        effect: { attrs: { tyres: -2, consistency: -2 } }, when: () => teamMate.relationship === "war" },
+    { id: "garage-split", tone: "bad", text: "The garage has quietly split in two. Your side is smaller and does not talk to his.",
+        effect: { attrs: { feedback: -4, racecraft: 2 } }, when: () => teamMate.relationship === "war" },
+    { id: "mate-helps", tone: "good", text: "Your team-mate hands you his data before qualifying, unasked.",
+        effect: { attrs: { qualifying: 3, feedback: 3 } }, when: () => teamMate.relationship === "cordial" && teamMate.seasons >= 2 },
+    { id: "mate-injured", tone: "neutral", text: "Your team-mate is out for two rounds. The whole team is pointed at your car for the first time.",
+        carShift: 3, effect: { attrs: { feedback: 2 } } },
+    /* ---- the sport ---- */
+    { id: "sacking", tone: "neutral", text: "A driver two teams up has been sacked mid-season. Every manager in the paddock is on the phone to somebody.",
+        effect: { rep: { political: 1 } } },
+    { id: "rule-clarification", tone: "bad", text: "A technical directive has outlawed the thing your car was best at.",
+        carShift: -3 },
+    { id: "rival-banned", tone: "good", text: "Your closest rival has a race ban. One weekend, one open door.",
+        effect: { attrs: { racecraft: 1 } } },
+    { id: "red-flag-win", tone: "good", text: "A red flag at half distance froze the order while you were briefly leading. You will take it.",
+        effect: { rep: { fragile: -1 } } },
+    { id: "stewards-watching", tone: "bad", text: "The stewards have started reviewing your onboards first. Two penalties in three rounds.",
+        effect: { attrs: { racecraft: -2, consistency: -1 } } },
+    { id: "paddock-talk", tone: "good", text: "Somebody senior said something complimentary about you on television, and the paddock heard it.",
+        effect: { rep: { political: 2 } } },
+    /* ---- you ---- */
+    { id: "illness", tone: "bad", text: "You race a triple-header with a fever and remember almost none of it.",
+        effect: { attrs: { consistency: -3 } } },
+    { id: "click", tone: "good", text: "Something clicked at the last round. You cannot explain it and you do not want to look at it too closely.",
+        effect: { attrs: { qualifying: 3, racecraft: 3 } } },
+    { id: "home-crowd", tone: "good", text: "Your home round sold out on the strength of your name.",
+        effect: { rep: { political: 2, loyal: 1 } }, when: () => tier >= 4 },
+];
+let midFired = [];
+const midUsed = new Set(); // across the career, so you are not told the same thing yearly
+let seasonCarShift = 0;
+function resetMidSeason() { midFired = []; seasonCarShift = 0; }
+/** Rolled between rounds. Two a season at most, never in the first two rounds. */
+function maybeMidEvent(round) {
+    if (!season)
+        return null;
+    const rounds = season.division.rounds.length;
+    if (round < 3 || round > rounds - 2)
+        return null;
+    if (midFired.length >= 2)
+        return null;
+    if (rng() > 0.16)
+        return null;
+    const fits = (e) => !midFired.includes(e.id) && (!e.when || e.when());
+    let pool = MID_EVENTS.filter((e) => fits(e) && !midUsed.has(e.id));
+    if (!pool.length) {
+        midUsed.clear();
+        pool = MID_EVENTS.filter(fits);
+    }
+    if (!pool.length)
+        return null;
+    const ev = pool[Math.floor(rng() * pool.length)];
+    midFired.push(ev.id);
+    midUsed.add(ev.id);
+    if (ev.effect)
+        applyEffect(ev.effect);
+    if (ev.carShift) {
+        seasonCarShift += ev.carShift;
+        const me = season.field[0];
+        me.car = clamp(me.car + ev.carShift, 35, 97);
+    }
+    return ev;
+}
+function renderMidEvent(ev) {
+    const body = $("#raceBody");
+    const row = document.createElement("div");
+    row.className = `mid mid--${ev.tone} is-new`;
+    row.innerHTML = `<i></i><span>${ev.text}</span>`;
+    body.appendChild(row);
+    body.scrollTop = body.scrollHeight;
+}
+
 /* ---- hub.js ---- */
 "use strict";
 /* =========================================================
@@ -3730,7 +4026,7 @@ function renderHubContract() {
       <div><span>Seat type</span><b>${s ? { works: "Works programme", midfield: "Midfield outfit", family: "Family-run team" }[s.archetype] : "-"}</b></div>
       <div><span>They expect</span><b>${s?.expectation ?? "-"}</b></div>
       <div><span>Car balance</span><b>${s ? (s.philosophy === "oversteer" ? "Loose rear" : "Stable front") : "-"}${s && s.philosophy === driver.setup ? " · suits you" : " · fights you"}</b></div>
-      <div><span>Development support</span><b>${s?.perk?.label ?? "None"}</b></div>
+      <div><span>Development support</span><b>${s?.perk && Object.keys(s.perk.mods).length ? s.perk.label : "None"}</b></div>
       <div><span>Contract</span><b>${s ? s.years + " season" + (s.years > 1 ? "s" : "") : "-"} · ${contractLeft} left</b></div>
       <div><span>Clause</span><b title="${s?.clause.detail ?? ""}">${s?.clause.label ?? "-"}</b></div>
       <div><span>Age</span><b>${age}</b></div>
@@ -3771,7 +4067,7 @@ function showRoll() {
     $("#rollFrom").textContent = currentDivision().name;
     if (roll.outcome !== "fork")
         applyRoll(roll);
-    $("#rollTo").textContent = roll.outcome === "fork" ? "F1 reserve, or sportscars"
+    $("#rollTo").textContent = roll.outcome === "fork" ? "Reserve, sportscars or IndyCar"
         : roll.outcome === "out" ? "Career over" : currentDivision().name;
     $("#rollArrow").className = `roll__arrow roll__arrow--${roll.outcome}`;
     const btn = $("#rollNext");
@@ -3793,7 +4089,7 @@ function showRoll() {
     }
     // sportscars are a career in their own right, you're allowed to turn the move down
     const stay = $("#rollStay");
-    const wasGT = tierBeforeRoll >= 8;
+    const wasGT = tierBeforeRoll >= 8; // sportscars and IndyCar are careers, not corridors
     const moving = roll.outcome === "promote" || roll.outcome === "jump";
     stay.hidden = !(wasGT && moving);
     stay.textContent = `Stay in ${DIVISIONS[tierBeforeRoll].name}`;
@@ -3892,7 +4188,7 @@ function ingestSeason() {
     });
     // championships
     if (championshipPos() === 1) {
-        cabinet.titles.push({ year: yr, division: div.name, label: div.label, team, tier: div.tier });
+        cabinet.titles.push({ year: yr, division: div.name, label: div.label, team, tier: div.tier, age });
     }
     // helmets, one per team you drove for
     const helmet = cabinet.helmets.find((h) => h.team === team && h.label === div.label);
@@ -4686,6 +4982,15 @@ const ACHIEVEMENTS = [
         flavour: "Twenty-four hours is a long time to be right.", test: () => cabinet.titles.some((t) => t.label === "HYP") },
     { id: "round-trip", name: "Round trip", how: "Reach F1 after racing sportscars", tier: "legendary",
         flavour: "They said it was a detour.", test: () => tier >= 4 && careerHistory.some((h) => h.label === "GT3" || h.label === "HYP") },
+    { id: "indycar", name: "Across the water", how: "Take the IndyCar road out of F2", tier: "rare",
+        flavour: "Ovals, streets and road courses, all in one year.",
+        test: () => tier === 10 || careerHistory.some((h) => h.label === "INDY") },
+    { id: "indy500", name: "The 500", how: "Win at the Indianapolis 500", tier: "legendary",
+        flavour: "Milk, bricks, and a face on a trophy forever.",
+        test: () => cabinet.wins.some((w) => w.circuit === "Indianapolis 500") },
+    { id: "indy-title", name: "IndyCar champion", how: "Win an IndyCar championship", tier: "legendary",
+        flavour: "The closest field in racing, and you were the front of it.",
+        test: () => cabinet.titles.some((t) => t.label === "INDY") },
     { id: "comeback", name: "One more year", how: "Come back after retiring", tier: "rare",
         flavour: "The phone rang and you picked it up.", test: () => comebacks > 0 },
     /* ---- team-mates ---- */
@@ -4737,6 +5042,27 @@ const ACHIEVEMENTS = [
         flavour: "Longevity is its own achievement.", test: () => cabinet.races >= 100 },
     { id: "collector", name: "Five teams", how: "Drive for five different teams", tier: "common",
         flavour: "Five helmets on the shelf.", test: () => cabinet.helmets.length >= 5 },
+    /* ---- the named ones ---- */
+    { id: "youngest", name: "Youngest champion", how: "Win a championship at 17 or under", tier: "legendary",
+        flavour: "Too young to drive to the circuit, old enough to win at it.",
+        test: () => cabinet.titles.some((t) => (t.age ?? 99) <= 17) },
+    { id: "greatest", name: "All-time greatest", how: "Win eight or more races in a Formula 1 season", tier: "legendary",
+        flavour: "A season people use as a measuring stick afterwards.",
+        test: () => { const s = seasonNow(); return !!s && s.wins >= 8 && tier >= 5; } },
+    { id: "four-row", name: "Mr Four In A Row", how: "Win four championships in consecutive seasons", tier: "legendary",
+        flavour: "Four straight. The argument stops being an argument.",
+        test: () => {
+            const yrs = [...new Set(cabinet.titles.map((t) => t.year))].sort((a, b) => a - b);
+            return yrs.some((y) => yrs.includes(y + 1) && yrs.includes(y + 2) && yrs.includes(y + 3));
+        } },
+    { id: "xaverra", name: "The Xaverra Classic", how: "As a Dutch driver, win at Zandvoort three times", tier: "legendary",
+        flavour: "Orange everywhere, three times over. They will not let you buy a drink again.",
+        test: () => driver.country?.code === "NL" && cabinet.wins.filter((w) => w.circuit === "Zandvoort").length >= 3 },
+    { id: "trifecta", name: "The trifecta", how: "Win the F3, F2 and Formula 1 championships", tier: "legendary",
+        flavour: "The whole ladder, one rung at a time, all of them won.",
+        test: () => cabinet.titles.some((t) => t.label === "F3")
+            && cabinet.titles.some((t) => t.label === "F2")
+            && cabinet.titles.some((t) => t.tier >= 5) },
     /* ---- hidden ---- */
     { id: "no-titles", name: "Nearly", how: "Hidden", hidden: true, tier: "rare",
         flavour: "Fifteen seasons, a hundred races, and never once a champion. That's most careers.",
@@ -5177,6 +5503,10 @@ function nextRace() {
         window.setTimeout(showSummary, skipping ? 0 : Math.min(racePace, 900));
         return;
     }
+    // something can happen between rounds
+    const ev = typeof maybeMidEvent === "function" ? maybeMidEvent(season.results.length + 1) : null;
+    if (ev)
+        renderMidEvent(ev);
     const r = runRace(season.results.length + 1, season.division);
     clearRaceMods();
     season.results.push(r);
@@ -5192,6 +5522,8 @@ function startSeason(year = 1) {
     skipping = false;
     contender = null;
     deciderShown = false;
+    if (typeof resetMidSeason === "function")
+        resetMidSeason();
     clearRaceMods();
     $("#raceBody").innerHTML = "";
     const cb = $("#callbacks");
