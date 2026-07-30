@@ -798,6 +798,10 @@ input::placeholder{color:#4A525B}
   .academy__flavour{min-height:0}
 }
 
+.brand{cursor:pointer;transition:opacity .18s}
+.brand:hover{opacity:.8}
+.brand:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+
 /* ================= mobile pass =================
    Everything below 720px. Tested at 380px (iPhone SE / small Android). */
 @media (max-width:720px){
@@ -1915,6 +1919,8 @@ function init() {
     $("#confirm").addEventListener("click", () => {
         if (!validate())
             return;
+        if (typeof newSlot === "function" && !slotId)
+            newSlot();
         rng = mulberry(hashSeed(`${driver.surname}|${driver.number}|${driver.country?.code}|${driver.trait?.id}`));
         buildCard();
         show("card");
@@ -2641,7 +2647,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!currentSeat)
             return;
         if (!slotId)
-            slotId = `d${Date.now().toString(36)}${Math.floor(Math.random() * 1e4).toString(36)}`;
+            newSlot();
         contractLeft = currentSeat.years;
         pendingYear = typeof pendingYear !== "undefined" ? pendingYear : 1;
         showBriefing(pendingYear);
@@ -4587,6 +4593,10 @@ function epilogue() {
 }
 let hallWritten = false;
 function showRetirement() {
+    // retiring straight from the hub would otherwise lose the season just raced
+    if (season && season.results.length && careerHistory[careerHistory.length - 1]?.year !== season.year) {
+        recordSeason("out");
+    }
     retired = true;
     const r = retirementReason();
     const dm = definingMoment();
@@ -4814,6 +4824,10 @@ function saveSlot() {
     const list = readSlots().filter((s) => s.id !== slotId);
     writeSlots([state, ...list]);
 }
+/** Called whenever a brand new driver is started, so nothing overwrites an existing career. */
+function newSlot() {
+    slotId = `d${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+}
 function deleteSlot(id) {
     writeSlots(readSlots().filter((s) => s.id !== id));
 }
@@ -4904,7 +4918,7 @@ function refreshResumeBadge() {
 document.addEventListener("DOMContentLoaded", () => {
     refreshResumeBadge();
     $("#garageBack").addEventListener("click", () => show(typeof hallOrigin !== "undefined" ? hallOrigin : "mode"));
-    $("#garageNew").addEventListener("click", () => show("identity"));
+    $("#garageNew").addEventListener("click", () => { resetCareer(); show("identity"); });
 });
 
 /* ---- achievements.js ---- */
@@ -4970,7 +4984,7 @@ const ACHIEVEMENTS = [
         flavour: "A dominant season, and then the luck.", test: () => careerHistory.some((h) => h.outcome === "jump") },
     { id: "f1-title", name: "World champion", how: "Win a Formula 1 championship", tier: "legendary",
         flavour: "The only one that gets remembered by people who don't watch.", test: () => cabinet.titles.some((t) => t.tier >= 5) },
-    { id: "triple", name: "Three in a row", how: "Win three championships in consecutive seasons", tier: "legendary",
+    { id: "triple", name: "Three in a row", how: "Win three championships in consecutive seasons, any level", tier: "rare",
         flavour: "Nobody argues with three.", test: () => {
             const yrs = cabinet.titles.map((t) => t.year).sort((a, b) => a - b);
             return yrs.some((y) => yrs.includes(y + 1) && yrs.includes(y + 2));
@@ -5043,16 +5057,16 @@ const ACHIEVEMENTS = [
     { id: "collector", name: "Five teams", how: "Drive for five different teams", tier: "common",
         flavour: "Five helmets on the shelf.", test: () => cabinet.helmets.length >= 5 },
     /* ---- the named ones ---- */
-    { id: "youngest", name: "Youngest champion", how: "Win a championship at 17 or under", tier: "legendary",
-        flavour: "Too young to drive to the circuit, old enough to win at it.",
-        test: () => cabinet.titles.some((t) => (t.age ?? 99) <= 17) },
-    { id: "greatest", name: "All-time greatest", how: "Win eight or more races in a Formula 1 season", tier: "legendary",
-        flavour: "A season people use as a measuring stick afterwards.",
-        test: () => { const s = seasonNow(); return !!s && s.wins >= 8 && tier >= 5; } },
-    { id: "four-row", name: "Mr Four In A Row", how: "Win four championships in consecutive seasons", tier: "legendary",
-        flavour: "Four straight. The argument stops being an argument.",
+    { id: "youngest", name: "Youngest champion", how: "Win a Formula 1 championship at 23 or under", tier: "legendary",
+        flavour: "The youngest name on the trophy, and it stays that way for a long time.",
+        test: () => cabinet.titles.some((t) => t.tier >= 5 && (t.age ?? 99) <= 23) },
+    { id: "greatest", name: "All-time greatest", how: "Win eight Formula 1 championships", tier: "legendary",
+        flavour: "Eight. There is no argument left to have.",
+        test: () => cabinet.titles.filter((t) => t.tier >= 5).length >= 8 },
+    { id: "four-row", name: "Mr Four In A Row", how: "Win four Formula 1 championships in consecutive seasons", tier: "legendary",
+        flavour: "Four straight at the top. The argument stops being an argument.",
         test: () => {
-            const yrs = [...new Set(cabinet.titles.map((t) => t.year))].sort((a, b) => a - b);
+            const yrs = [...new Set(cabinet.titles.filter((t) => t.tier >= 5).map((t) => t.year))].sort((a, b) => a - b);
             return yrs.some((y) => yrs.includes(y + 1) && yrs.includes(y + 2) && yrs.includes(y + 3));
         } },
     { id: "xaverra", name: "The Xaverra Classic", how: "As a Dutch driver, win at Zandvoort three times", tier: "legendary",
@@ -5244,6 +5258,118 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.addEventListener("click", () => window.setTimeout(renderPicks, 0));
     renderPicks();
+});
+
+/* ---- reset.js ---- */
+"use strict";
+/* =========================================================
+   STARTING OVER
+   Everything a career touches lives in module-level state.
+   Starting a second driver in the same session has to clear
+   all of it, or the new career inherits the old one's
+   attributes, cabinet and save slot.
+   ========================================================= */
+function resetCareer() {
+    // identity
+    driver.surname = "";
+    driver.number = 10;
+    driver.country = null;
+    driver.trait = null;
+    driver.setup = "oversteer";
+    driver.livery = LIVERIES[0];
+    // progress
+    tier = 0;
+    age = 15;
+    yearsInTier = 0;
+    contractLeft = 0;
+    comebacks = 0;
+    carBonus = 0;
+    retired = false;
+    hallWritten = false;
+    lastRoll = null;
+    currentSeat = null;
+    season = null;
+    contender = null;
+    deciderShown = false;
+    comebackOffer = null;
+    lockedOut.clear();
+    // development and reputation
+    Object.keys(careerGrowth).forEach((k) => {
+        careerGrowth[k] = 0;
+        earnedGrowth[k] = 0;
+    });
+    Object.keys(reputation).forEach((k) => { reputation[k] = 0; });
+    // records
+    careerHistory.length = 0;
+    decisionLog.length = 0;
+    usedDecisions.clear();
+    pending = [];
+    Object.assign(careerTotals, { seasons: 0, points: 0, wins: 0, podiums: 0, titles: 0, beat: 0, lost: 0 });
+    Object.assign(cabinet, {
+        titles: [], wins: [], podiums: 0, poles: 0, dnfs: 0, races: 0,
+        helmets: [], rivals: [], firsts: [], cursed: [],
+    });
+    // people
+    Object.assign(teamMate, { name: "", skill: 0, years: 0, seasons: 0, beat: 0, lost: 0, relationship: "cordial", team: "" });
+    Object.assign(nemesis, { name: "", edge: 0, metIn: 0, beat: 0, lost: 0 });
+    // this driver gets their own save slot
+    newSlot();
+    // reset the creator UI back to a blank driver
+    const surname = document.querySelector("#surname");
+    if (surname)
+        surname.value = "";
+    const num = document.querySelector("#number");
+    if (num)
+        num.value = "10";
+    const chip = document.querySelector("#natChip");
+    if (chip)
+        chip.hidden = true;
+    document.querySelectorAll(".country, .node").forEach((el) => el.setAttribute("aria-pressed", "false"));
+    const read = document.querySelector("#traitRead");
+    if (read)
+        read.classList.remove("is-set");
+    const traitName = document.querySelector("#traitName");
+    if (traitName)
+        traitName.textContent = "Choose a trait";
+    const delta = document.querySelector("#traitDelta");
+    if (delta)
+        delta.innerHTML = "";
+    if (typeof renderPicks === "function")
+        renderPicks();
+    if (typeof validate === "function")
+        validate();
+    if (typeof paintHelmet === "function")
+        paintHelmet();
+}
+document.addEventListener("DOMContentLoaded", () => {
+    // the logo goes home
+    const brand = document.querySelector(".brand");
+    if (!brand)
+        return;
+    brand.setAttribute("role", "button");
+    brand.setAttribute("tabindex", "0");
+    brand.setAttribute("aria-label", "Back to the start");
+    brand.title = "Back to the start";
+    const home = () => {
+        if (typeof raceTimer !== "undefined")
+            window.clearTimeout(raceTimer);
+        if (typeof refreshResumeBadge === "function")
+            refreshResumeBadge();
+        show("mode");
+    };
+    brand.addEventListener("click", home);
+    brand.addEventListener("keydown", (e) => {
+        const ev = e;
+        if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            home();
+        }
+    });
+    // starting fresh from the landing page also means a fresh driver
+    $("#startCareer").addEventListener("click", () => {
+        if (careerHistory.length > 0 || retired || slotId)
+            resetCareer();
+    });
 });
 
 /* ---- decisions-ui.js ---- */

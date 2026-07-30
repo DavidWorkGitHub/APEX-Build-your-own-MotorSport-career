@@ -61,6 +61,13 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**Fixes and adjustments**
+
+- **Career history was being overwritten.** Starting a second driver in the same session reused the first driver's save slot, so the earlier career was silently replaced. Every new driver now gets their own slot, and starting fresh from the landing page or the history screen clears all career state first: attributes, cabinet, reputation, decision log, team-mate, rival, the lot. Tested with three drivers in one session, two retired and one left running, all kept separately.
+- **Retiring straight from the hub lost the season you had just raced.** It is now recorded before the career closes.
+- **The logo goes home.** Click or tab to it from anywhere to get back to the landing page. Careers save at the start of each season, so nothing is lost by doing it.
+- **Achievement thresholds corrected.** Youngest champion is now a Formula 1 title at 23 or under. All-time greatest is eight Formula 1 championships. Mr Four In A Row is four consecutive Formula 1 titles. The old three-in-a-row stays as a rare achievement at any level.
+
 **Title fights, and achievements**
 
 *The title fight is a mechanic now, not a readout.*
