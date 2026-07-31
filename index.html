@@ -303,6 +303,7 @@ input::placeholder{color:#4A525B}
 
 /* ================= academy ================= */
 .academies{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--line)}
+.academies--routes{border:1px solid var(--line);border-radius:var(--rl);overflow:hidden;margin-top:18px}
 .academy{background:var(--carbon);border:0;border-top:3px solid transparent;text-align:left;cursor:pointer;
   font:inherit;color:inherit;padding:22px;display:grid;gap:11px;align-content:start;transition:background .2s}
 .academy:hover{background:var(--carbon-2)}
@@ -802,6 +803,23 @@ input::placeholder{color:#4A525B}
 .brand:hover{opacity:.8}
 .brand:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
 
+/* ================= overview ================= */
+.ov-rounds{border:1px solid var(--line);border-radius:var(--rl);overflow:hidden;margin-top:14px}
+.ov-rounds .race-head,.ov-rounds .race-row{padding-left:16px;padding-right:16px}
+.ov-rounds .race-row:last-child{border-bottom:0}
+
+/* ================= footer ================= */
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);display:grid;gap:14px}
+.foot__saves{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.foot__saves span{font-size:12px;color:var(--faint);line-height:1.5;flex:1;min-width:220px}
+.foot__saves textarea{width:100%;background:var(--carbon-2);border:1px solid var(--line);border-radius:var(--r);
+  color:var(--ink);font-family:var(--mono);font-size:10px;padding:10px;resize:vertical}
+.foot__report{margin:0;font-size:12.5px;color:var(--dim)}
+.foot__report b{color:var(--accent-2);font-weight:500}
+@media (max-width:720px){
+  .foot__saves .btn{flex:1 1 45%}
+}
+
 /* ================= mobile pass =================
    Everything below 720px. Tested at 380px (iPhone SE / small Android). */
 @media (max-width:720px){
@@ -1025,7 +1043,7 @@ input::placeholder{color:#4A525B}
             <div>
               <label for="number">Number</label>
               <div class="stepper">
-                <input id="number" type="text" maxlength="2" value="10" inputmode="numeric" pattern="[0-9]*" aria-describedby="numberNote" />
+                <input id="number" type="text" maxlength="3" value="10" inputmode="numeric" pattern="[0-9]*" aria-describedby="numberNote" />
                 <span class="stepper__btns">
                   <button type="button" id="numUp" aria-label="Increase number">▲</button>
                   <button type="button" id="numDown" aria-label="Decrease number">▼</button>
@@ -1267,6 +1285,7 @@ input::placeholder{color:#4A525B}
       <div id="hubBody"></div>
 
       <div class="card-actions">
+        <button class="btn btn--ghost" id="hubOverview" type="button">Season overview</button>
         <button class="btn btn--ghost" id="openCabinet" type="button">Trophy cabinet</button>
         <button class="btn btn--ghost" id="openLog" type="button">Decision log</button>
         <button class="btn btn--ghost" id="hubAch" type="button">Achievements</button>
@@ -1373,11 +1392,8 @@ input::placeholder{color:#4A525B}
       <p class="eyebrow" id="cbWaited">A year out</p>
       <h2 class="log__title">The phone rings</h2>
       <p class="decision__scene" id="cbReason"></p>
-      <div class="hub-list" style="margin-top:22px">
-        <div><span>Team</span><b id="cbTeam">-</b></div>
-        <div><span>Division</span><b id="cbDivision">-</b></div>
-        <div><span>Terms</span><b id="cbTerms">-</b></div>
-      </div>
+      <p class="summary__mate" id="cbTerms"></p>
+      <div class="academies academies--routes" id="cbRoutes"></div>
       <div class="card-actions" style="margin-top:26px">
         <button class="btn btn--ghost" id="cbDecline" type="button">Stay retired</button>
         <button class="btn btn--solid" id="cbAccept" type="button">Take the seat</button>
@@ -1481,6 +1497,26 @@ input::placeholder{color:#4A525B}
       </div>
     </div>
   </section>
+
+  <!-- ============ SEASON OVERVIEW ============ -->
+  <section class="screen" data-screen="overview" hidden>
+    <div class="summary">
+      <p class="eyebrow" id="ovSub">-</p>
+      <h2 class="log__title" id="ovTitle">Season</h2>
+      <div class="summary__grid" id="ovStats"></div>
+
+      <h4 class="hub-sub">Every round</h4>
+      <div class="ov-rounds" id="ovRounds"></div>
+
+      <h4 class="hub-sub">Final standings</h4>
+      <div class="table" id="ovTable"></div>
+      <p class="summary__mate" id="ovMate"></p>
+
+      <div class="card-actions">
+        <button class="btn btn--ghost" id="ovBack" type="button">Back</button>
+      </div>
+    </div>
+  </section>
   <!-- ============ PROMOTION ROLL ============ -->
   <section class="screen" data-screen="roll" hidden>
     <div class="summary roll">
@@ -1499,6 +1535,15 @@ input::placeholder{color:#4A525B}
     </div>
   </section>
 
+  <footer class="foot">
+    <div class="foot__saves">
+      <button class="btn btn--quiet btn--tiny" id="saveExport" type="button">Export progress</button>
+      <button class="btn btn--quiet btn--tiny" id="saveImport" type="button">Load progress</button>
+      <span id="saveNote">Your careers and achievements are saved in this browser. Export them to move to another device.</span>
+      <textarea id="saveCode" rows="3" spellcheck="false" hidden aria-label="Save code"></textarea>
+    </div>
+    <p class="foot__report">Found a bug, or something to suggest? Message <b>@lowsheamus</b> on Discord.</p>
+  </footer>
 </div>
 <div class="ach-toast" id="achToast" hidden></div>
 <script>
@@ -1591,8 +1636,137 @@ const COUNTRIES = [
     { code: "UA", name: "Ukraine", flag: "🇺🇦" }, { code: "AE", name: "United Arab Emirates", flag: "🇦🇪" },
     { code: "GB", name: "United Kingdom", flag: "🇬🇧" }, { code: "US", name: "United States", flag: "🇺🇸" },
     { code: "UY", name: "Uruguay", flag: "🇺🇾" }, { code: "VE", name: "Venezuela", flag: "🇻🇪" },
-    { code: "VN", name: "Vietnam", flag: "🇻🇳" },
-];
+    { code: "VN", name: "Vietnam", flag: "" },
+    { code: "AF", name: "Afghanistan", flag: "" },
+    { code: "AL", name: "Albania", flag: "" },
+    { code: "DZ", name: "Algeria", flag: "" },
+    { code: "AD", name: "Andorra", flag: "" },
+    { code: "AO", name: "Angola", flag: "" },
+    { code: "AG", name: "Antigua & Barbuda", flag: "" },
+    { code: "AM", name: "Armenia", flag: "" },
+    { code: "AW", name: "Aruba", flag: "" },
+    { code: "AZ", name: "Azerbaijan", flag: "" },
+    { code: "BS", name: "Bahamas", flag: "" },
+    { code: "BD", name: "Bangladesh", flag: "" },
+    { code: "BB", name: "Barbados", flag: "" },
+    { code: "BY", name: "Belarus", flag: "" },
+    { code: "BZ", name: "Belize", flag: "" },
+    { code: "BJ", name: "Benin", flag: "" },
+    { code: "BM", name: "Bermuda", flag: "" },
+    { code: "BT", name: "Bhutan", flag: "" },
+    { code: "BO", name: "Bolivia", flag: "" },
+    { code: "BA", name: "Bosnia & Herzegovina", flag: "" },
+    { code: "BW", name: "Botswana", flag: "" },
+    { code: "BN", name: "Brunei", flag: "" },
+    { code: "BF", name: "Burkina Faso", flag: "" },
+    { code: "BI", name: "Burundi", flag: "" },
+    { code: "KH", name: "Cambodia", flag: "" },
+    { code: "CM", name: "Cameroon", flag: "" },
+    { code: "CV", name: "Cape Verde", flag: "" },
+    { code: "CF", name: "Central African Republic", flag: "" },
+    { code: "TD", name: "Chad", flag: "" },
+    { code: "KM", name: "Comoros", flag: "" },
+    { code: "CG", name: "Congo", flag: "" },
+    { code: "CR", name: "Costa Rica", flag: "" },
+    { code: "CI", name: "Côte d'Ivoire", flag: "" },
+    { code: "CU", name: "Cuba", flag: "" },
+    { code: "CY", name: "Cyprus", flag: "" },
+    { code: "CD", name: "DR Congo", flag: "" },
+    { code: "DJ", name: "Djibouti", flag: "" },
+    { code: "DM", name: "Dominica", flag: "" },
+    { code: "DO", name: "Dominican Republic", flag: "" },
+    { code: "EC", name: "Ecuador", flag: "" },
+    { code: "EG", name: "Egypt", flag: "" },
+    { code: "SV", name: "El Salvador", flag: "" },
+    { code: "GQ", name: "Equatorial Guinea", flag: "" },
+    { code: "ER", name: "Eritrea", flag: "" },
+    { code: "SZ", name: "Eswatini", flag: "" },
+    { code: "ET", name: "Ethiopia", flag: "" },
+    { code: "FJ", name: "Fiji", flag: "" },
+    { code: "GA", name: "Gabon", flag: "" },
+    { code: "GM", name: "Gambia", flag: "" },
+    { code: "GE", name: "Georgia", flag: "" },
+    { code: "GH", name: "Ghana", flag: "" },
+    { code: "GD", name: "Grenada", flag: "" },
+    { code: "GT", name: "Guatemala", flag: "" },
+    { code: "GN", name: "Guinea", flag: "" },
+    { code: "GW", name: "Guinea-Bissau", flag: "" },
+    { code: "GY", name: "Guyana", flag: "" },
+    { code: "HT", name: "Haiti", flag: "" },
+    { code: "HN", name: "Honduras", flag: "" },
+    { code: "HK", name: "Hong Kong", flag: "" },
+    { code: "IR", name: "Iran", flag: "" },
+    { code: "IQ", name: "Iraq", flag: "" },
+    { code: "JM", name: "Jamaica", flag: "" },
+    { code: "JO", name: "Jordan", flag: "" },
+    { code: "KE", name: "Kenya", flag: "" },
+    { code: "KI", name: "Kiribati", flag: "" },
+    { code: "KW", name: "Kuwait", flag: "" },
+    { code: "KG", name: "Kyrgyzstan", flag: "" },
+    { code: "LA", name: "Laos", flag: "" },
+    { code: "LB", name: "Lebanon", flag: "" },
+    { code: "LS", name: "Lesotho", flag: "" },
+    { code: "LR", name: "Liberia", flag: "" },
+    { code: "LY", name: "Libya", flag: "" },
+    { code: "LI", name: "Liechtenstein", flag: "" },
+    { code: "MK", name: "Macedonia", flag: "" },
+    { code: "MG", name: "Madagascar", flag: "" },
+    { code: "MW", name: "Malawi", flag: "" },
+    { code: "MV", name: "Maldives", flag: "" },
+    { code: "ML", name: "Mali", flag: "" },
+    { code: "MT", name: "Malta", flag: "" },
+    { code: "MR", name: "Mauritania", flag: "" },
+    { code: "MU", name: "Mauritius", flag: "" },
+    { code: "MD", name: "Moldova", flag: "" },
+    { code: "MN", name: "Mongolia", flag: "" },
+    { code: "ME", name: "Montenegro", flag: "" },
+    { code: "MZ", name: "Mozambique", flag: "" },
+    { code: "MM", name: "Myanmar", flag: "" },
+    { code: "NA", name: "Namibia", flag: "" },
+    { code: "NP", name: "Nepal", flag: "" },
+    { code: "NI", name: "Nicaragua", flag: "" },
+    { code: "NE", name: "Niger", flag: "" },
+    { code: "KP", name: "North Korea", flag: "" },
+    { code: "OM", name: "Oman", flag: "" },
+    { code: "PK", name: "Pakistan", flag: "" },
+    { code: "PS", name: "Palestine", flag: "" },
+    { code: "PA", name: "Panama", flag: "" },
+    { code: "PG", name: "Papua New Guinea", flag: "" },
+    { code: "PR", name: "Puerto Rico", flag: "" },
+    { code: "RW", name: "Rwanda", flag: "" },
+    { code: "KN", name: "Saint Kitts & Nevis", flag: "" },
+    { code: "LC", name: "Saint Lucia", flag: "" },
+    { code: "VC", name: "Saint Vincent", flag: "" },
+    { code: "WS", name: "Samoa", flag: "" },
+    { code: "SM", name: "San Marino", flag: "" },
+    { code: "ST", name: "São Tomé & Príncipe", flag: "" },
+    { code: "SN", name: "Senegal", flag: "" },
+    { code: "SC", name: "Seychelles", flag: "" },
+    { code: "SL", name: "Sierra Leone", flag: "" },
+    { code: "SB", name: "Solomon Islands", flag: "" },
+    { code: "SO", name: "Somalia", flag: "" },
+    { code: "SS", name: "South Sudan", flag: "" },
+    { code: "LK", name: "Sri Lanka", flag: "" },
+    { code: "SD", name: "Sudan", flag: "" },
+    { code: "SR", name: "Suriname", flag: "" },
+    { code: "SY", name: "Syria", flag: "" },
+    { code: "TW", name: "Taiwan", flag: "" },
+    { code: "TJ", name: "Tajikistan", flag: "" },
+    { code: "TZ", name: "Tanzania", flag: "" },
+    { code: "TL", name: "Timor-Leste", flag: "" },
+    { code: "TG", name: "Togo", flag: "" },
+    { code: "TO", name: "Tonga", flag: "" },
+    { code: "TT", name: "Trinidad & Tobago", flag: "" },
+    { code: "TN", name: "Tunisia", flag: "" },
+    { code: "TM", name: "Turkmenistan", flag: "" },
+    { code: "UG", name: "Uganda", flag: "" },
+    { code: "UZ", name: "Uzbekistan", flag: "" },
+    { code: "VU", name: "Vanuatu", flag: "" },
+    { code: "VA", name: "Vatican City", flag: "" },
+    { code: "YE", name: "Yemen", flag: "" },
+    { code: "ZM", name: "Zambia", flag: "" },
+    { code: "ZW", name: "Zimbabwe", flag: "" },
+].sort((a, b) => a.name.localeCompare(b.name));
 const driver = {
     surname: "", number: 10, country: null, trait: null,
     setup: "oversteer", livery: LIVERIES[0], mode: null,
@@ -1612,7 +1786,7 @@ function show(name) {
         }
     });
     const order = ["mode", "identity", "card", "academy", "season"];
-    const idx = (name === "summary" || name === "decision" || name === "log" || name === "roll" || name === "cabinet" || name === "retire" || name === "comeback" || name === "archive" || name === "fork" || name === "garage" || name === "achievements" || name === "briefing") ? 4 : order.indexOf(name);
+    const idx = (name === "summary" || name === "decision" || name === "log" || name === "roll" || name === "cabinet" || name === "retire" || name === "comeback" || name === "archive" || name === "fork" || name === "garage" || name === "achievements" || name === "briefing" || name === "overview") ? 4 : order.indexOf(name);
     $$(".step").forEach((s, i) => {
         s.dataset.state = i < idx ? "done" : i === idx ? "now" : "todo";
     });
@@ -1784,8 +1958,8 @@ function renderTraitDelta() {
 }
 /* --------------------------- validation --------------------------- */
 function numberError(n) {
-    if (!Number.isInteger(n) || n < 1 || n > 99)
-        return "Pick a number from 1 to 99.";
+    if (!Number.isInteger(n) || n < 0 || n > 999)
+        return "Pick a number from 0 to 999.";
     return null;
 }
 function validate() {
@@ -1828,8 +2002,8 @@ function buildCard() {
     $("#bars").innerHTML = ATTR_LABELS.map(([key, label]) => `
     <div class="bar">
       <span class="bar__label">${label}</span>
-      <span class="bar__track"><i style="width:0%" data-w="${a[key]}"></i></span>
-      <span class="bar__val">${a[key]}</span>
+      <span class="bar__track"><i style="width:0%" data-w="${Math.round(a[key])}"></i></span>
+      <span class="bar__val">${Math.round(a[key])}</span>
     </div>`).join("");
     requestAnimationFrame(() => {
         $$(".bar__track i").forEach((el, i) => {
@@ -1889,9 +2063,9 @@ function init() {
     };
     numInput.addEventListener("input", () => {
         // hard cap: strip anything non-numeric and refuse a third digit / zero
-        const digits = numInput.value.replace(/\D/g, "").slice(0, 2);
+        const digits = numInput.value.replace(/\D/g, "").slice(0, 3);
         const n = parseInt(digits, 10);
-        const capped = Number.isNaN(n) ? "" : String(clamp(n, 0, 99));
+        const capped = Number.isNaN(n) ? "" : String(clamp(n, 0, 999));
         if (numInput.value !== capped)
             numInput.value = capped;
         driver.number = capped === "" ? NaN : parseInt(capped, 10);
@@ -1899,11 +2073,11 @@ function init() {
         validate();
     });
     numInput.addEventListener("blur", () => {
-        if (Number.isNaN(driver.number) || driver.number < 1)
-            setNumber(1);
+        if (Number.isNaN(driver.number))
+            setNumber(0);
     });
-    $("#numUp").addEventListener("click", () => setNumber(clamp((driver.number || 0) + 1, 1, 99)));
-    $("#numDown").addEventListener("click", () => setNumber(clamp((driver.number || 2) - 1, 1, 99)));
+    $("#numUp").addEventListener("click", () => setNumber(clamp((driver.number || 0) + 1, 0, 999)));
+    $("#numDown").addEventListener("click", () => setNumber(clamp((driver.number ?? 1) - 1, 0, 999)));
     $("#search").addEventListener("input", (e) => {
         renderCountries(e.target.value);
     });
@@ -1984,6 +2158,73 @@ const FLAGS = {
     VE: { k: "h", c: ["#FFCC00", "#00247D", "#CF142B"] },
     VN: { k: "disc", bg: "#DA251D", disc: "#FFFF00" },
 };
+/* Broad-brush flags for the wider country list. Bands only, but they read
+   as flags at 20px, which is all a driver card needs. */
+const MORE = {
+    HK: { k: "disc", bg: "#DE2910", disc: W }, AF: { k: "h", c: [K, "#BE0027", G] }, AL: { k: "h", c: ["#E41E20", "#E41E20"] }, DZ: { k: "v", c: [G, W] },
+    AD: { k: "v", c: ["#10069F", "#FEDD00", "#D50032"] }, AO: { k: "h", c: ["#CE1126", K] },
+    AG: { k: "h", c: [K, "#0072C6", W] }, AM: { k: "h", c: ["#D90012", "#0033A0", "#F2A800"] },
+    AW: { k: "h", c: ["#418FDE", "#418FDE", "#F7E017"] }, AZ: { k: "h", c: ["#00B5E2", "#EF3340", G] },
+    BS: { k: "h", c: ["#00778B", "#FFC72C", "#00778B"] }, BD: { k: "disc", bg: "#006A4E", disc: "#F42A41" },
+    BB: { k: "v", c: ["#00267F", "#FFC726", "#00267F"] }, BY: { k: "h", c: ["#CE1720", G] },
+    BZ: { k: "h", c: ["#003F87", "#003F87", "#CE1126"] }, BJ: { k: "v", c: [G, "#FCD116", "#E8112D"] },
+    BM: { k: "special", id: "uk-canton" }, BT: { k: "h", c: ["#FFD520", "#FF4E12"] },
+    BO: { k: "h", c: ["#D52B1E", "#F9E300", G] }, BA: { k: "h", c: ["#002F6C", "#002F6C", "#FECB00"] },
+    BW: { k: "h", c: ["#6DA9D2", W, K, W, "#6DA9D2"] }, BN: { k: "h", c: ["#F7E017", W, K] },
+    BF: { k: "h", c: ["#EF2B2D", G] }, BI: { k: "h", c: ["#CE1126", W, G] }, KH: { k: "h", c: ["#032EA1", "#E00025", "#032EA1"] },
+    CM: { k: "v", c: [G, "#CE1126", "#FCD116"] }, CV: { k: "h", c: ["#003893", W, "#CF2027", W, "#003893"] },
+    CF: { k: "h", c: ["#003082", W, G, "#FFCE00"] }, TD: { k: "v", c: ["#002664", "#FECB00", "#C60C30"] },
+    KM: { k: "h", c: ["#FFD100", W, "#CE1126", "#3A7728"] }, CG: { k: "h", c: [G, "#FBDE4A", "#DC241F"] },
+    CR: { k: "h", c: ["#002B7F", W, "#CE1126", W, "#002B7F"] }, CI: { k: "v", c: ["#F77F00", W, G] },
+    CU: { k: "h", c: ["#002A8F", W, "#002A8F", W, "#002A8F"] }, CY: { k: "h", c: [W, W] },
+    CD: { k: "h", c: ["#007FFF", "#007FFF"] }, DJ: { k: "h", c: ["#6AB2E7", "#12AD2B"] },
+    DM: { k: "h", c: [G, G] }, DO: { k: "cross", bg: "#002D62", cross: W, x: 0.5 },
+    EC: { k: "h", c: ["#FFDD00", "#0033A0", "#EF3340"] }, EG: { k: "h", c: ["#CE1126", W, K] },
+    SV: { k: "h", c: ["#0F47AF", W, "#0F47AF"] }, GQ: { k: "h", c: [G, W, "#E32118"] },
+    ER: { k: "h", c: ["#12AD2B", "#4189DD"] }, SZ: { k: "h", c: ["#3E5EB9", "#FFD900", "#B10C0C", "#FFD900", "#3E5EB9"] },
+    ET: { k: "h", c: ["#078930", "#FCDD09", "#DA121A"] }, FJ: { k: "special", id: "uk-canton" },
+    GA: { k: "h", c: ["#009E60", "#FCD116", "#3A75C4"] }, GM: { k: "h", c: ["#CE1126", W, "#3A7728"] },
+    GE: { k: "cross", bg: W, cross: "#FF0000", x: 0.5 }, GH: { k: "h", c: ["#CE1126", "#FCD116", "#006B3F"] },
+    GD: { k: "h", c: ["#CE1126", "#007A5E", "#CE1126"] }, GT: { k: "v", c: ["#4997D0", W, "#4997D0"] },
+    GN: { k: "v", c: ["#CE1126", "#FCD116", "#009460"] }, GW: { k: "h", c: ["#FCD116", "#009E49"] },
+    GY: { k: "h", c: ["#009E49", "#009E49"] }, HT: { k: "h", c: ["#00209F", "#D21034"] },
+    HN: { k: "h", c: ["#0073CF", W, "#0073CF"] }, IR: { k: "h", c: ["#239F40", W, "#DA0000"] },
+    IQ: { k: "h", c: ["#CE1126", W, K] }, JM: { k: "h", c: ["#009B3A", "#009B3A"] },
+    JO: { k: "h", c: [K, W, "#007A3D"] }, KE: { k: "h", c: [K, "#BB0000", G] },
+    KI: { k: "h", c: ["#CE1126", "#003F87"] }, KW: { k: "h", c: [G, W, "#CE1126"] },
+    KG: { k: "disc", bg: "#E8112D", disc: "#FFEF00" }, LA: { k: "h", c: ["#CE1126", "#002868", "#CE1126"] },
+    LB: { k: "h", c: ["#ED1C24", W, "#ED1C24"] }, LS: { k: "h", c: ["#00209F", W, "#009543"] },
+    LR: { k: "h", c: ["#BF0A30", W, "#BF0A30", W, "#BF0A30"] }, LY: { k: "h", c: ["#E70013", K, G] },
+    LI: { k: "h", c: ["#002B7F", "#CE1126"] }, MK: { k: "disc", bg: "#D20000", disc: "#FFE600" },
+    MG: { k: "v", c: [W, "#FC3D32", "#007E3A"] }, MW: { k: "h", c: [K, "#CE1126", G] },
+    MV: { k: "disc", bg: "#D21034", disc: "#007E3A" }, ML: { k: "v", c: ["#14B53A", "#FCD116", "#CE1126"] },
+    MT: { k: "v", c: [W, "#CF142B"] }, MR: { k: "h", c: [G, G] }, MU: { k: "h", c: ["#EA2839", "#1A206D", "#FFD500", "#00A551"] },
+    MD: { k: "v", c: ["#0046AE", "#FFD200", "#CC092F"] }, MN: { k: "v", c: ["#C4272F", "#015197", "#C4272F"] },
+    ME: { k: "h", c: ["#C40308", "#C40308"] }, MZ: { k: "h", c: ["#009A00", W, K] },
+    MM: { k: "h", c: ["#FECB00", "#34B233", "#EA2839"] }, NA: { k: "h", c: ["#003580", "#D21034", "#009543"] },
+    NP: { k: "h", c: ["#DC143C", "#DC143C"] }, NI: { k: "h", c: ["#0067C6", W, "#0067C6"] },
+    NE: { k: "disc", bg: W, disc: "#E05206" }, KP: { k: "h", c: ["#024FA2", W, "#ED1C27", W, "#024FA2"] },
+    OM: { k: "h", c: [W, "#DB161B", G] }, PK: { k: "v", c: [W, "#01411C"] }, PS: { k: "h", c: [K, W, G] },
+    PA: { k: "h", c: [W, "#DA121A"] }, PG: { k: "h", c: ["#CE1126", K] }, PR: { k: "h", c: ["#ED0000", W, "#ED0000", W, "#ED0000"] },
+    RW: { k: "h", c: ["#00A1DE", "#FAD201", "#20603D"] }, KN: { k: "h", c: [G, K, "#C8102E"] },
+    LC: { k: "disc", bg: "#6CCFF6", disc: K }, VC: { k: "v", c: ["#0072C6", "#FCD116", G] },
+    WS: { k: "h", c: ["#CE1126", "#CE1126"] }, SM: { k: "h", c: [W, "#5EB6E4"] },
+    ST: { k: "h", c: ["#12AD2B", "#FFCE00", "#12AD2B"] }, SN: { k: "v", c: ["#00853F", "#FDEF42", "#E31B23"] },
+    SC: { k: "h", c: ["#003F87", "#FCD856", "#D62828"] }, SL: { k: "h", c: ["#1EB53A", W, "#0072C6"] },
+    SB: { k: "h", c: ["#0051BA", "#215B33"] }, SO: { k: "disc", bg: "#4189DD", disc: W },
+    SS: { k: "h", c: [K, "#DA121A", "#078930"] }, LK: { k: "h", c: ["#8D2029", "#8D2029"] },
+    SD: { k: "h", c: ["#D21034", W, K] }, SR: { k: "h", c: [G, W, "#B40A2D", W, G] },
+    SY: { k: "h", c: ["#CE1126", W, K] }, TW: { k: "h", c: ["#FE0000", "#FE0000"] },
+    TJ: { k: "h", c: ["#CC0000", W, "#006600"] }, TZ: { k: "h", c: ["#1EB53A", "#FCD116", "#00A3DD"] },
+    TL: { k: "h", c: ["#DC241F", "#DC241F"] }, TG: { k: "h", c: [G, "#FFCE00", G, "#FFCE00", G] },
+    TO: { k: "h", c: ["#C10000", "#C10000"] }, TT: { k: "h", c: ["#CE1126", "#CE1126"] },
+    TN: { k: "disc", bg: "#E70013", disc: W }, TM: { k: "h", c: ["#00843D", "#00843D"] },
+    UG: { k: "h", c: [K, "#FCDC04", "#D90000", K, "#FCDC04"] }, UZ: { k: "h", c: ["#0099B5", W, "#1EB53A"] },
+    VU: { k: "h", c: ["#D21034", G] }, VA: { k: "v", c: ["#FFE000", W] },
+    YE: { k: "h", c: ["#CE1126", W, K] }, ZM: { k: "h", c: ["#198A00", "#198A00"] },
+    ZW: { k: "h", c: ["#319208", "#FFD200", "#DE2010", K, "#319208"] },
+};
+Object.assign(FLAGS, MORE);
 /** Renders a flag as inline SVG. Same everywhere, no font dependency. */
 function flagSvg(code, w = 20) {
     const h = Math.round(w * 0.7);
@@ -2266,10 +2507,16 @@ function buildField(div) {
     const used = new Set();
     const real = typeof realFieldNames === "function" ? realFieldNames(tier) : null;
     const realQueue = real ? [...real] : null;
+    // the invented grid comes from a pool that ages, retires and rotates
+    const poolQueue = (!realQueue && typeof fieldNamesFor === "function")
+        ? fieldNamesFor(tier, div.fieldSize + 4) : null;
     for (let i = 1; i < div.fieldSize; i++) {
         let name = "";
         if (realQueue && realQueue.length) {
             name = realQueue.splice(Math.floor(rng() * realQueue.length), 1)[0];
+        }
+        else if (poolQueue && poolQueue.length) {
+            name = poolQueue.shift();
         }
         else {
             do {
@@ -2517,21 +2764,21 @@ function makeSeats() {
         {
             id: "works", name: pick(), archetype: "works", ...blank,
             car: at(0.92), philosophy: phil(), perk: null, mateEdge: 7,
-            expectation: "Podiums, or they find someone else",
+            expectation: "podiums, or they find someone else",
             flavour: seatFlavour("works"),
         },
         {
             id: "midfield", name: pick(), archetype: "midfield", ...blank,
             car: at(0.55), philosophy: phil(),
             perk: null, mateEdge: 1,
-            expectation: "Points, and beat the other car",
+            expectation: "points, and to beat the other car",
             flavour: seatFlavour("midfield"),
         },
         {
             id: "family", name: pick(), archetype: "family", ...blank,
             car: at(0.2), philosophy: phil(),
             perk: null, mateEdge: -6,
-            expectation: "Learn, and tell them what the car needs",
+            expectation: "you to learn, and to tell them what the car needs",
             flavour: seatFlavour("family"),
         },
     ];
@@ -2553,6 +2800,35 @@ function makeSeats() {
     offers[suits].philosophy = driver.setup;
     offers[fights].philosophy = driver.setup === "oversteer" ? "understeer" : "oversteer";
     return offers;
+}
+/** A decision said you were moving. Move. */
+function moveSeat(kind) {
+    const div = currentDivision();
+    const pool = teamPool(tier).filter((t) => t !== currentSeat?.name);
+    const name = pool.length ? pool[Math.floor(rng() * pool.length)] : "Privateer entry";
+    const base = currentSeat?.car ?? (div.carBand[0] + div.carBand[1]) / 2;
+    const shift = kind === "better" ? 5 + rng() * 5 : kind === "worse" ? -(4 + rng() * 5) : noise(6);
+    currentSeat = {
+        id: "moved", name,
+        archetype: kind === "better" ? "works" : kind === "worse" ? "family" : "midfield",
+        car: clamp(base + shift, div.carBand[0] - 4, div.carBand[1] + 4),
+        philosophy: rng() < 0.5 ? "oversteer" : "understeer",
+        perk: PERKS[Math.floor(rng() * (PERKS.length - 1))],
+        mateEdge: kind === "better" ? 5 : kind === "worse" ? -4 : 1,
+        expectation: kind === "better" ? "podiums" : kind === "worse" ? "everything you can get out of it" : "points, and beat the other car",
+        flavour: "A seat that came up mid-career.",
+        years: 1 + Math.floor(rng() * 3),
+        clause: CLAUSES[Math.floor(rng() * CLAUSES.length)],
+    };
+    contractLeft = currentSeat.years;
+    // a new team means a new benchmark
+    teamMate.name = "";
+    teamMate.years = 0;
+    teamMate.seasons = 0;
+    teamMate.beat = 0;
+    teamMate.lost = 0;
+    teamMate.relationship = "cordial";
+    teamMate.team = name;
 }
 /** Machinery the player actually gets, once balance compatibility is applied. */
 /** The give and take of a perk, as chips. */
@@ -2611,7 +2887,7 @@ function renderAcademies() {
       <span class="academy__row"><em>Contract</em><b>${a.years} season${a.years > 1 ? "s" : ""}</b></span>
       <span class="academy__clause" title="${a.clause.detail}"><b>${a.clause.label}</b><small>${a.clause.detail}</small></span>
       ${a.perk ? `<span class="academy__perk">${a.perk.label}</span>` : '<span class="academy__perk academy__perk--none">No development support</span>'}
-      <span class="academy__exp">${a.expectation}</span>
+      <span class="academy__exp">${a.expectation.charAt(0).toUpperCase()}${a.expectation.slice(1)}</span>
     </button>`;
     }).join("");
     const cards = Array.from($("#academyList").querySelectorAll(".academy"));
@@ -2685,11 +2961,11 @@ const DIVISIONS = [
         rounds: CIRCUITS.junior, skillBand: [62, 84], carBand: [56, 80], seatChance: 0.3, next: [4, 8, 10] },
     { id: "reserve", name: "F1 reserve driver", label: "RES", tier: 4, fieldSize: 20,
         rounds: CIRCUITS.f1.slice(0, 4), skillBand: [70, 92], carBand: [50, 74], seatChance: 0.45, next: [5] },
-    { id: "backmarker", name: "Formula 1, backmarker", label: "F1", tier: 5, fieldSize: 20,
+    { id: "backmarker", name: "Formula 1 (backmarker team)", label: "F1", tier: 5, fieldSize: 20,
         rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [42, 58], seatChance: 0.35, next: [6] },
-    { id: "midfield", name: "Formula 1, midfield", label: "F1", tier: 6, fieldSize: 20,
+    { id: "midfield", name: "Formula 1 (midfield team)", label: "F1", tier: 6, fieldSize: 20,
         rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [60, 76], seatChance: 0.3, next: [7] },
-    { id: "front", name: "Formula 1, front-running", label: "F1", tier: 7, fieldSize: 20,
+    { id: "front", name: "Formula 1 (front-running team)", label: "F1", tier: 7, fieldSize: 20,
         rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [80, 94], seatChance: 0, next: [] },
     { id: "gt3", name: "GT3 sportscars", label: "GT3", tier: 8, fieldSize: 22,
         rounds: CIRCUITS.gt, skillBand: [58, 82], carBand: [54, 78], seatChance: 0.45, next: [9] },
@@ -2797,6 +3073,11 @@ function promotionRoll() {
         return { outcome: "promote", headline: "Moving up",
             detail: `${DIVISIONS[div.next[0]].name}. The results were there and, for once, so was the seat.` };
     }
+    // an expired contract means a new seat, wherever you are
+    if (contractLeft <= 1) {
+        return { outcome: "reseat", headline: "Out of contract",
+            detail: `Your deal with ${currentSeat?.name ?? "the team"} is up. Somebody will have you, and it might not be them.` };
+    }
     if (score >= bar && !seatOpen) {
         return { outcome: "stall", headline: "Nowhere to go",
             detail: "You did enough. Nobody above you retired, crashed out of a contract or got sacked. Another year here." };
@@ -2823,7 +3104,6 @@ function promotionRoll() {
 }
 function applyRoll(r) {
     const prev = tier;
-    contractLeft = Math.max(0, contractLeft - 1);
     if (championshipPos() === 1)
         lockedOut.add(tier); // champions don't come back
     const div = DIVISIONS[tier];
@@ -2905,6 +3185,10 @@ function applyEffect(e) {
     }
     if (e.car)
         carBonus += e.car;
+    if (e.contract)
+        contractLeft = Math.max(0, contractLeft + e.contract);
+    if (e.seat && typeof moveSeat === "function")
+        moveSeat(e.seat);
     if (e.rep) {
         Object.keys(e.rep).forEach((k) => {
             reputation[k] += e.rep[k] ?? 0;
@@ -3357,7 +3641,8 @@ DECISIONS.push(...MORE_DECISIONS);
    team-mate you're at war with, the comeback, and the
    quieter parts of a career that had nothing in them.
    ========================================================= */
-const isGT = () => tier >= 8;
+const isGT = () => tier === 8 || tier === 9;
+const isIndy = () => tier === 10;
 const isReserve = () => tier === 4;
 const atWar = () => teamMate.relationship === "war";
 const isBack = () => comebacks > 0;
@@ -4073,6 +4358,8 @@ function showRoll() {
     $("#rollFrom").textContent = currentDivision().name;
     if (roll.outcome !== "fork")
         applyRoll(roll);
+    if (roll.outcome === "stall" || roll.outcome === "reseat")
+        contractLeft = Math.max(0, contractLeft - 1);
     $("#rollTo").textContent = roll.outcome === "fork" ? "Reserve, sportscars or IndyCar"
         : roll.outcome === "out" ? "Career over" : currentDivision().name;
     $("#rollArrow").className = `roll__arrow roll__arrow--${roll.outcome}`;
@@ -4080,6 +4367,10 @@ function showRoll() {
     if (roll.outcome === "fork") {
         btn.textContent = "Choose where you go";
         btn.dataset.action = "fork";
+    }
+    else if (roll.outcome === "reseat") {
+        btn.textContent = "See who's offering";
+        btn.dataset.action = "seats";
     }
     else if (roll.outcome === "out") {
         btn.textContent = "See how it ended";
@@ -4444,48 +4735,80 @@ function comebackChance() {
         p -= 0.15;
     return clamp(p, 0, 0.75);
 }
+const ROUTE_BLURB = {
+    5: "A seat at the back of the Formula 1 grid. The hardest way to come back, and the only one that counts to some people.",
+    6: "A midfield Formula 1 seat. Points are possible, and so is being anonymous.",
+    8: "A works GT3 drive. Real racing, real wins, and a paddock that never cared how you left.",
+    9: "A hypercar seat. Twenty-four hours at a time, sharing a car with people half your age.",
+    10: "An IndyCar seat. Ovals, streets and road courses, and a field close enough to be frightening.",
+};
 function makeComeback() {
     if (rng() > comebackChance())
         return null;
     const waited = 1 + Math.floor(rng() * 3);
-    const newTier = Math.max(4, tier - 1 - Math.floor(rng() * 2));
     const role = COMEBACK_ROLES[Math.floor(rng() * COMEBACK_ROLES.length)];
+    // several series will have you, and a second career can run as long as the first
+    const options = [5, 6, 8, 9, 10].filter((t) => t !== 6 || cabinet.titles.some((x) => x.tier >= 5));
+    const routes = options.map((t) => ({
+        tier: t,
+        division: DIVISIONS[t].name,
+        team: teamPool(t)[Math.floor(rng() * teamPool(t).length)],
+        blurb: ROUTE_BLURB[t],
+    }));
     return {
-        team: ACADEMY_POOL[Math.floor(rng() * ACADEMY_POOL.length)],
-        division: DIVISIONS[newTier].name,
-        tier: newTier,
-        seasons: 1 + Math.floor(rng() * 2),
+        team: routes[0].team,
+        division: routes[0].division,
+        tier: routes[0].tier,
+        seasons: 2 + Math.floor(rng() * 4), // a proper run, not a cameo
         reason: role.text,
         waited,
+        routes,
     };
 }
+let comebackRoute = null;
 function renderComeback() {
     const o = comebackOffer;
-    $("#cbTeam").textContent = o.team;
-    $("#cbDivision").textContent = o.division;
+    comebackRoute = null;
     $("#cbReason").textContent = o.reason;
-    $("#cbTerms").textContent = `${o.seasons} season${o.seasons > 1 ? "s" : ""}, and you'd be ${age + o.waited} by the first race.`;
+    $("#cbTerms").textContent = `${o.seasons} seasons on the table, and you would be ${age + o.waited} by the first race.`;
     $("#cbWaited").textContent = o.waited === 1 ? "A year out" : `${o.waited} years out`;
+    $("#cbRoutes").innerHTML = o.routes.map((r) => `
+    <button class="academy" type="button" data-route="${r.tier}">
+      <span class="academy__top"><span class="academy__name">${DIVISIONS[r.tier].label}</span></span>
+      <span class="academy__flavour">${r.blurb}</span>
+      <span class="academy__row"><em>Series</em><b>${r.division}</b></span>
+      <span class="academy__row"><em>Team</em><b>${r.team}</b></span>
+      <span class="academy__exp">${o.seasons} seasons, and you choose when to stop</span>
+    </button>`).join("");
+    $("#cbRoutes").querySelectorAll("[data-route]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            comebackRoute = o.routes.find((r) => String(r.tier) === btn.dataset.route);
+            $("#cbRoutes").querySelectorAll(".academy").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+            $("#cbAccept").disabled = false;
+        });
+    });
+    $("#cbAccept").disabled = true;
     show("comeback");
 }
 function acceptComeback() {
     const o = comebackOffer;
+    const route = comebackRoute ?? o.routes[0];
     comebacks++;
     retired = false;
     hallWritten = false; // the comeback gets its own entry when it ends
     slotId = `d${Date.now().toString(36)}c`;
     age += o.waited;
-    tier = o.tier;
+    tier = route.tier;
     yearsInTier = 0;
     contractLeft = o.seasons;
     teamMate.name = "";
     teamMate.years = 0; // new team, new benchmark
     currentSeat = {
-        id: "comeback", name: o.team, archetype: "midfield",
-        car: DIVISIONS[o.tier].carBand[0] + rng() * 8,
+        id: "comeback", name: route.team, archetype: "midfield",
+        car: DIVISIONS[route.tier].carBand[0] + rng() * 8,
         philosophy: rng() < 0.5 ? "oversteer" : "understeer",
-        perk: null, mateEdge: 2,
-        expectation: "Finish the season and don't embarrass anyone",
+        perk: PERKS[Math.floor(rng() * (PERKS.length - 1))], mateEdge: 2,
+        expectation: "you to finish the season and embarrass nobody",
         flavour: o.reason,
         years: o.seasons,
         clause: { id: "short", label: "Short-notice terms", detail: "Race by race. Either side can walk." },
@@ -5077,6 +5400,9 @@ const ACHIEVEMENTS = [
         test: () => cabinet.titles.some((t) => t.label === "F3")
             && cabinet.titles.some((t) => t.label === "F2")
             && cabinet.titles.some((t) => t.tier >= 5) },
+    { id: "fangio", name: "The Fangio Special", how: "Still racing in your fifties", tier: "legendary",
+        flavour: "Driving with your walking stick in the cockpit next to you.",
+        test: () => age >= 50 },
     /* ---- hidden ---- */
     { id: "no-titles", name: "Nearly", how: "Hidden", hidden: true, tier: "rare",
         flavour: "Fifteen seasons, a hundred races, and never once a champion. That's most careers.",
@@ -5212,16 +5538,16 @@ function showBriefing(year) {
     $("#brTitle").textContent = year === 1 ? "Your first season" : `Season ${year}`;
     const fits = currentSeat ? currentSeat.philosophy === driver.setup : true;
     $("#brLine").textContent = currentSeat
-        ? `${currentSeat.name} expect ${currentSeat.expectation.toLowerCase()}. The car ${fits ? "suits your balance, which is worth real pace" : "fights your balance, and you will feel it every lap"}.`
+        ? `${currentSeat.name} expect ${currentSeat.expectation}. The car ${fits ? "suits your balance, which is worth real pace" : "fights your balance, and you will feel it every lap"}.`
         : "A season of racing ahead.";
     const mateName = teamMate.name || "to be confirmed";
     const rows = [
         ["Division", div.name, `${div.rounds.length} rounds`],
-        ["Team", currentSeat?.name ?? "-", currentSeat ? `${contractLeft} year${contractLeft === 1 ? "" : "s"} left on the contract` : undefined],
+        ["Team", currentSeat?.name ?? "-", currentSeat ? (contractLeft <= 1 ? "Final year of the contract" : `${contractLeft} years left on the contract`) : undefined],
         ["Team-mate", mateName, teamMate.seasons ? `${teamMate.seasons} season${teamMate.seasons === 1 ? "" : "s"} together, ${teamMate.beat}–${teamMate.lost}, ${relationshipLabel().toLowerCase()}` : "New to you"],
         ["Your trait", driver.trait?.full ?? "-", driver.trait?.blurb],
         ["Age", String(age), age >= 30 ? "Past your peak, and you know things you didn't" : "Still improving"],
-        ["Strongest", `${strongest[1]} ${a[strongest[0]]}`, `Weakest: ${weakest[1]} ${a[weakest[0]]}`],
+        ["Strongest", `${strongest[1]} ${Math.round(a[strongest[0]])}`, `Weakest: ${weakest[1]} ${Math.round(a[weakest[0]])}`],
         ["Overall", String(overall()), ovrBand(overall())],
     ];
     $("#brGrid").innerHTML = rows.map(([k, v, note]) => `<div><span>${k}</span><b>${v}${note ? `<small>${note}</small>` : ""}</b></div>`).join("");
@@ -5258,6 +5584,303 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.addEventListener("click", () => window.setTimeout(renderPicks, 0));
     renderPicks();
+});
+
+/* ---- pool.js ---- */
+"use strict";
+/* =========================================================
+   THE DRIVER POOL
+   AI drivers used to be generated fresh every season, which
+   is why a name could vanish or a real driver could still be
+   on the grid at sixty. They now have ages, careers and
+   contracts of their own, and they leave when they're done.
+   ========================================================= */
+const FIRST_POOL = [
+    "Luca", "Mateo", "Elias", "Nico", "Théo", "Kai", "Rafa", "Jonas", "Milan", "Otto", "Arno", "Dries", "Sander", "Tomas",
+    "Ravi", "Enzo", "Bruno", "Felix", "Aksel", "Mika", "Pau", "Ivo", "Noah", "Levi", "Casper", "Emil", "Iker", "Joris",
+    "Matteo", "Lukas", "Andrei", "Bence", "Tobias", "Rasmus", "Diogo", "Yuki", "Hiro", "Santiago", "Nikola", "Aleks",
+    "Gustav", "Marek", "Pedro", "Stefan", "Viktor", "Adam", "Ollie", "Finn", "Jean", "Karl", "Mo", "Amir", "Dario", "Sem",
+    "Tiago", "Kristian", "Janne", "Ruben", "Halil", "Nuno", "Eero", "Zoltán", "Ionut", "Ciaran", "Declan", "Seb", "Rory",
+];
+const LAST_POOL = [
+    "Berger", "Kovač", "Lindqvist", "Moreau", "Sasaki", "Duarte", "Vogel", "Halonen", "Ricci", "Novák", "Baptista",
+    "Ahlberg", "Meijer", "Serrano", "Okada", "Brandt", "Lefèvre", "Marchetti", "Nilsen", "Varga", "Costa", "Zieliński",
+    "Hoffman", "Renard", "Merilai", "Laine", "Bakker", "Dumont", "Ferrer", "Grönholm", "Haas", "Iversen", "Jansen",
+    "Kaufmann", "Larsen", "Moreno", "Nagy", "Olsen", "Pereira", "Quintero", "Rossi", "Sorensen", "Toth", "Ueda",
+    "Vidal", "Wenger", "Ziegler", "Andersson", "Boucher", "Carvalho", "Delgado", "Eriksen", "Fontaine", "Gallo",
+    "Horvat", "Ilves", "Jokinen", "Kral", "Lombardi", "Mizuno", "Novotny", "Ortiz", "Petrov", "Rasmussen", "Sandoval",
+    "Tamm", "Urban", "Verhoeven", "Wagner", "Yilmaz", "Zanetti", "Byrne", "Doyle", "Finnegan", "Keane", "O'Rourke",
+];
+/** Drivers who exist by name, whatever the roster setting. */
+const FANTASY_FIXTURES = ["Mark Merilai"];
+const pool = [];
+let poolRetired = 0; // running count, since retired entries get pruned
+let poolReady = false;
+function makeName(used) {
+    for (let i = 0; i < 40; i++) {
+        const n = `${FIRST_POOL[Math.floor(rng() * FIRST_POOL.length)]} ${LAST_POOL[Math.floor(rng() * LAST_POOL.length)]}`;
+        if (!used.has(n))
+            return n;
+    }
+    return `${FIRST_POOL[Math.floor(rng() * FIRST_POOL.length)]} ${LAST_POOL[Math.floor(rng() * LAST_POOL.length)]} ${Math.floor(rng() * 90)}`;
+}
+function makePoolDriver(t, used, name) {
+    const div = DIVISIONS[t];
+    const n = name ?? makeName(used);
+    used.add(n);
+    const age = t <= 1 ? 15 + Math.floor(rng() * 4)
+        : t <= 3 ? 18 + Math.floor(rng() * 5)
+            : 21 + Math.floor(rng() * 13);
+    const peak = div.skillBand[0] + rng() * (div.skillBand[1] - div.skillBand[0]) + 4;
+    return {
+        name: n, age, peak,
+        skill: clamp(peak - Math.max(0, 24 - age) * 1.2, 30, 97),
+        tier: t, team: "", seasons: 0, retired: false,
+    };
+}
+/** Built once per career, then aged forward each season. */
+function buildPool() {
+    pool.length = 0;
+    poolRetired = 0;
+    const used = new Set();
+    FANTASY_FIXTURES.forEach((n) => used.add(n));
+    DIVISIONS.forEach((d, t) => {
+        const n = Math.max(d.fieldSize + 6, 24);
+        for (let i = 0; i < n; i++)
+            pool.push(makePoolDriver(t, used));
+    });
+    // guaranteed names, dropped in somewhere they'd plausibly be
+    FANTASY_FIXTURES.forEach((n) => {
+        const t = 1 + Math.floor(rng() * 3);
+        const d = makePoolDriver(t, used, n);
+        d.age = 17 + Math.floor(rng() * 3);
+        pool.push(d);
+    });
+    poolReady = true;
+}
+/** A season passes for everyone, not just you. */
+function agePool() {
+    if (!poolReady) {
+        buildPool();
+        return;
+    }
+    const used = new Set(pool.map((p) => p.name));
+    pool.forEach((p) => {
+        if (p.retired)
+            return;
+        p.age++;
+        p.seasons++;
+        // development, then decline
+        if (p.age <= 26)
+            p.skill = clamp(p.skill + 1.2 + rng() * 1.8, 30, 97);
+        else if (p.age >= 32)
+            p.skill = clamp(p.skill - (p.age - 31) * 0.7, 30, 97);
+        // the juniors move up or run out of road
+        if (p.tier <= 3 && p.age >= 24 && rng() < 0.45) {
+            p.retired = true;
+            return;
+        }
+        if (p.tier <= 6 && rng() < 0.18)
+            p.tier = Math.min(p.tier + 1, 7);
+        // and everybody stops eventually
+        const stopAge = p.tier >= 5 ? 34 + Math.floor(rng() * 4) : 29;
+        if (p.age >= stopAge)
+            p.retired = true;
+        else if (p.age >= stopAge - 3 && rng() < 0.3)
+            p.retired = true;
+        // teams change hands between seasons
+        if (rng() < 0.25)
+            p.team = "";
+    });
+    // named fixtures always have somebody carrying the name
+    FANTASY_FIXTURES.forEach((n) => {
+        const alive = pool.some((p) => p.name === n && !p.retired);
+        if (!alive) {
+            const d = makePoolDriver(1 + Math.floor(rng() * 2), used, n);
+            d.age = 17 + Math.floor(rng() * 3);
+            pool.push(d);
+        }
+    });
+    // rookies to replace them
+    const gone = pool.filter((p) => p.retired).length;
+    for (let i = 0; i < Math.max(4, Math.round(gone * 0.8)); i++) {
+        pool.push(makePoolDriver(Math.floor(rng() * 3), used));
+    }
+    // keep it from growing forever
+    poolRetired += pool.filter((p) => p.retired).length;
+    if (pool.length > 320) {
+        const keep = pool.filter((p) => !p.retired);
+        pool.length = 0;
+        pool.push(...keep);
+    }
+}
+/** The names racing in a division this season, strongest first. */
+function fieldNamesFor(t, count) {
+    if (!poolReady)
+        buildPool();
+    const here = pool.filter((p) => !p.retired && p.tier === t).sort((a, b) => b.skill - a.skill);
+    const names = here.slice(0, count).map((p) => p.name);
+    // top up if a division has thinned out
+    const used = new Set(pool.map((p) => p.name));
+    while (names.length < count) {
+        const d = makePoolDriver(t, used);
+        pool.push(d);
+        names.push(d.name);
+    }
+    return names;
+}
+/** Age of a named driver, where we know it. */
+function poolAge(name) {
+    return pool.find((p) => p.name === name)?.age ?? null;
+}
+
+/* ---- overview.js ---- */
+"use strict";
+/* =========================================================
+   OVERVIEW, SAVES AND FEEDBACK
+   Somewhere for the season to sit still and be read, a way
+   to carry progress between browsers, and a route to report
+   what breaks.
+   ========================================================= */
+/* --------------------------- season overview --------------------------- */
+/** The full round-by-round table, kept after the season ends. */
+function renderOverview() {
+    if (!season)
+        return;
+    const st = seasonStats();
+    const div = currentDivision();
+    const mate = season.field.find((r) => r.isTeamMate);
+    $("#ovTitle").textContent = `Season ${season.year}`;
+    $("#ovSub").textContent = `${div.name} · ${currentSeat?.name ?? "-"} · ${st.races} rounds`;
+    $("#ovRounds").innerHTML = `
+    <div class="race-head">
+      <span>Rnd</span><span>Circuit</span><span>Grid</span><span>Finish</span><span>Mate</span><span>Pts</span>
+    </div>` + season.results.map((r) => {
+        const pos = r.finish === null ? "DNF" : ORD(r.finish);
+        const cls = r.finish === null ? "dnf" : r.finish === 1 ? "win" : r.finish <= 3 ? "pod" : r.points > 0 ? "pts" : "";
+        const m = r.teamMateFinish === null ? "DNF" : ORD(r.teamMateFinish);
+        return `<div class="race-row">
+        <span class="rr-round">R${String(r.round).padStart(2, "0")}</span>
+        <span class="rr-circuit">${r.circuit}${r.wet ? ' <b class="wet">WET</b>' : ""}</span>
+        <span class="rr-grid">P${r.grid}</span>
+        <span class="rr-finish ${cls}">${pos}</span>
+        <span class="rr-mate ${r.beatTeamMate ? "beat" : "lost"}">${m}</span>
+        <span class="rr-pts">${r.points || "-"}</span>
+      </div>`;
+    }).join("");
+    $("#ovStats").innerHTML = `
+    <div><b>${ORD(championshipPos())}</b><span>Championship</span></div>
+    <div><b>${st.points}</b><span>Points</span></div>
+    <div><b>${st.wins}</b><span>Wins</span></div>
+    <div><b>${st.podiums}</b><span>Podiums</span></div>
+    <div><b>${st.poles}</b><span>Poles</span></div>
+    <div><b>${st.dnfs}</b><span>DNFs</span></div>`;
+    $("#ovTable").innerHTML = standings().slice(0, 10).map((r, i) => `
+    <div class="st-row ${r.isPlayer ? "me" : ""} ${r.isTeamMate ? "mate" : ""}">
+      <span>${i + 1}</span>
+      <span class="st-name">${r.name}${r.isTeamMate ? ' <b class="mate-tag">team-mate</b>' : ""}</span>
+      <span class="st-pts">${r.points}</span>
+    </div>`).join("");
+    $("#ovMate").textContent = mate
+        ? `${mate.name}: ${mate.points} points, and you finished ahead of him ${st.beat} times out of ${st.races}.`
+        : "";
+}
+/* --------------------------- saves --------------------------- */
+const SAVE_VERSION = 1;
+function readKey(k) {
+    try {
+        return JSON.parse(localStorage.getItem(k) ?? "null");
+    }
+    catch {
+        return null;
+    }
+}
+function exportSave() {
+    const bundle = {
+        v: SAVE_VERSION,
+        when: Date.now(),
+        achievements: readKey("swami-achievements"),
+        hall: readKey("swami-hall"),
+        slots: readKey("swami-slots"),
+        theme: (() => { try {
+            return localStorage.getItem("swami-theme");
+        }
+        catch {
+            return null;
+        } })(),
+        roster: (() => { try {
+            return localStorage.getItem("swami-roster");
+        }
+        catch {
+            return null;
+        } })(),
+    };
+    return btoa(unescape(encodeURIComponent(JSON.stringify(bundle))));
+}
+function importSave(code) {
+    let bundle;
+    try {
+        bundle = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+    }
+    catch {
+        return { ok: false, message: "That code could not be read. Check it copied in full." };
+    }
+    if (!bundle || typeof bundle.v !== "number")
+        return { ok: false, message: "That does not look like a Swami Formula save." };
+    if (bundle.v > SAVE_VERSION)
+        return { ok: false, message: "That save is from a newer version of the game." };
+    try {
+        // merge achievements rather than replacing, so nothing already earned is lost
+        const mine = readKey("swami-achievements") ?? [];
+        const theirs = bundle.achievements ?? [];
+        const merged = [...mine];
+        theirs.forEach((a) => { if (!merged.some((m) => m.id === a.id))
+            merged.push(a); });
+        localStorage.setItem("swami-achievements", JSON.stringify(merged));
+        if (bundle.hall)
+            localStorage.setItem("swami-hall", JSON.stringify(bundle.hall));
+        if (bundle.slots)
+            localStorage.setItem("swami-slots", JSON.stringify(bundle.slots));
+        if (bundle.theme)
+            localStorage.setItem("swami-theme", bundle.theme);
+        if (bundle.roster)
+            localStorage.setItem("swami-roster", bundle.roster);
+    }
+    catch {
+        return { ok: false, message: "Storage is blocked in this browser, so the save could not be written." };
+    }
+    unlockedCache = null;
+    return { ok: true, message: "Loaded. Reloading the page to pick it up." };
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $("#ovBack").addEventListener("click", () => show("summary"));
+    $("#hubOverview").addEventListener("click", () => { renderOverview(); show("overview"); });
+    $("#saveExport").addEventListener("click", () => {
+        const code = exportSave();
+        const box = $("#saveCode");
+        box.value = code;
+        box.hidden = false;
+        box.select();
+        try {
+            navigator.clipboard?.writeText(code);
+        }
+        catch { /* user can copy manually */ }
+        $("#saveNote").textContent = "Copied. Keep this somewhere safe, it holds your achievements, hall of fame and careers.";
+    });
+    $("#saveImport").addEventListener("click", () => {
+        const box = $("#saveCode");
+        if (box.hidden || !box.value.trim()) {
+            box.hidden = false;
+            box.value = "";
+            box.focus();
+            $("#saveNote").textContent = "Paste a save code in the box, then press Load again.";
+            return;
+        }
+        const res = importSave(box.value);
+        $("#saveNote").textContent = res.message;
+        if (res.ok)
+            window.setTimeout(() => window.location.reload(), 900);
+    });
 });
 
 /* ---- reset.js ---- */
@@ -5312,6 +5935,10 @@ function resetCareer() {
     // people
     Object.assign(teamMate, { name: "", skill: 0, years: 0, seasons: 0, beat: 0, lost: 0, relationship: "cordial", team: "" });
     Object.assign(nemesis, { name: "", edge: 0, metIn: 0, beat: 0, lost: 0 });
+    if (typeof pool !== "undefined") {
+        pool.length = 0;
+        poolReady = false;
+    }
     // this driver gets their own save slot
     newSlot();
     // reset the creator UI back to a blank driver
@@ -5645,6 +6272,8 @@ function nextRace() {
 function startSeason(year = 1) {
     season = { year, division: currentDivision(), results: [], field: [], finished: false };
     season.field = buildField(currentDivision());
+    if (typeof agePool === "function" && year > 1)
+        agePool();
     skipping = false;
     contender = null;
     deciderShown = false;
