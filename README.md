@@ -61,6 +61,32 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 ## Changelog
 
+**The big update**
+
+*Bugs from the playtests*
+- Decisions that promise a move now actually move you. Effects can change your seat, your team, your team-mate and your contract, so "a new team is entering the grid" puts you at a new team.
+- Contract length decrements properly and expiry ends the seat. When a deal runs out you get offers instead of staying eight seasons on nothing.
+- Seats change hands each year, so you are no longer stuck at one team for five seasons with nowhere to go.
+- Formula 1 scenes no longer fire in sportscars or IndyCar, and the reverse.
+- Expectation grammar fixed. "Arrow McLaren expect learn" is now "Arrow McLaren expect you to learn, and to tell them what the car needs".
+- Attribute numbers rounded everywhere. No more "Tyre management 98.70332538149552".
+- F1 divisions renamed to "Formula 1 (midfield team)" so it reads as your team's competitiveness rather than a separate series.
+- Race numbers now 0 to 999. Country list expanded from 65 to 194, Barbados included, every one with a drawn flag.
+
+*A living grid*
+- AI drivers are a persistent pool of around 300 with ages, skill curves and careers of their own. They develop until 26, decline after 32, and retire at 34 or so, and rookies replace them. Over a sixteen-season career about 600 drivers came and went. No more sixty-year-old Alonso.
+- **Mark Merilai** is in the fantasy pool, and the name always has somebody carrying it.
+
+*The comeback is a second career*
+- Choose your series: Formula 1 at a backmarker or midfield team, GT3, Hypercar or IndyCar, each with its own pitch.
+- Two to five seasons on the table rather than a cameo, and you decide when to stop.
+
+*New*
+- **Season overview** screen holding the full round-by-round table, final standings and season stats, so it can be read after the season instead of during it.
+- **The Fangio Special**: still racing in your fifties. "Driving with your walking stick in the cockpit next to you."
+- **Export and load progress.** A code in the footer carrying achievements, hall of fame and in-progress careers, so nothing is lost moving browsers or clearing data. Achievements merge on import rather than overwrite.
+- **Report a bug**: message @lowsheamus on Discord, linked in the footer.
+
 **Fixes and adjustments**
 
 - **Career history was being overwritten.** Starting a second driver in the same session reused the first driver's save slot, so the earlier career was silently replaced. Every new driver now gets their own slot, and starting fresh from the landing page or the history screen clears all career state first: attributes, cabinet, reputation, decision log, team-mate, rival, the lot. Tested with three drivers in one session, two retired and one left running, all kept separately.
