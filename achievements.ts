@@ -35,7 +35,7 @@ function isUnlocked(id: string): boolean {
 
 function unlock(a: Achievement): void {
   const entry: Unlocked = {
-    id: a.id, driver: driver.surname.toUpperCase() || "—",
+    id: a.id, driver: driver.surname.toUpperCase() || "-",
     year: season?.year ?? 0, at: Date.now(),
   };
   unlockedMemory = [...unlockedList(), entry];
@@ -46,7 +46,7 @@ function unlock(a: Achievement): void {
 
 /* --------------------------- the list --------------------------- */
 
-const st = (): SeasonStats | null => (season && season.results.length ? seasonStats() : null);
+const seasonNow = (): SeasonStats | null => (season && season.results.length ? seasonStats() : null);
 const lifetimeH2H = (): [number, number] => [
   careerHistory.reduce((n, h) => n + h.beat, 0),
   careerHistory.reduce((n, h) => n + h.lost, 0),
@@ -72,7 +72,7 @@ const ACHIEVEMENTS: Achievement[] = [
     flavour: "A dominant season, and then the luck.", test: () => careerHistory.some((h) => h.outcome === "jump") },
   { id: "f1-title", name: "World champion", how: "Win a Formula 1 championship", tier: "legendary",
     flavour: "The only one that gets remembered by people who don't watch.", test: () => cabinet.titles.some((t) => t.tier >= 5) },
-  { id: "triple", name: "Three in a row", how: "Win three championships in consecutive seasons", tier: "legendary",
+  { id: "triple", name: "Three in a row", how: "Win three championships in consecutive seasons, any level", tier: "rare",
     flavour: "Nobody argues with three.", test: () => {
       const yrs = cabinet.titles.map((t) => t.year).sort((a, b) => a - b);
       return yrs.some((y) => yrs.includes(y + 1) && yrs.includes(y + 2));
@@ -85,12 +85,21 @@ const ACHIEVEMENTS: Achievement[] = [
     flavour: "Twenty-four hours is a long time to be right.", test: () => cabinet.titles.some((t) => t.label === "HYP") },
   { id: "round-trip", name: "Round trip", how: "Reach F1 after racing sportscars", tier: "legendary",
     flavour: "They said it was a detour.", test: () => tier >= 4 && careerHistory.some((h) => h.label === "GT3" || h.label === "HYP") },
+  { id: "indycar", name: "Across the water", how: "Take the IndyCar road out of F2", tier: "rare",
+    flavour: "Ovals, streets and road courses, all in one year.",
+    test: () => tier === 10 || careerHistory.some((h) => h.label === "INDY") },
+  { id: "indy500", name: "The 500", how: "Win at the Indianapolis 500", tier: "legendary",
+    flavour: "Milk, bricks, and a face on a trophy forever.",
+    test: () => cabinet.wins.some((w) => w.circuit === "Indianapolis 500") },
+  { id: "indy-title", name: "IndyCar champion", how: "Win an IndyCar championship", tier: "legendary",
+    flavour: "The closest field in racing, and you were the front of it.",
+    test: () => cabinet.titles.some((t) => t.label === "INDY") },
   { id: "comeback", name: "One more year", how: "Come back after retiring", tier: "rare",
     flavour: "The phone rang and you picked it up.", test: () => comebacks > 0 },
 
   /* ---- team-mates ---- */
   { id: "clean-sweep", name: "Whitewash", how: "Beat your team-mate at every round of a season", tier: "rare",
-    flavour: "Twelve out of twelve. He asked to be moved.", test: () => { const s = st(); return !!s && s.races >= 8 && s.lost === 0; } },
+    flavour: "Twelve out of twelve. He asked to be moved.", test: () => { const s = seasonNow(); return !!s && s.races >= 8 && s.lost === 0; } },
   { id: "hundred-h2h", name: "The benchmark", how: "Out-score team-mates 100 times", tier: "rare",
     flavour: "The first number the paddock reads.", test: () => lifetimeH2H()[0] >= 100 },
   { id: "at-war", name: "Open war", how: "Fall out with a team-mate completely", tier: "common",
@@ -102,13 +111,13 @@ const ACHIEVEMENTS: Achievement[] = [
   { id: "wet-master", name: "Rain man", how: "Win a wet race", tier: "common",
     flavour: "Rain flattens the grid and you climb over it.", test: () => cabinet.wins.some((w) => w.wet) },
   { id: "pole-sweep", name: "Six poles", how: "Take six poles in one season", tier: "rare",
-    flavour: "Saturdays belonged to you.", test: () => { const s = st(); return !!s && s.poles >= 6; } },
+    flavour: "Saturdays belonged to you.", test: () => { const s = seasonNow(); return !!s && s.poles >= 6; } },
   { id: "recovery", name: "Twenty places", how: "Gain 20 net places on track in a season", tier: "rare",
-    flavour: "You start badly and finish angry.", test: () => { const s = st(); return !!s && s.gained >= 20; } },
+    flavour: "You start badly and finish angry.", test: () => { const s = seasonNow(); return !!s && s.gained >= 20; } },
   { id: "perfect", name: "No mistakes", how: "Finish every race of a season", tier: "rare",
-    flavour: "Not dramatic. Just there, every time.", test: () => { const s = st(); return !!s && s.races >= 8 && s.dnfs === 0; } },
+    flavour: "Not dramatic. Just there, every time.", test: () => { const s = seasonNow(); return !!s && s.races >= 8 && s.dnfs === 0; } },
   { id: "double-figures", name: "Ten in a year", how: "Win ten races in one season", tier: "legendary",
-    flavour: "A season nobody else got a say in.", test: () => { const s = st(); return !!s && s.wins >= 10; } },
+    flavour: "A season nobody else got a say in.", test: () => { const s = seasonNow(); return !!s && s.wins >= 10; } },
 
   /* ---- the other kind ---- */
   { id: "dnf-trophy", name: "The DNF trophy", how: "Retire from four races in one season", tier: "common",
@@ -142,6 +151,99 @@ const ACHIEVEMENTS: Achievement[] = [
   { id: "collector", name: "Five teams", how: "Drive for five different teams", tier: "common",
     flavour: "Five helmets on the shelf.", test: () => cabinet.helmets.length >= 5 },
 
+  /* ---- the named ones ---- */
+  { id: "youngest", name: "Youngest champion", how: "Win a Formula 1 championship at 23 or under", tier: "legendary",
+    flavour: "The youngest name on the trophy, and it stays that way for a long time.",
+    test: () => cabinet.titles.some((t) => t.tier >= 5 && (t.age ?? 99) <= 23) },
+  { id: "greatest", name: "All-time greatest", how: "Win eight Formula 1 championships", tier: "legendary",
+    flavour: "Eight. There is no argument left to have.",
+    test: () => cabinet.titles.filter((t) => t.tier >= 5).length >= 8 },
+  { id: "four-row", name: "Mr Four In A Row", how: "Win four Formula 1 championships in consecutive seasons", tier: "legendary",
+    flavour: "Four straight at the top. The argument stops being an argument.",
+    test: () => {
+      const yrs = [...new Set(cabinet.titles.filter((t) => t.tier >= 5).map((t) => t.year))].sort((a, b) => a - b);
+      return yrs.some((y) => yrs.includes(y + 1) && yrs.includes(y + 2) && yrs.includes(y + 3));
+    } },
+  { id: "xaverra", name: "The Xaverra Classic", how: "As a Dutch driver, win at Zandvoort three times", tier: "legendary",
+    flavour: "Orange everywhere, three times over. They will not let you buy a drink again.",
+    test: () => driver.country?.code === "NL" && cabinet.wins.filter((w) => w.circuit === "Zandvoort").length >= 3 },
+  { id: "trifecta", name: "The trifecta", how: "Win the F3, F2 and Formula 1 championships", tier: "legendary",
+    flavour: "The whole ladder, one rung at a time, all of them won.",
+    test: () => cabinet.titles.some((t) => t.label === "F3")
+      && cabinet.titles.some((t) => t.label === "F2")
+      && cabinet.titles.some((t) => t.tier >= 5) },
+
+  { id: "fangio", name: "The Fangio Special", how: "Still racing in your fifties", tier: "legendary",
+    flavour: "Driving with your walking stick in the cockpit next to you.",
+    test: () => age >= 50 },
+
+  /* ---- reserve and the long way ---- */
+  { id: "stand-in", name: "Called up", how: "Score points as a stand-in reserve driver", tier: "rare",
+    flavour: "Somebody got hurt, and you were ready.",
+    test: () => currentDivision().id === "reserve" && (seasonNow()?.points ?? 0) > 0 },
+  { id: "reserve-podium", name: "Not bad for a stand-in", how: "Take a podium as a reserve driver", tier: "legendary",
+    flavour: "Four races all year, and one of them ended on the podium.",
+    test: () => currentDivision().id === "reserve" && (seasonNow()?.podiums ?? 0) > 0 },
+  { id: "every-series", name: "Been everywhere", how: "Race in F1, sportscars and IndyCar", tier: "legendary",
+    flavour: "Three paddocks, three sets of rules, one career.",
+    test: () => careerHistory.some((h) => h.label === "F1")
+      && careerHistory.some((h) => h.label === "GT3" || h.label === "HYP")
+      && careerHistory.some((h) => h.label === "INDY") },
+  { id: "triple-crown", name: "Something like the triple crown", how: "Win at Monaco, the Indy 500 and Le Mans", tier: "legendary",
+    flavour: "Three races, three disciplines, one name on all of them.",
+    test: () => cabinet.wins.some((w) => w.circuit === "Monaco")
+      && cabinet.wins.some((w) => w.circuit === "Indianapolis 500")
+      && cabinet.wins.some((w) => w.circuit === "Le Mans") },
+
+  /* ---- races and moments ---- */
+  { id: "the-gap", name: "It was a gap", how: "Win a place on the last lap by pushing", tier: "common",
+    flavour: "It was not really a gap. It was a gap.",
+    test: () => momentsPushed >= 1 && momentsWon >= 1 },
+  { id: "gambler-race", name: "Nerves of something", how: "Push in ten in-race moments", tier: "rare",
+    flavour: "You have never once settled for the position you were in.",
+    test: () => momentsPushed >= 10 },
+  { id: "burned", name: "Into the barrier", how: "End a race in the wall by pushing", tier: "common",
+    flavour: "It did not stick.",
+    test: () => momentsCrashed >= 1 },
+  { id: "clean-hands", name: "Never once tempted", how: "Hold position in ten in-race moments", tier: "rare",
+    flavour: "Every time the door opened, you closed it yourself.",
+    test: () => momentsHeld >= 10 },
+  { id: "podium-hat", name: "Three on the bounce", how: "Podium in three consecutive races", tier: "rare",
+    flavour: "A run where the car and the driver agreed about everything.",
+    test: () => {
+      const f = (season?.results ?? []).filter((r) => !r.didNotStart).map((r) => r.finish);
+      return f.some((_, i) => i >= 2 && [f[i], f[i - 1], f[i - 2]].every((x) => x !== null && x <= 3));
+    } },
+  { id: "points-every-race", name: "In the points all year", how: "Score in every round of a season", tier: "legendary",
+    flavour: "Not one weekend wasted.",
+    test: () => { const s = seasonNow(); return !!s && s.races >= 10 && s.pointsFinishes === s.races; } },
+
+  /* ---- careers ---- */
+  { id: "one-team", name: "One team, ten years", how: "Spend ten seasons at the same team", tier: "rare",
+    flavour: "They named a corner of the factory after you.",
+    test: () => cabinet.helmets.some((h) => h.seasons >= 10) },
+  { id: "journeyman", name: "Journeyman", how: "Drive for ten different teams", tier: "common",
+    flavour: "Ten helmets, ten sets of overalls, one steering wheel.",
+    test: () => cabinet.helmets.length >= 10 },
+  { id: "two-hundred", name: "Two hundred starts", how: "Start 200 races", tier: "rare",
+    flavour: "More Sundays in a car than most people spend on anything.",
+    test: () => cabinet.races >= 200 },
+  { id: "fifty-wins", name: "Fifty wins", how: "Win fifty races", tier: "legendary",
+    flavour: "Fifty times, the anthem was for you.",
+    test: () => cabinet.wins.length >= 50 },
+  { id: "unlucky", name: "Cruel year", how: "Retire from six races in one season", tier: "common",
+    flavour: "The car broke, and then it broke again.",
+    test: () => (seasonNow()?.dnfs ?? 0) >= 6 },
+  { id: "beaten-badly", name: "Out-driven", how: "Lose the head-to-head in a season by ten or more", tier: "common",
+    flavour: "He had your number all year and everybody saw it.",
+    test: () => { const s = seasonNow(); return !!s && s.lost - s.beat >= 10; } },
+  { id: "late-bloomer", name: "Late bloomer", how: "Win your first championship at 30 or older", tier: "rare",
+    flavour: "Everybody had already decided what you were.",
+    test: () => cabinet.titles.length > 0 && (cabinet.titles[0].age ?? 0) >= 30 },
+  { id: "wet-double", name: "Rain specialist", how: "Win three wet races", tier: "rare",
+    flavour: "When it rains, the paddock looks at you.",
+    test: () => cabinet.wins.filter((w) => w.wet).length >= 3 },
+
   /* ---- hidden ---- */
   { id: "no-titles", name: "Nearly", how: "Hidden", hidden: true, tier: "rare",
     flavour: "Fifteen seasons, a hundred races, and never once a champion. That's most careers.",
@@ -170,25 +272,30 @@ let toastQueue: Achievement[] = [];
 
 function toastAchievement(a: Achievement): void {
   toastQueue.push(a);
-  if (toastQueue.length > 1) return;
-  showNextToast();
+  if (toastQueue.length === 1) showNextToast();
 }
+
+let toastTimer = 0;
 
 function showNextToast(): void {
   const a = toastQueue[0];
-  if (!a) return;
   const el = $("#achToast");
+  if (!a) { el.hidden = true; el.classList.remove("is-in"); return; }
+
+  window.clearTimeout(toastTimer);
+  const queued = toastQueue.length - 1;
   el.className = `ach-toast ach-toast--${a.tier} is-in`;
-  el.innerHTML = `<span>Achievement</span><b>${a.name}</b><small>${a.flavour}</small>`;
+  el.innerHTML = `<span>Achievement</span><b>${a.name}</b><small>${a.flavour}</small>` +
+    (queued > 0 ? `<span class="ach-toast__more">${queued} more unlocked, see Achievements</span>` : "");
   el.hidden = false;
-  window.setTimeout(() => {
+
+  toastTimer = window.setTimeout(() => {
     el.classList.remove("is-in");
     window.setTimeout(() => {
-      el.hidden = true;
       toastQueue.shift();
       showNextToast();
-    }, 400);
-  }, 3200);
+    }, 380);
+  }, queued > 0 ? 2600 : 5200);
 }
 
 function renderAchievements(): void {

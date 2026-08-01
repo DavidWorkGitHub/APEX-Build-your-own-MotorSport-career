@@ -53,7 +53,8 @@ html[data-theme="light"] .hero__grain{background:linear-gradient(180deg,rgba(0,0
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
-  margin:0;padding:clamp(14px,2.6vw,36px);color:var(--ink);font-family:var(--body);
+  margin:0;padding:clamp(14px,2.6vw,36px);
+  padding-bottom:calc(clamp(14px,2.6vw,36px) + env(safe-area-inset-bottom) + 40px);color:var(--ink);font-family:var(--body);
   background:
     radial-gradient(1100px 620px at 82% -8%,rgba(220,0,26,.11),transparent 62%),
     radial-gradient(760px 520px at 6% 108%,rgba(0,230,118,.055),transparent 60%),
@@ -512,6 +513,7 @@ input::placeholder{color:#4A525B}
 .rr-finish.pod{color:var(--accent-2)}
 .rr-finish.win{color:var(--green)}
 .rr-finish.dnf{color:var(--yellow);font-size:11px}
+.rr-finish.dns{color:var(--faint);font-size:11px}
 .rr-mate{font-family:var(--mono);font-size:11.5px}
 .rr-mate.beat{color:var(--green)} .rr-mate.lost{color:var(--faint)}
 
@@ -677,10 +679,13 @@ input::placeholder{color:#4A525B}
 .ach--locked .ach__main small{color:#4A525B}
 
 /* toast */
-.ach-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:60;opacity:0;
+.ach-toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));
+  transform:translate(-50%,20px);z-index:120;opacity:0;pointer-events:none;
   background:var(--carbon-2);border:1px solid var(--line-2);border-left:3px solid var(--green);
   border-radius:var(--rl);padding:14px 20px;max-width:min(420px,90vw);
   box-shadow:0 20px 50px rgba(0,0,0,.6);transition:opacity .35s var(--ease),transform .35s var(--ease)}
+.ach-toast .ach-toast__more{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);margin-top:8px}
 .ach-toast.is-in{opacity:1;transform:translate(-50%,0)}
 .ach-toast--rare{border-left-color:var(--accent-2)}
 .ach-toast--legendary{border-left-color:#F5C518}
@@ -690,7 +695,7 @@ input::placeholder{color:#4A525B}
 @media (max-width:720px){
   .ach{grid-template-columns:24px 1fr;gap:12px}
   .ach__meta{grid-column:2;font-size:8px}
-  .ach-toast{bottom:14px}
+  .ach-toast{bottom:calc(14px + env(safe-area-inset-bottom));padding:12px 16px}
 }
 
 /* ================= garage ================= */
@@ -802,6 +807,12 @@ input::placeholder{color:#4A525B}
 .brand{cursor:pointer;transition:opacity .18s}
 .brand:hover{opacity:.8}
 .brand:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+
+.moment-result{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:99px;padding:7px 15px;margin-top:16px;border:1px solid}
+.moment-result.good{color:var(--green);border-color:rgba(0,230,118,.4);background:rgba(0,230,118,.08)}
+.moment-result.bad{color:var(--yellow);border-color:rgba(255,212,0,.35);background:rgba(255,212,0,.06)}
+.moment-result.flat{color:var(--faint);border-color:var(--line-2)}
 
 /* ================= overview ================= */
 .ov-rounds{border:1px solid var(--line);border-radius:var(--rl);overflow:hidden;margin-top:14px}
@@ -1430,17 +1441,17 @@ input::placeholder{color:#4A525B}
   <section class="screen" data-screen="fork" hidden>
     <div class="panel">
       <div class="panel__head">
-        <h2>Three roads</h2>
-        <span>You're done with Formula 2, and they don't lead to the same place</span>
+        <h2 id="forkTitle">Three roads</h2>
+        <span id="forkSub">They don't lead to the same place</span>
       </div>
       <div class="academies">
-        <button class="academy" type="button" data-fork="reserve">
-          <span class="academy__top"><span class="academy__name">F1 reserve</span>
+        <button class="academy" type="button" data-fork="reserve" id="forkReserve">
+          <span class="academy__top"><span class="academy__name" id="forkReserveName">F1 reserve</span>
             <span class="academy__fit">The front door</span></span>
-          <span class="academy__flavour">A Friday practice session here and there, a simulator programme, and a phone that might ring if somebody gets hurt. You are in Formula 1, technically.</span>
-          <span class="academy__row"><em>Racing</em><b>4 rounds a year</b></span>
-          <span class="academy__row"><em>Route</em><b>Straight to an F1 seat</b></span>
-          <span class="academy__exp">Wait, and be ready when it happens</span>
+          <span class="academy__flavour" id="forkReserveText">A Friday practice session here and there, a simulator programme, and a phone that might ring if somebody gets hurt. You are in Formula 1, technically.</span>
+          <span class="academy__row"><em>Racing</em><b id="forkReserveRounds">4 rounds a year</b></span>
+          <span class="academy__row"><em>Route</em><b id="forkReserveRoute">Straight to an F1 seat</b></span>
+          <span class="academy__exp" id="forkReserveExp">Wait, and be ready when it happens</span>
         </button>
         <button class="academy" type="button" data-fork="gt">
           <span class="academy__top"><span class="academy__name">Sportscars</span>
@@ -1514,6 +1525,22 @@ input::placeholder{color:#4A525B}
 
       <div class="card-actions">
         <button class="btn btn--ghost" id="ovBack" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ IN-RACE MOMENT ============ -->
+  <section class="screen" data-screen="moment" hidden>
+    <div class="decision">
+      <p class="eyebrow" id="momentEyebrow">In the race</p>
+      <p class="decision__scene" id="momentScene"></p>
+      <div class="options" id="momentOptions"></div>
+      <div class="decision__outcome" id="momentOutcome" hidden>
+        <p id="momentText"></p>
+        <div class="moment-result flat" id="momentResult"></div>
+        <div class="decision__foot">
+          <button class="btn btn--solid" id="momentContinue" type="button">Back to the race</button>
+        </div>
       </div>
     </div>
   </section>
@@ -1786,7 +1813,7 @@ function show(name) {
         }
     });
     const order = ["mode", "identity", "card", "academy", "season"];
-    const idx = (name === "summary" || name === "decision" || name === "log" || name === "roll" || name === "cabinet" || name === "retire" || name === "comeback" || name === "archive" || name === "fork" || name === "garage" || name === "achievements" || name === "briefing" || name === "overview") ? 4 : order.indexOf(name);
+    const idx = (name === "summary" || name === "decision" || name === "log" || name === "roll" || name === "cabinet" || name === "retire" || name === "comeback" || name === "archive" || name === "fork" || name === "garage" || name === "achievements" || name === "briefing" || name === "overview" || name === "moment") ? 4 : order.indexOf(name);
     $$(".step").forEach((s, i) => {
         s.dataset.state = i < idx ? "done" : i === idx ? "now" : "todo";
     });
@@ -2338,6 +2365,12 @@ const REAL_F1 = [
     { name: "Racing Bulls", drivers: ["Liam Lawson", "Arvid Lindblad"] },
     { name: "Cadillac", drivers: ["Sergio Pérez", "Valtteri Bottas"] },
 ];
+/** Announced or widely reported reserve and test drivers. Edit freely. */
+const REAL_RESERVES = [
+    "Ayumu Iwasa", "Felipe Drugovich", "Frederik Vesti", "Jak Crawford", "Paul Aron",
+    "Zane Maloney", "Pato O'Ward", "Ryo Hirakawa", "Luke Browning", "Victor Martins",
+    "Jack Doohan", "Théo Pourchaire", "Robert Shwartzman", "Callum Ilott", "Zhou Guanyu",
+];
 const REAL_JUNIOR_TEAMS = [
     "Prema", "ART Grand Prix", "Campos Racing", "Hitech", "MP Motorsport", "Rodin Motorsport",
     "Invicta Racing", "DAMS Lucas Oil", "Trident", "AIX Racing", "Van Amersfoort Racing", "PHM Racing",
@@ -2393,6 +2426,9 @@ function teamPool(t) {
 function realFieldNames(t) {
     if (!useRealRoster || t < 4 || t >= 8)
         return null;
+    // a reserve shares the paddock with the race drivers and the other reserves
+    if (t === 4)
+        return [...REAL_RESERVES, ...REAL_F1.flatMap((x) => x.drivers)];
     return REAL_F1.flatMap((x) => x.drivers);
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -2586,8 +2622,23 @@ function buildField(div) {
     return field;
 }
 /* --------------------------- one race --------------------------- */
+/** A moment can nudge or end your race after the fact. */
+function applyMomentShift(res, shift) {
+    if (shift === -99)
+        return { ...res, finish: null, points: 0, beatTeamMate: false };
+    if (shift === 0 || res.finish === null)
+        return res;
+    const finish = clamp(res.finish - shift, 1, season.field.length);
+    return {
+        ...res, finish,
+        points: POINTS[finish - 1] ?? 0,
+        beatTeamMate: res.teamMateFinish === null || finish < res.teamMateFinish,
+    };
+}
 function runRace(round, div) {
     const wet = rng() < 0.22;
+    // a reserve driver only races when somebody else can't, so most rounds are a non-start
+    const standIn = div.id === "reserve" ? rng() < 0.55 : true;
     const field = season.field;
     const pace = field.map((r) => {
         let p = r.car * 0.46 + r.skill * 0.54;
@@ -2654,6 +2705,12 @@ function runRace(round, div) {
     };
     const finish = posOf(player);
     const mateFinish = posOf(mate);
+    if (!standIn) {
+        return {
+            round, circuit: div.rounds[round - 1], wet, grid: 0, finish: null,
+            points: 0, teamMateFinish: mateFinish, beatTeamMate: false, didNotStart: true,
+        };
+    }
     return {
         round, circuit: div.rounds[round - 1], wet,
         grid: gridPos.get(0), finish,
@@ -2960,7 +3017,7 @@ const DIVISIONS = [
     { id: "f2", name: "Formula 2", label: "F2", tier: 3, fieldSize: 18,
         rounds: CIRCUITS.junior, skillBand: [62, 84], carBand: [56, 80], seatChance: 0.3, next: [4, 8, 10] },
     { id: "reserve", name: "F1 reserve driver", label: "RES", tier: 4, fieldSize: 20,
-        rounds: CIRCUITS.f1.slice(0, 4), skillBand: [70, 92], carBand: [50, 74], seatChance: 0.45, next: [5] },
+        rounds: CIRCUITS.f1.slice(0, 4), skillBand: [70, 92], carBand: [50, 74], seatChance: 0.55, next: [5, 8, 10] },
     { id: "backmarker", name: "Formula 1 (backmarker team)", label: "F1", tier: 5, fieldSize: 20,
         rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [42, 58], seatChance: 0.35, next: [6] },
     { id: "midfield", name: "Formula 1 (midfield team)", label: "F1", tier: 6, fieldSize: 20,
@@ -2990,7 +3047,7 @@ function backToHub() {
 let lastRoll = null;
 const currentDivision = () => DIVISIONS[tier];
 function seasonStats() {
-    const rs = season.results;
+    const rs = season.results.filter((r) => !r.didNotStart);
     const fins = rs.map((r) => r.finish).filter((f) => f !== null);
     const gained = rs.reduce((n, r) => n + (r.finish === null ? 0 : r.grid - r.finish), 0);
     const beat = rs.filter((r) => r.beatTeamMate).length;
@@ -3128,10 +3185,12 @@ function applyRoll(r) {
     }
     yearsInTier = tier === prev ? yearsInTier + 1 : 0;
 }
-/** Where you go when you leave Formula 2. */
-function takeFork(choice) {
-    lockedOut.add(3);
-    tier = choice === "reserve" ? 4 : choice === "gt" ? 8 : 10;
+/** Where you go when a division has several roads out. */
+function takeFork(choice, from = 3) {
+    lockedOut.add(from);
+    // the reserve door leads to a race seat, not back to reserve
+    const straight = from === 4 ? 5 : 4;
+    tier = choice === "reserve" ? straight : choice === "gt" ? 8 : 10;
     yearsInTier = 0;
 }
 function recordSeason(outcome) {
@@ -3191,7 +3250,7 @@ function applyEffect(e) {
         moveSeat(e.seat);
     if (e.rep) {
         Object.keys(e.rep).forEach((k) => {
-            reputation[k] += e.rep[k] ?? 0;
+            reputation[k] = Math.max(0, reputation[k] + (e.rep[k] ?? 0));
         });
     }
 }
@@ -4027,6 +4086,155 @@ const EXTRA_TWO = [
         ], when: () => age >= 31 },
 ];
 DECISIONS.push(...EXTRA_TWO);
+/* =========================================================
+   A third batch: the reserve year, sportscars, IndyCar,
+   and the parts of a season that had nothing in them.
+   ========================================================= */
+const EXTRA_THREE = [
+    { id: "res-call", eyebrow: "Reserve", scene: "A race driver has food poisoning and you are being put in the car with ninety minutes until qualifying. The seat is not moulded to you and the pedals are wrong.",
+        question: "Nobody expects anything except that you finish.",
+        options: [
+            { label: "Drive within yourself", detail: "Bring it home, learn the car.",
+                outcome: "You drive a careful weekend and hand back a car with no marks on it.",
+                effect: { attrs: { consistency: 5, feedback: 3 }, rep: { loyal: 3 } } },
+            { label: "Treat it as an audition", detail: "One chance, take it.",
+                outcome: "You attack it.",
+                effect: { rep: { fragile: 1 } },
+                roll: [
+                    { w: 50, outcome: "You out-qualify the other car and the paddock talks about nothing else for a week.", effect: { attrs: { qualifying: 8, racecraft: 4 }, car: 4 } },
+                    { w: 50, outcome: "You overdrive it, put it in the gravel on Saturday, and the story writes itself.", effect: { attrs: { qualifying: -2, consistency: -3 }, rep: { fragile: 3 } } },
+                ] },
+        ], when: isReserve },
+    { id: "res-loyalty", eyebrow: "Reserve", scene: "A rival team offer you a race seat at the back of the grid for next year. Your team say wait, their seat comes free in two seasons, probably.",
+        question: "Probably is doing a lot of work in that sentence.",
+        options: [
+            { label: "Take the race seat", detail: "A bad car you actually drive.",
+                outcome: "You take it. Racing badly beats not racing.",
+                effect: { seat: "worse", attrs: { racecraft: 5 }, rep: { mercenary: 2 } } },
+            { label: "Wait for the promise", detail: "Two more years of Fridays.",
+                outcome: "You wait.",
+                effect: { rep: { loyal: 4 } },
+                roll: [
+                    { w: 45, outcome: "The seat comes free exactly when they said it would.", effect: { seat: "better", contract: 2 } },
+                    { w: 55, outcome: "They sign somebody else's junior and apologise in person.", effect: { attrs: { consistency: -2 }, rep: { fragile: 2 } } },
+                ] },
+        ], when: isReserve },
+    { id: "res-sim", eyebrow: "Reserve", scene: "You have run every setup the engineers asked for and one they did not. Yours is quicker, and admitting you tried it means admitting you went off programme.",
+        question: "The race drivers are two tenths off all weekend.",
+        options: [
+            { label: "Hand it over", detail: "Tell them what you did.",
+                outcome: "You own up and give them the numbers. They use it that weekend.",
+                effect: { attrs: { feedback: 7 }, rep: { loyal: 3, political: 1 } } },
+            { label: "Keep it for yourself", detail: "For when you get the car.",
+                outcome: "You say nothing and file it away.",
+                effect: { attrs: { qualifying: 4, feedback: 2 }, rep: { mercenary: 2 } } },
+        ], when: isReserve },
+    { id: "indy-oval", eyebrow: "IndyCar", scene: "Your first oval. Four laps of practice in and you have not lifted, which everyone tells you is the easy part.",
+        question: "The wall does not move.",
+        options: [
+            { label: "Trust it and commit", detail: "Flat, all four corners, all race.",
+                outcome: "You commit.",
+                effect: { rep: { fragile: 1 } },
+                roll: [
+                    { w: 60, outcome: "By lap forty it feels normal, and you spend the last stint learning where the air goes.", effect: { attrs: { racecraft: 6, consistency: 3 } } },
+                    { w: 40, outcome: "You catch a tow wrong at 220mph and end the day in the fence.", effect: { attrs: { consistency: -4 }, rep: { fragile: 3 } } },
+                ] },
+            { label: "Build up to it", detail: "Lift, learn, repeat.",
+                outcome: "You build up over two race weekends and arrive at the same place, slower.",
+                effect: { attrs: { consistency: 5, tyres: 2 } } },
+        ], when: isIndy },
+    { id: "indy-500", eyebrow: "Indianapolis", scene: "Qualifying for the 500 is four laps at absolute maximum with a car trimmed until it barely wants to turn. There is a setting the engineer will use if you tell him to.",
+        question: "It is worth half a row, and it makes the car horrible.",
+        options: [
+            { label: "Trim it out", detail: "Four terrifying laps.",
+                outcome: "You have him trim it.",
+                effect: {},
+                roll: [
+                    { w: 55, outcome: "Four laps that feel like an hour, and you are on the front two rows.", effect: { attrs: { qualifying: 9, racecraft: 3 } } },
+                    { w: 45, outcome: "The car is unmanageable and you abort on lap two. You start deep in the field.", effect: { attrs: { qualifying: -3 } } },
+                ] },
+            { label: "Keep it drivable", detail: "Qualify midfield, race well.",
+                outcome: "You keep downforce in it, qualify eleventh, and can actually follow people on Sunday.",
+                effect: { attrs: { racecraft: 5, tyres: 3 } } },
+        ], when: isIndy },
+    { id: "gt-am", eyebrow: "Sportscars", scene: "Your amateur co-driver has just handed the car over four laps down after a spin, and there is a television camera pointed at your face.",
+        question: "He is standing right there.",
+        options: [
+            { label: "Take the blame yourself", detail: "Say the setup was your call.",
+                outcome: "You say the balance was your fault. Everyone in the garage knows it was not.",
+                effect: { rep: { loyal: 5 } },
+                later: { inSeasons: 2, text: "Your co-driver funds a second car the following year, and asks for you in it.", effect: { car: 5 } } },
+            { label: "Say nothing and drive", detail: "Get the laps back.",
+                outcome: "You say nothing, get in, and take three of the four laps back before the flag.",
+                effect: { attrs: { racecraft: 6, tyres: 3 } } },
+        ], when: isGT },
+    { id: "gt-factory", eyebrow: "Sportscars", scene: "The manufacturer want you at the factory for three weeks of development on next year's car, which means missing two races of this one.",
+        question: "You are second in the championship.",
+        options: [
+            { label: "Go to the factory", detail: "Next year's car, this year's points.",
+                outcome: "You go. The championship goes with it, and next year's car is built around how you drive.",
+                effect: { car: 6, attrs: { feedback: 6 }, rep: { loyal: 3 } } },
+            { label: "Race the season out", detail: "Finish what you started.",
+                outcome: "You stay in the car and fight the championship to the last round.",
+                effect: { attrs: { racecraft: 4, consistency: 3 }, rep: { mercenary: 1 } } },
+        ], when: isGT },
+    { id: "night-stint", eyebrow: "Endurance", scene: "Four in the morning, seventh hour of rain, and the team ask if you want out. You have been in the car for three stints.",
+        question: "The next driver is awake but not warm.",
+        options: [
+            { label: "Stay in", detail: "You know where the grip is.",
+                outcome: "You stay in for two more stints and give the car back four places better off.",
+                effect: { attrs: { wet: 8, tyres: 4, consistency: -2 }, rep: { loyal: 3 } } },
+            { label: "Hand it over", detail: "Sleep, and come back sharp.",
+                outcome: "You hand over and sleep for ninety minutes. It is the right call and it costs two places.",
+                effect: { attrs: { consistency: 5 } } },
+        ], when: isGT },
+    { id: "mid-title-fight", eyebrow: "Mid-season", scene: "You lead the championship by nine points with five to go, and the team want to change the car's concept to something they think is faster.",
+        question: "It might be. It might take four races to work.",
+        options: [
+            { label: "Change it", detail: "Chase the pace.",
+                outcome: "You take the new package.",
+                effect: {},
+                roll: [
+                    { w: 50, outcome: "It works from the first session and you close the season out comfortably.", effect: { car: 5, attrs: { racecraft: 2 } } },
+                    { w: 50, outcome: "It takes three races to understand and the lead is gone by the time it does.", effect: { car: -3, attrs: { consistency: -2 } } },
+                ] },
+            { label: "Keep what you have", detail: "Win it with a known car.",
+                outcome: "You keep the car you understand and grind out the points.",
+                effect: { attrs: { consistency: 5, tyres: 2 } } },
+        ], when: () => tier >= 4 },
+    { id: "young-manager", eyebrow: "Off-track", scene: "Your manager of nine years wants to retire. His replacement is thirty, hungry, and has never negotiated a Formula 1 contract.",
+        question: "He knows every principal on the grid. She does not, yet.",
+        options: [
+            { label: "Stay with the firm", detail: "New face, same contacts.",
+                outcome: "You stay. She is better than anyone expected within a year.",
+                effect: { rep: { loyal: 3, political: 2 } } },
+            { label: "Represent yourself", detail: "Nobody knows what you want better than you.",
+                outcome: "You take your own meetings. Some go very well and some are excruciating.",
+                effect: { attrs: { feedback: 3 }, rep: { mercenary: 3, political: 2 } } },
+        ], when: () => tier >= 4 },
+    { id: "kart-parents", eyebrow: "Junior", scene: "Your parents have remortgaged to keep the season going and have not told you. You found the paperwork.",
+        question: "There are four rounds left.",
+        options: [
+            { label: "Say you know", detail: "Talk about it properly.",
+                outcome: "You bring it up. It is the worst conversation of your life and something changes afterwards.",
+                effect: { attrs: { consistency: 4, feedback: 2 }, rep: { loyal: 4 } } },
+            { label: "Say nothing and win", detail: "Make it worth it.",
+                outcome: "You say nothing and drive like the season depends on it, because it does.",
+                effect: { attrs: { qualifying: 5, racecraft: 4, consistency: -2 }, rep: { fragile: 2 } } },
+        ], when: isJunior },
+    { id: "f1-boycott", eyebrow: "F1", scene: "The drivers are being asked to sign a joint statement about safety at a circuit the promoter refuses to change. Two of the biggest names have not signed.",
+        question: "Your team would rather this went away.",
+        options: [
+            { label: "Sign it", detail: "With everyone who did.",
+                outcome: "You sign. The circuit is changed eighteen months later.",
+                effect: { rep: { loyal: 3, political: 3 } } },
+            { label: "Stay out of it", detail: "Not your fight this year.",
+                outcome: "You do not sign, and the drivers who did notice who did not.",
+                effect: { rep: { mercenary: 2 } },
+                later: { inSeasons: 2, text: "The drivers who signed that statement look after each other now. You are not in that group.", effect: { rep: { political: -2 } } } },
+        ], when: isF1 },
+];
+DECISIONS.push(...EXTRA_THREE);
 
 /* ---- titlefight.js ---- */
 "use strict";
@@ -4203,6 +4411,49 @@ const MID_EVENTS = [
         effect: { attrs: { qualifying: 3, racecraft: 3 } } },
     { id: "home-crowd", tone: "good", text: "Your home round sold out on the strength of your name.",
         effect: { rep: { political: 2, loyal: 1 } }, when: () => tier >= 4 },
+    /* ---- the garage, further in ---- */
+    { id: "wind-tunnel", tone: "good", text: "The team have found correlation between the tunnel and the track for the first time in two years. Everything they bring now works.",
+        carShift: 5, when: () => tier >= 3 },
+    { id: "budget-cut", tone: "bad", text: "The development budget has been cut mid-year. Nothing new is coming until next season.",
+        carShift: -3 },
+    { id: "poached", tone: "bad", text: "A rival has taken your technical director, your chief aerodynamicist and half the design office.",
+        carShift: -4, effect: { attrs: { feedback: -2 } }, when: () => tier >= 4 },
+    { id: "recruit", tone: "good", text: "The team have signed a designer with three championships behind him. He starts in March.",
+        effect: { attrs: { feedback: 3 } }, carShift: 3, when: () => tier >= 4 },
+    { id: "pit-crew", tone: "good", text: "The pit crew have been drilling all winter and are now the quickest in the series.",
+        effect: { attrs: { racecraft: 3, consistency: 2 } } },
+    { id: "pit-error", tone: "bad", text: "Two botched stops in three races. One of them was a podium.",
+        effect: { attrs: { consistency: -2 }, rep: { fragile: 1 } } },
+    /* ---- the sport, further in ---- */
+    { id: "team-folds", tone: "bad", text: "A team on the grid has gone under mid-season. Two drivers are suddenly available and everyone is nervous.",
+        effect: { rep: { political: 1 } } },
+    { id: "new-entry", tone: "neutral", text: "A manufacturer has confirmed they are entering in two years, and have started talking to people.",
+        effect: { rep: { political: 1 } }, when: () => tier >= 4 },
+    { id: "calendar-change", tone: "neutral", text: "Two rounds have been dropped and replaced at short notice with circuits nobody has data for.",
+        effect: { attrs: { feedback: 2, consistency: -1 } } },
+    { id: "tyre-change", tone: "neutral", text: "The tyre supplier has changed compound mid-season. Everyone is guessing again.",
+        effect: { attrs: { tyres: -2, feedback: 2 } } },
+    { id: "sprint-format", tone: "neutral", text: "A sprint format has been added at three rounds. More racing, less practice, no time to fix anything.",
+        effect: { attrs: { qualifying: 2, feedback: -2 } }, when: () => tier >= 3 },
+    { id: "rival-crash", tone: "neutral", text: "A driver you came up through the juniors with has had a very big accident. He will be alright. It took a while to know that.",
+        effect: { attrs: { consistency: -2 }, rep: { loyal: 1 } } },
+    { id: "protest-upheld", tone: "good", text: "A protest against a rival has been upheld and their results struck from three rounds.",
+        effect: { rep: { political: 1 } }, when: () => tier >= 3 },
+    { id: "curfew-breach", tone: "bad", text: "The team broke curfew twice rebuilding your car and have been fined. It was your accident both times.",
+        effect: { rep: { fragile: 2 }, attrs: { consistency: -1 } } },
+    /* ---- you, further in ---- */
+    { id: "new-trainer", tone: "good", text: "A new trainer has rebuilt your neck and shoulders. The last twenty laps feel like the first twenty now.",
+        effect: { attrs: { consistency: 4, tyres: 2 } } },
+    { id: "family", tone: "neutral", text: "Something at home needed you more than the season did. You missed two test days and do not regret it.",
+        effect: { attrs: { feedback: -2, consistency: 2 }, rep: { loyal: 2 } } },
+    { id: "sponsor-personal", tone: "good", text: "A personal sponsor has signed with you directly, which means leverage nobody expected you to have.",
+        effect: { rep: { political: 3 } }, carShift: 2 },
+    { id: "burnout", tone: "bad", text: "Twenty-four rounds, four continents, and you have stopped enjoying any of it.",
+        effect: { attrs: { consistency: -3, racecraft: -2 } }, when: () => tier >= 5 },
+    { id: "milestone", tone: "good", text: "You passed a hundred starts this weekend and the team put a cake in the garage.",
+        effect: { rep: { loyal: 1 } }, when: () => cabinet.races >= 95 },
+    { id: "sim-work-pays", tone: "good", text: "Something you asked for in the simulator over winter has turned up on the car, and it works.",
+        effect: { attrs: { feedback: 4 } }, carShift: 2 },
 ];
 let midFired = [];
 const midUsed = new Set(); // across the career, so you are not told the same thing yearly
@@ -4403,6 +4654,7 @@ function afterRoll() {
         return;
     }
     if (action === "fork") {
+        renderFork();
         show("fork");
         return;
     }
@@ -4432,6 +4684,24 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 /* --------------------------- the F2 fork --------------------------- */
 let forkChoice = null;
+/** The fork screen describes whichever door you are standing in. */
+function renderFork() {
+    const fromReserve = tierBeforeRoll === 4;
+    $("#forkTitle").textContent = fromReserve ? "A seat, at last" : "Three roads";
+    $("#forkSub").textContent = fromReserve
+        ? "The waiting is over, and you get to choose what you wait no longer for"
+        : "You're done with Formula 2, and they don't lead to the same place";
+    $("#forkReserveName").textContent = fromReserve ? "Formula 1" : "F1 reserve";
+    $("#forkReserveText").textContent = fromReserve
+        ? "A race seat. The thing every Friday practice session and simulator day was for. It is the back of the grid, and it is Formula 1."
+        : "A Friday practice session here and there, a simulator programme, and a phone that might ring if somebody gets hurt. You are in Formula 1, technically.";
+    $("#forkReserveRounds").textContent = fromReserve ? "Full season" : "4 rounds a year";
+    $("#forkReserveRoute").textContent = fromReserve ? "Backmarker, then upward" : "Straight to an F1 seat";
+    $("#forkReserveExp").textContent = fromReserve ? "Out-drive the car and keep the seat" : "Wait, and be ready when it happens";
+    forkChoice = null;
+    $$("[data-fork]").forEach((b) => b.setAttribute("aria-pressed", "false"));
+    $("#forkConfirm").disabled = true;
+}
 document.addEventListener("DOMContentLoaded", () => {
     $$("[data-fork]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -4443,7 +4713,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#forkConfirm").addEventListener("click", () => {
         if (!forkChoice)
             return;
-        takeFork(forkChoice);
+        takeFork(forkChoice, tierBeforeRoll);
         renderAcademies();
         show("academy");
     });
@@ -5403,6 +5673,70 @@ const ACHIEVEMENTS = [
     { id: "fangio", name: "The Fangio Special", how: "Still racing in your fifties", tier: "legendary",
         flavour: "Driving with your walking stick in the cockpit next to you.",
         test: () => age >= 50 },
+    /* ---- reserve and the long way ---- */
+    { id: "stand-in", name: "Called up", how: "Score points as a stand-in reserve driver", tier: "rare",
+        flavour: "Somebody got hurt, and you were ready.",
+        test: () => currentDivision().id === "reserve" && (seasonNow()?.points ?? 0) > 0 },
+    { id: "reserve-podium", name: "Not bad for a stand-in", how: "Take a podium as a reserve driver", tier: "legendary",
+        flavour: "Four races all year, and one of them ended on the podium.",
+        test: () => currentDivision().id === "reserve" && (seasonNow()?.podiums ?? 0) > 0 },
+    { id: "every-series", name: "Been everywhere", how: "Race in F1, sportscars and IndyCar", tier: "legendary",
+        flavour: "Three paddocks, three sets of rules, one career.",
+        test: () => careerHistory.some((h) => h.label === "F1")
+            && careerHistory.some((h) => h.label === "GT3" || h.label === "HYP")
+            && careerHistory.some((h) => h.label === "INDY") },
+    { id: "triple-crown", name: "Something like the triple crown", how: "Win at Monaco, the Indy 500 and Le Mans", tier: "legendary",
+        flavour: "Three races, three disciplines, one name on all of them.",
+        test: () => cabinet.wins.some((w) => w.circuit === "Monaco")
+            && cabinet.wins.some((w) => w.circuit === "Indianapolis 500")
+            && cabinet.wins.some((w) => w.circuit === "Le Mans") },
+    /* ---- races and moments ---- */
+    { id: "the-gap", name: "It was a gap", how: "Win a place on the last lap by pushing", tier: "common",
+        flavour: "It was not really a gap. It was a gap.",
+        test: () => momentsPushed >= 1 && momentsWon >= 1 },
+    { id: "gambler-race", name: "Nerves of something", how: "Push in ten in-race moments", tier: "rare",
+        flavour: "You have never once settled for the position you were in.",
+        test: () => momentsPushed >= 10 },
+    { id: "burned", name: "Into the barrier", how: "End a race in the wall by pushing", tier: "common",
+        flavour: "It did not stick.",
+        test: () => momentsCrashed >= 1 },
+    { id: "clean-hands", name: "Never once tempted", how: "Hold position in ten in-race moments", tier: "rare",
+        flavour: "Every time the door opened, you closed it yourself.",
+        test: () => momentsHeld >= 10 },
+    { id: "podium-hat", name: "Three on the bounce", how: "Podium in three consecutive races", tier: "rare",
+        flavour: "A run where the car and the driver agreed about everything.",
+        test: () => {
+            const f = (season?.results ?? []).filter((r) => !r.didNotStart).map((r) => r.finish);
+            return f.some((_, i) => i >= 2 && [f[i], f[i - 1], f[i - 2]].every((x) => x !== null && x <= 3));
+        } },
+    { id: "points-every-race", name: "In the points all year", how: "Score in every round of a season", tier: "legendary",
+        flavour: "Not one weekend wasted.",
+        test: () => { const s = seasonNow(); return !!s && s.races >= 10 && s.pointsFinishes === s.races; } },
+    /* ---- careers ---- */
+    { id: "one-team", name: "One team, ten years", how: "Spend ten seasons at the same team", tier: "rare",
+        flavour: "They named a corner of the factory after you.",
+        test: () => cabinet.helmets.some((h) => h.seasons >= 10) },
+    { id: "journeyman", name: "Journeyman", how: "Drive for ten different teams", tier: "common",
+        flavour: "Ten helmets, ten sets of overalls, one steering wheel.",
+        test: () => cabinet.helmets.length >= 10 },
+    { id: "two-hundred", name: "Two hundred starts", how: "Start 200 races", tier: "rare",
+        flavour: "More Sundays in a car than most people spend on anything.",
+        test: () => cabinet.races >= 200 },
+    { id: "fifty-wins", name: "Fifty wins", how: "Win fifty races", tier: "legendary",
+        flavour: "Fifty times, the anthem was for you.",
+        test: () => cabinet.wins.length >= 50 },
+    { id: "unlucky", name: "Cruel year", how: "Retire from six races in one season", tier: "common",
+        flavour: "The car broke, and then it broke again.",
+        test: () => (seasonNow()?.dnfs ?? 0) >= 6 },
+    { id: "beaten-badly", name: "Out-driven", how: "Lose the head-to-head in a season by ten or more", tier: "common",
+        flavour: "He had your number all year and everybody saw it.",
+        test: () => { const s = seasonNow(); return !!s && s.lost - s.beat >= 10; } },
+    { id: "late-bloomer", name: "Late bloomer", how: "Win your first championship at 30 or older", tier: "rare",
+        flavour: "Everybody had already decided what you were.",
+        test: () => cabinet.titles.length > 0 && (cabinet.titles[0].age ?? 0) >= 30 },
+    { id: "wet-double", name: "Rain specialist", how: "Win three wet races", tier: "rare",
+        flavour: "When it rains, the paddock looks at you.",
+        test: () => cabinet.wins.filter((w) => w.wet).length >= 3 },
     /* ---- hidden ---- */
     { id: "no-titles", name: "Nearly", how: "Hidden", hidden: true, tier: "rare",
         flavour: "Fifteen seasons, a hundred races, and never once a champion. That's most careers.",
@@ -5434,26 +5768,31 @@ function checkAchievements() {
 let toastQueue = [];
 function toastAchievement(a) {
     toastQueue.push(a);
-    if (toastQueue.length > 1)
-        return;
-    showNextToast();
+    if (toastQueue.length === 1)
+        showNextToast();
 }
+let toastTimer = 0;
 function showNextToast() {
     const a = toastQueue[0];
-    if (!a)
-        return;
     const el = $("#achToast");
+    if (!a) {
+        el.hidden = true;
+        el.classList.remove("is-in");
+        return;
+    }
+    window.clearTimeout(toastTimer);
+    const queued = toastQueue.length - 1;
     el.className = `ach-toast ach-toast--${a.tier} is-in`;
-    el.innerHTML = `<span>Achievement</span><b>${a.name}</b><small>${a.flavour}</small>`;
+    el.innerHTML = `<span>Achievement</span><b>${a.name}</b><small>${a.flavour}</small>` +
+        (queued > 0 ? `<span class="ach-toast__more">${queued} more unlocked, see Achievements</span>` : "");
     el.hidden = false;
-    window.setTimeout(() => {
+    toastTimer = window.setTimeout(() => {
         el.classList.remove("is-in");
         window.setTimeout(() => {
-            el.hidden = true;
             toastQueue.shift();
             showNextToast();
-        }, 400);
-    }, 6000);
+        }, 380);
+    }, queued > 0 ? 2600 : 5200);
 }
 function renderAchievements() {
     const got = unlockedList();
@@ -5601,6 +5940,9 @@ const FIRST_POOL = [
     "Matteo", "Lukas", "Andrei", "Bence", "Tobias", "Rasmus", "Diogo", "Yuki", "Hiro", "Santiago", "Nikola", "Aleks",
     "Gustav", "Marek", "Pedro", "Stefan", "Viktor", "Adam", "Ollie", "Finn", "Jean", "Karl", "Mo", "Amir", "Dario", "Sem",
     "Tiago", "Kristian", "Janne", "Ruben", "Halil", "Nuno", "Eero", "Zoltán", "Ionut", "Ciaran", "Declan", "Seb", "Rory",
+    "Arthur", "Bastien", "Cato", "Dmitri", "Ewan", "Fabio", "Gabriel", "Hugo", "Igor", "Jesper", "Kenta", "Lorenzo",
+    "Magnus", "Nils", "Oscar", "Piet", "Quentin", "Renzo", "Silas", "Timo", "Ugo", "Vasco", "Wouter", "Xavi", "Yannick",
+    "Zeno", "Anders", "Bram", "Cesar", "Dante", "Erik", "Fredrik", "Georg", "Henrik", "Ilkka", "Jonah", "Kasper",
 ];
 const LAST_POOL = [
     "Berger", "Kovač", "Lindqvist", "Moreau", "Sasaki", "Duarte", "Vogel", "Halonen", "Ricci", "Novák", "Baptista",
@@ -5610,6 +5952,11 @@ const LAST_POOL = [
     "Vidal", "Wenger", "Ziegler", "Andersson", "Boucher", "Carvalho", "Delgado", "Eriksen", "Fontaine", "Gallo",
     "Horvat", "Ilves", "Jokinen", "Kral", "Lombardi", "Mizuno", "Novotny", "Ortiz", "Petrov", "Rasmussen", "Sandoval",
     "Tamm", "Urban", "Verhoeven", "Wagner", "Yilmaz", "Zanetti", "Byrne", "Doyle", "Finnegan", "Keane", "O'Rourke",
+    "Abreu", "Baumgartner", "Cervantes", "Dahl", "Espinosa", "Fabbri", "Galvão", "Hedlund", "Imbert", "Jaworski",
+    "Kirchner", "Lundgren", "Maia", "Nakamura", "Ortega", "Palmer", "Quesada", "Rinaldi", "Steiner", "Takahashi",
+    "Ullrich", "Valente", "Wirtz", "Ximenes", "Yashin", "Zimmerman", "Aaltonen", "Brković", "Chastain", "Domingos",
+    "Ekström", "Falcone", "Gudmundsson", "Haugen", "Ivanov", "Jelinek", "Kaminski", "Lemaire", "Mendoza", "Nyberg",
+    "Oliveira", "Pavlov", "Rehberg", "Sørensen", "Tiainen", "Ureña", "Vasquez", "Wilhelm", "Zeller", "Almeida",
 ];
 /** Drivers who exist by name, whatever the roster setting. */
 const FANTASY_FIXTURES = ["Mark Merilai"];
@@ -5645,7 +5992,9 @@ function buildPool() {
     const used = new Set();
     FANTASY_FIXTURES.forEach((n) => used.add(n));
     DIVISIONS.forEach((d, t) => {
-        const n = Math.max(d.fieldSize + 6, 24);
+        // the senior series carry reserves, rookies and drivers between seats
+        const depth = t >= 8 ? 26 : t >= 5 ? 22 : t === 4 ? 14 : 8;
+        const n = d.fieldSize + depth;
         for (let i = 0; i < n; i++)
             pool.push(makePoolDriver(t, used));
     });
@@ -5701,23 +6050,56 @@ function agePool() {
             pool.push(d);
         }
     });
-    // rookies to replace them
+    // rookies to replace them, and enough depth kept in the senior series
     const gone = pool.filter((p) => p.retired).length;
-    for (let i = 0; i < Math.max(4, Math.round(gone * 0.8)); i++) {
+    for (let i = 0; i < Math.max(6, Math.round(gone * 0.9)); i++) {
         pool.push(makePoolDriver(Math.floor(rng() * 3), used));
     }
+    DIVISIONS.forEach((d, t) => {
+        if (t < 4)
+            return;
+        const here = pool.filter((p) => !p.retired && p.tier === t).length;
+        const want = d.fieldSize + (t >= 8 ? 12 : 8);
+        for (let i = here; i < want; i++)
+            pool.push(makePoolDriver(t, used));
+    });
     // keep it from growing forever
     poolRetired += pool.filter((p) => p.retired).length;
-    if (pool.length > 320) {
-        const keep = pool.filter((p) => !p.retired);
-        pool.length = 0;
-        pool.push(...keep);
+    const keep = pool.filter((p) => !p.retired);
+    pool.length = 0;
+    pool.push(...keep);
+    // trim any division that has drifted well past what it needs
+    DIVISIONS.forEach((d, t) => {
+        const here = pool.filter((p) => p.tier === t).sort((a, b) => b.skill - a.skill);
+        const cap = d.fieldSize + (t >= 8 ? 14 : t >= 4 ? 10 : 8);
+        here.slice(cap).forEach((p) => { p.retired = true; });
+    });
+    const trimmed = pool.filter((p) => !p.retired);
+    pool.length = 0;
+    pool.push(...trimmed);
+}
+/** Reserve drivers are junior-programme names waiting for a seat. */
+function reserveNames(count) {
+    if (!poolReady)
+        buildPool();
+    const waiting = pool
+        .filter((p) => !p.retired && (p.tier === 4 || (p.tier === 3 && p.age >= 21)))
+        .sort((a, b) => b.skill - a.skill)
+        .map((p) => p.name);
+    const used = new Set(pool.map((p) => p.name));
+    while (waiting.length < count) {
+        const d = makePoolDriver(4, used);
+        pool.push(d);
+        waiting.push(d.name);
     }
+    return waiting.slice(0, count);
 }
 /** The names racing in a division this season, strongest first. */
 function fieldNamesFor(t, count) {
     if (!poolReady)
         buildPool();
+    if (t === 4)
+        return reserveNames(count);
     const here = pool.filter((p) => !p.retired && p.tier === t).sort((a, b) => b.skill - a.skill);
     const names = here.slice(0, count).map((p) => p.name);
     // top up if a division has thinned out
@@ -5733,6 +6115,179 @@ function fieldNamesFor(t, count) {
 function poolAge(name) {
     return pool.find((p) => p.name === name)?.age ?? null;
 }
+
+/* ---- moments.js ---- */
+"use strict";
+/* =========================================================
+   IN-RACE MOMENTS
+   A handful of times a season the race stops and asks you
+   something. Pushing can win you places or end your race.
+   Protecting keeps what you have and costs you the upside.
+   ========================================================= */
+const MOMENTS = [
+    { id: "last-lap-gap",
+        scene: "Last lap, and the car ahead has left the door open at the final chicane. It is not really a gap. It might be a gap.",
+        push: { label: "Take it", detail: "One position, or the gravel.", gain: 2, risk: 0.28,
+            note: "You go for it and it sticks." },
+        hold: { label: "Settle for this", detail: "Bank the finish.", gain: 0,
+            note: "You hold station and take the flag where you are." },
+        when: (c) => c.round >= 1 },
+    { id: "safety-car-restart",
+        scene: "Safety car in, one lap to go, and you have better tyres than the two cars ahead. The restart is yours to get wrong.",
+        push: { label: "Send it at the restart", detail: "Two cars in one move.", gain: 3, risk: 0.22,
+            note: "You time it perfectly and take both of them before turn three." },
+        hold: { label: "Clean restart", detail: "Get away, stay ahead of what is behind.", gain: 0,
+            note: "You take a tidy restart and keep the position." } },
+    { id: "tyre-gamble",
+        scene: "The team offer a late stop for fresh rubber. It costs you three places now and might win you five back in twelve laps.",
+        push: { label: "Box now", detail: "Give up track position for pace.", gain: 4, risk: 0.2,
+            note: "The undercut works and you come back through the field." },
+        hold: { label: "Stay out", detail: "Defend on what you have.", gain: 0,
+            note: "You stay out and hang on to the position." } },
+    { id: "rain-arriving",
+        scene: "It has started raining at turn eight and nowhere else. Everyone is on slicks and nobody wants to be first to blink.",
+        push: { label: "Push through it", detail: "Make time while they are tiptoeing.", gain: 3, risk: 0.3,
+            note: "You find grip nobody else does and gain half a minute." },
+        hold: { label: "Back off until it settles", detail: "Lose a little, keep the car.", gain: 0,
+            note: "You back off, let it come to you, and finish where you were." },
+        when: (c) => c.wet },
+    { id: "damage",
+        scene: "You have picked up front wing damage and the car is still quick in a straight line. A stop costs you the points you are running in.",
+        push: { label: "Stay out with it", detail: "Nurse it home.", gain: 1, risk: 0.34,
+            note: "It holds together to the flag, barely." },
+        hold: { label: "Pit for a new nose", detail: "Lose the places, finish the race.", gain: -1,
+            note: "You pit, rejoin down the order and bring it home." } },
+    { id: "team-mate-ahead",
+        scene: "Your team-mate is one place ahead and slower than you through the middle sector. The team have not said anything.",
+        push: { label: "Race him", detail: "Nobody told you not to.", gain: 2, risk: 0.16,
+            note: "You get him at the hairpin, cleanly, and nobody can say a word." },
+        hold: { label: "Hold behind him", detail: "Keep the garage quiet.", gain: 0,
+            note: "You sit behind him to the flag." } },
+    { id: "engine-turn-up",
+        scene: "There is more in the engine if you want it, and the team would rather you did not want it three races before an engine change.",
+        push: { label: "Turn it up", detail: "Use it now, pay later.", gain: 2, risk: 0.24,
+            note: "The extra grunt is worth two places and the engine survives." },
+        hold: { label: "Leave it where it is", detail: "Protect the unit.", gain: 0,
+            note: "You leave the maps alone and drive what you have." } },
+    { id: "backmarker",
+        scene: "You are catching a backmarker into the fast left-hander and he has not looked in his mirrors once this lap.",
+        push: { label: "Go around the outside", detail: "Commit and hope he saw you.", gain: 1, risk: 0.26,
+            note: "He sees you at the last moment and you are through." },
+        hold: { label: "Wait for the straight", detail: "Lose two seconds, keep the car.", gain: 0,
+            note: "You wait, lose a couple of seconds, and pass him safely." } },
+    { id: "podium-defence",
+        scene: "Third place, six laps left, and the car behind is quicker everywhere except where it matters.",
+        push: { label: "Defend hard", detail: "Move under braking if you have to.", gain: 1, risk: 0.18,
+            note: "You defend the line for six laps and he never gets a run." },
+        hold: { label: "Race it clean", detail: "Leave him room and see.", gain: 0,
+            note: "You race him clean. It is close, and it holds." },
+        when: (c) => c.pos <= 5 },
+];
+let momentsThisSeason = 0;
+let momentsPushed = 0;
+let momentsHeld = 0;
+let momentsWon = 0;
+let momentsCrashed = 0;
+const momentsUsed = new Set(); // work through them before repeating
+let currentMoment = null;
+let momentResolver = null;
+function resetMoments() { momentsThisSeason = 0; currentMoment = null; momentResolver = null; }
+/** Does a moment interrupt this race? */
+function maybeMoment(ctx) {
+    if (skipping)
+        return null; // never interrupt a skip
+    if (momentsThisSeason >= 3)
+        return null;
+    if (ctx.round < 2)
+        return null;
+    if (rng() > 0.22)
+        return null;
+    const fits = (m) => !m.when || m.when(ctx);
+    let choices = MOMENTS.filter((m) => fits(m) && !momentsUsed.has(m.id));
+    if (!choices.length) {
+        momentsUsed.clear();
+        choices = MOMENTS.filter(fits);
+    }
+    if (!choices.length)
+        return null;
+    const picked = choices[Math.floor(rng() * choices.length)];
+    momentsUsed.add(picked.id);
+    momentsThisSeason++;
+    return picked;
+}
+function showMoment(m, ctx, done) {
+    currentMoment = m;
+    momentResolver = done;
+    $("#momentEyebrow").textContent = `Round ${ctx.round} · ${ctx.circuit} · running ${ORD(ctx.pos)}`;
+    $("#momentScene").textContent = m.scene;
+    $("#momentOptions").innerHTML = `
+    <button class="option option--gamble" type="button" data-moment="push">
+      <span class="option__label">${m.push.label}<em class="gamble-tag">risk</em></span>
+      <span class="option__detail">${m.push.detail}</span>
+    </button>
+    <button class="option" type="button" data-moment="hold">
+      <span class="option__label">${m.hold.label}</span>
+      <span class="option__detail">${m.hold.detail}</span>
+    </button>`;
+    $("#momentOutcome").hidden = true;
+    $("#momentOptions").hidden = false;
+    $$("[data-moment]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            $$("[data-moment]").forEach((b) => { b.disabled = true; });
+            const pushing = btn.dataset.moment === "push";
+            let shift = 0;
+            let text = "";
+            if (pushing)
+                momentsPushed++;
+            else
+                momentsHeld++;
+            if (pushing) {
+                if (rng() < m.push.risk) {
+                    const bad = rng() < 0.45;
+                    shift = bad ? -99 : -3; // -99 is the retirement flag
+                    if (bad)
+                        momentsCrashed++;
+                    text = bad
+                        ? "It does not stick. You are in the barrier and the race is over."
+                        : "It does not stick. You run wide, lose three places and spend the rest of the race recovering.";
+                }
+                else {
+                    shift = m.push.gain;
+                    text = m.push.note;
+                    momentsWon++;
+                }
+            }
+            else {
+                shift = m.hold.gain;
+                text = m.hold.note;
+            }
+            $("#momentOptions").hidden = true;
+            $("#momentOutcome").hidden = false;
+            $("#momentText").textContent = text;
+            $("#momentResult").className = `moment-result ${shift === -99 ? "bad" : shift > 0 ? "good" : shift < 0 ? "bad" : "flat"}`;
+            $("#momentResult").textContent = shift === -99 ? "Did not finish"
+                : shift > 0 ? `${shift} place${shift === 1 ? "" : "s"} gained`
+                    : shift < 0 ? `${Math.abs(shift)} place${Math.abs(shift) === 1 ? "" : "s"} lost`
+                        : "Position held";
+        });
+    });
+    show("moment");
+}
+document.addEventListener("DOMContentLoaded", () => {
+    $("#momentContinue").addEventListener("click", () => {
+        const txt = $("#momentResult").textContent ?? "";
+        const shift = txt.includes("Did not finish") ? -99
+            : txt.includes("gained") ? parseInt(txt, 10)
+                : txt.includes("lost") ? -parseInt(txt, 10)
+                    : 0;
+        const done = momentResolver;
+        currentMoment = null;
+        momentResolver = null;
+        show("season");
+        if (done)
+            done(shift);
+    });
+});
 
 /* ---- overview.js ---- */
 "use strict";
@@ -5756,13 +6311,13 @@ function renderOverview() {
     <div class="race-head">
       <span>Rnd</span><span>Circuit</span><span>Grid</span><span>Finish</span><span>Mate</span><span>Pts</span>
     </div>` + season.results.map((r) => {
-        const pos = r.finish === null ? "DNF" : ORD(r.finish);
-        const cls = r.finish === null ? "dnf" : r.finish === 1 ? "win" : r.finish <= 3 ? "pod" : r.points > 0 ? "pts" : "";
+        const pos = r.didNotStart ? "DNS" : r.finish === null ? "DNF" : ORD(r.finish);
+        const cls = r.didNotStart ? "dns" : r.finish === null ? "dnf" : r.finish === 1 ? "win" : r.finish <= 3 ? "pod" : r.points > 0 ? "pts" : "";
         const m = r.teamMateFinish === null ? "DNF" : ORD(r.teamMateFinish);
         return `<div class="race-row">
         <span class="rr-round">R${String(r.round).padStart(2, "0")}</span>
         <span class="rr-circuit">${r.circuit}${r.wet ? ' <b class="wet">WET</b>' : ""}</span>
-        <span class="rr-grid">P${r.grid}</span>
+        <span class="rr-grid">${r.didNotStart ? "-" : "P" + r.grid}</span>
         <span class="rr-finish ${cls}">${pos}</span>
         <span class="rr-mate ${r.beatTeamMate ? "beat" : "lost"}">${m}</span>
         <span class="rr-pts">${r.points || "-"}</span>
@@ -5938,6 +6493,12 @@ function resetCareer() {
     if (typeof pool !== "undefined") {
         pool.length = 0;
         poolReady = false;
+    }
+    if (typeof momentsPushed !== "undefined") {
+        momentsPushed = 0;
+        momentsHeld = 0;
+        momentsWon = 0;
+        momentsCrashed = 0;
     }
     // this driver gets their own save slot
     newSlot();
@@ -6140,13 +6701,13 @@ function renderResultRow(r) {
     const body = $("#raceBody");
     const row = document.createElement("div");
     row.className = "race-row is-new";
-    const pos = r.finish === null ? "DNF" : ORD(r.finish);
-    const posClass = r.finish === null ? "dnf" : r.finish === 1 ? "win" : r.finish <= 3 ? "pod" : r.points > 0 ? "pts" : "";
+    const pos = r.didNotStart ? "DNS" : r.finish === null ? "DNF" : ORD(r.finish);
+    const posClass = r.didNotStart ? "dns" : r.finish === null ? "dnf" : r.finish === 1 ? "win" : r.finish <= 3 ? "pod" : r.points > 0 ? "pts" : "";
     const mate = r.teamMateFinish === null ? "DNF" : ORD(r.teamMateFinish);
     row.innerHTML = `
     <span class="rr-round">R${String(r.round).padStart(2, "0")}</span>
     <span class="rr-circuit">${r.circuit}${r.wet ? ' <b class="wet">WET</b>' : ""}</span>
-    <span class="rr-grid">P${r.grid}</span>
+    <span class="rr-grid">${r.didNotStart ? "-" : "P" + r.grid}</span>
     <span class="rr-finish ${posClass}">${pos}</span>
     <span class="rr-mate ${r.beatTeamMate ? "beat" : "lost"}">${mate}</span>
     <span class="rr-pts">${r.points || "-"}</span>`;
@@ -6229,9 +6790,10 @@ function showSummary() {
         : "";
     $("#hubTitle").textContent = `Season ${season.year} · ${currentDivision().name}`;
     if (reserve) {
+        const dns = season.results.filter((r) => r.didNotStart).length;
         $("#sumVerdict").textContent = sst.races === 0
             ? "A year of Fridays and simulators. Nobody got hurt, so nobody called."
-            : `${sst.races} stand-in appearance${sst.races === 1 ? "" : "s"}, best finish ${sst.best ? ORD(sst.best) : "none"}. Reserve drivers are judged on whether they looked ready.`;
+            : `${sst.races} stand-in appearance${sst.races === 1 ? "" : "s"} from ${sst.races + dns} race weekends, best finish ${sst.best ? ORD(sst.best) : "none"}. Reserve drivers are judged on whether they looked ready.`;
     }
     showHubTab("season");
     show("summary");
@@ -6260,14 +6822,27 @@ function nextRace() {
     const ev = typeof maybeMidEvent === "function" ? maybeMidEvent(season.results.length + 1) : null;
     if (ev)
         renderMidEvent(ev);
-    const r = runRace(season.results.length + 1, season.division);
-    clearRaceMods();
-    season.results.push(r);
-    updateContender();
-    renderResultRow(r);
-    renderRunning();
-    saveCareer();
-    raceTimer = window.setTimeout(nextRace, skipping ? 0 : racePace);
+    const round = season.results.length + 1;
+    const raw = runRace(round, season.division);
+    const commit = (r) => {
+        clearRaceMods();
+        season.results.push(r);
+        updateContender();
+        renderResultRow(r);
+        renderRunning();
+        saveCareer();
+        raceTimer = window.setTimeout(nextRace, skipping ? 0 : racePace);
+    };
+    // the race can stop and ask you something before it is written down
+    const ctx = { pos: raw.finish ?? 20, round, total: season.division.rounds.length,
+        wet: raw.wet, circuit: raw.circuit };
+    const moment = typeof maybeMoment === "function" && raw.finish !== null ? maybeMoment(ctx) : null;
+    if (moment) {
+        window.clearTimeout(raceTimer);
+        showMoment(moment, ctx, (shift) => commit(applyMomentShift(raw, shift)));
+        return;
+    }
+    commit(raw);
 }
 function startSeason(year = 1) {
     season = { year, division: currentDivision(), results: [], field: [], finished: false };
@@ -6279,6 +6854,8 @@ function startSeason(year = 1) {
     deciderShown = false;
     if (typeof resetMidSeason === "function")
         resetMidSeason();
+    if (typeof resetMoments === "function")
+        resetMoments();
     clearRaceMods();
     $("#raceBody").innerHTML = "";
     const cb = $("#callbacks");

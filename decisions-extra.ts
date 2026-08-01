@@ -5,7 +5,8 @@
    quieter parts of a career that had nothing in them.
    ========================================================= */
 
-const isGT = (): boolean => tier >= 8;
+const isGT = (): boolean => tier === 8 || tier === 9;
+const isIndy = (): boolean => tier === 10;
 const isReserve = (): boolean => tier === 4;
 const atWar = (): boolean => teamMate.relationship === "war";
 const isBack = (): boolean => comebacks > 0;
@@ -132,7 +133,7 @@ const EXTRA_DECISIONS: Decision[] = [
         ] },
     ], when: isBack },
 
-  { id: "back-why", eyebrow: "The comeback", scene: "An interviewer asks, live, why you came back at all — whether it was money, or ego, or because you had nothing else.",
+  { id: "back-why", eyebrow: "The comeback", scene: "An interviewer asks, live, why you came back at all, whether it was money, or ego, or because you had nothing else.",
     question: "It's a fair question and you've been avoiding it.",
     options: [
       { label: "Be honest", detail: "Say the real reason out loud.",
@@ -156,7 +157,7 @@ const EXTRA_DECISIONS: Decision[] = [
         effect: { attrs: { racecraft: 5, tyres: 3 }, rep: { loyal: 3 } } },
     ], when: isJunior },
 
-  { id: "coach", eyebrow: "Junior", scene: "A former driver offers to coach you. He is very good and openly says he'll be hard on you — video after every session, no excuses accepted, and he'll tell your parents everything.",
+  { id: "coach", eyebrow: "Junior", scene: "A former driver offers to coach you. He is very good and openly says he'll be hard on you, video after every session, no excuses accepted, and he'll tell your parents everything.",
     question: "You are sixteen.",
     options: [
       { label: "Take him on", detail: "A year of being told what's wrong with you.",
@@ -280,7 +281,7 @@ const EXTRA_DECISIONS: Decision[] = [
         effect: { attrs: { feedback: 4 }, rep: { loyal: 2 } } },
     ] },
 
-  { id: "young-team", eyebrow: "Contract", scene: "A brand new team is entering next year. No history, no results, no idea whether they'll still exist in three seasons — and they want you as their first signing.",
+  { id: "young-team", eyebrow: "Contract", scene: "A brand new team is entering next year. No history, no results, no idea whether they'll still exist in three seasons, and they want you as their first signing.",
     question: "It would be your team from day one.",
     options: [
       { label: "Sign the new team", detail: "Build it, or go down with it.",
@@ -312,3 +313,278 @@ const EXTRA_DECISIONS: Decision[] = [
 ];
 
 DECISIONS.push(...EXTRA_DECISIONS);
+
+/* =========================================================
+   A further batch, weighted towards the middle of a career
+   and the things a season throws at you.
+   ========================================================= */
+
+const EXTRA_TWO: Decision[] = [
+  { id: "clause-called", eyebrow: "Contract", scene: "The clause in your contract has been triggered. A rival team has paid the fee and your current team cannot stop it, and did not try very hard.",
+    question: "You find out from a journalist.",
+    options: [
+      { label: "Go, and say nothing", detail: "Take the seat. Keep the grievance.",
+        outcome: "You move without comment. The old team's statement thanks you warmly.",
+        effect: { car: 4, rep: { political: 2 } } },
+      { label: "Say they let you go", detail: "Publicly, on the record.",
+        outcome: "You tell the truth about who did not fight to keep you.",
+        effect: { attrs: { racecraft: 2 }, rep: { mercenary: 3 } },
+        later: { inSeasons: 2, text: "Your honesty about that transfer is quoted back at you in every contract meeting since.", effect: { car: -2 } } },
+    ], when: () => tier >= 4 },
+
+  { id: "loan-out", eyebrow: "Mid-season", scene: "The loan clause has been used. You are being placed at another team for the rest of the year, in a worse car, to keep a sponsor happy.",
+    question: "Nobody asked you.",
+    options: [
+      { label: "Go and win them over", detail: "New garage, new people, prove it again.",
+        outcome: "You arrive as an inconvenience and leave as the reason they had a good year.",
+        effect: { attrs: { feedback: 5, racecraft: 4 }, car: -3, rep: { loyal: 3 } },
+        later: { inSeasons: 2, text: "The team you were loaned to want you permanently, and they are paying.", effect: { car: 6 } } },
+      { label: "Refuse to go", detail: "Sit the season out if you have to.",
+        outcome: "You refuse. Lawyers get involved and you miss four rounds.",
+        effect: { attrs: { racecraft: -3, consistency: -2 }, rep: { mercenary: 4, fragile: 2 } } },
+    ], when: () => currentSeat?.clause.id === "loan" || tier >= 4 },
+
+  { id: "second-driver-clause", eyebrow: "Mid-season", scene: "Your contract says you move over if the other car is fighting for something. The other car is now fighting for something, and you are quicker.",
+    question: "The radio call is coming this weekend.",
+    options: [
+      { label: "Honour it", detail: "You signed it.",
+        outcome: "You move over. You keep doing it for eleven rounds.",
+        effect: { attrs: { consistency: 4 }, rep: { loyal: 5 } },
+        later: { inSeasons: 2, text: "The team remember you kept to a deal that cost you. The next contract has no such clause.", effect: { car: 5 } } },
+      { label: "Ignore it once", detail: "One race. See what happens.",
+        outcome: "You stay ahead at the one race you badly wanted.",
+        effect: { attrs: { racecraft: 4 }, rep: { mercenary: 3, fragile: 1 } },
+        roll: [
+          { w: 50, outcome: "They fine you and nothing else changes.", effect: {} },
+          { w: 50, outcome: "They put it in writing that you are replaceable, and start looking.", effect: { car: -4 } },
+        ] },
+    ], when: () => currentSeat?.clause.id === "no-1" || tier >= 5 },
+
+  { id: "media-days", eyebrow: "Off-track", scene: "Forty appearance days is more than three a month, and the team have scheduled six of them in a triple-header week.",
+    question: "You can push back once a year without it becoming a story.",
+    options: [
+      { label: "Do them all", detail: "Smile in six countries.",
+        outcome: "You do every one and arrive at the third race running on nothing.",
+        effect: { attrs: { consistency: -4 }, rep: { loyal: 3, political: 2 } } },
+      { label: "Cancel half of them", detail: "Use the goodwill now.",
+        outcome: "You cancel three and the sponsor's people are cold with you for months.",
+        effect: { attrs: { consistency: 3 }, rep: { mercenary: 2 } } },
+    ], when: () => currentSeat?.clause.id === "media" || tier >= 4 },
+
+  { id: "junior-quicker", eyebrow: "Mid-season", scene: "The team's junior did a Friday session in your car and was two tenths quicker than you were on the same fuel.",
+    question: "Everyone in the garage saw the trace.",
+    options: [
+      { label: "Ask for his data", detail: "Learn from a nineteen-year-old.",
+        outcome: "You go through his lap corner by corner. He is braking later at three of them and it works.",
+        effect: { attrs: { qualifying: 6, feedback: 3 } } },
+      { label: "Put it down to fuel", detail: "Say nothing, believe nothing.",
+        outcome: "You dismiss it publicly. Privately it sits with you all season.",
+        effect: { attrs: { consistency: -3, racecraft: 2 }, rep: { fragile: 2 } } },
+    ], when: () => tier >= 4 && age >= 27 },
+
+  { id: "weather-call", eyebrow: "Mid-season", scene: "Qualifying is drying and there is one lap left. Slicks are half a second quicker if the last sector has dried, and four seconds slower if it has not.",
+    question: "Your engineer will not make the call for you.",
+    options: [
+      { label: "Slicks", detail: "Bet on the sector.",
+        outcome: "You take slicks.",
+        effect: {},
+        roll: [
+          { w: 45, outcome: "It has dried. Pole by three tenths, and nobody else even gets a lap in.", effect: { attrs: { qualifying: 8, wet: 4 } } },
+          { w: 55, outcome: "It has not. You cross the line seventeenth and the team say nothing on the radio.", effect: { attrs: { qualifying: -3, wet: 2 } } },
+        ] },
+      { label: "Stay on wets", detail: "Bank a lap you know is there.",
+        outcome: "You bank the lap. Sixth, and no drama.",
+        effect: { attrs: { consistency: 3, wet: 2 } } },
+    ] },
+
+  { id: "team-radio-leak", eyebrow: "Off-track", scene: "A radio message of yours, sworn at and unflattering about the pit wall, has been broadcast and clipped everywhere.",
+    question: "You did say it.",
+    options: [
+      { label: "Own it", detail: "It was a bad day and you meant it.",
+        outcome: "You own it without excuses. It becomes a shirt within a fortnight.",
+        effect: { rep: { political: 2, mercenary: 1 } } },
+      { label: "Apologise to the wall privately", detail: "Fix the relationship, ignore the noise.",
+        outcome: "You apologise to the people it was actually about and say nothing publicly.",
+        effect: { attrs: { feedback: 4 }, rep: { loyal: 3 } } },
+    ], when: () => tier >= 4 },
+
+  { id: "final-seat", eyebrow: "Late career", scene: "One seat is left on the grid for next year and there are three of you in the running. Two are younger than you and one of them is quicker.",
+    question: "Your manager wants to know how hard to push.",
+    options: [
+      { label: "Push with everything", detail: "Call in every favour you have.",
+        outcome: "You spend every bit of goodwill you have accumulated.",
+        effect: { rep: { political: 4 } },
+        roll: [
+          { w: 55, outcome: "It works. You get the seat and owe several people something unspecified.", effect: { car: 4 } },
+          { w: 45, outcome: "It does not. Everyone now knows how badly you wanted it.", effect: { rep: { fragile: 2 } } },
+        ] },
+      { label: "Let the results argue", detail: "If it is not enough, it is not enough.",
+        outcome: "You do nothing except drive well, and wait.",
+        effect: { attrs: { consistency: 4 }, rep: { loyal: 2 } } },
+    ], when: () => age >= 31 },
+];
+
+DECISIONS.push(...EXTRA_TWO);
+
+/* =========================================================
+   A third batch: the reserve year, sportscars, IndyCar,
+   and the parts of a season that had nothing in them.
+   ========================================================= */
+
+const EXTRA_THREE: Decision[] = [
+  { id: "res-call", eyebrow: "Reserve", scene: "A race driver has food poisoning and you are being put in the car with ninety minutes until qualifying. The seat is not moulded to you and the pedals are wrong.",
+    question: "Nobody expects anything except that you finish.",
+    options: [
+      { label: "Drive within yourself", detail: "Bring it home, learn the car.",
+        outcome: "You drive a careful weekend and hand back a car with no marks on it.",
+        effect: { attrs: { consistency: 5, feedback: 3 }, rep: { loyal: 3 } } },
+      { label: "Treat it as an audition", detail: "One chance, take it.",
+        outcome: "You attack it.",
+        effect: { rep: { fragile: 1 } },
+        roll: [
+          { w: 50, outcome: "You out-qualify the other car and the paddock talks about nothing else for a week.", effect: { attrs: { qualifying: 8, racecraft: 4 }, car: 4 } },
+          { w: 50, outcome: "You overdrive it, put it in the gravel on Saturday, and the story writes itself.", effect: { attrs: { qualifying: -2, consistency: -3 }, rep: { fragile: 3 } } },
+        ] },
+    ], when: isReserve },
+
+  { id: "res-loyalty", eyebrow: "Reserve", scene: "A rival team offer you a race seat at the back of the grid for next year. Your team say wait, their seat comes free in two seasons, probably.",
+    question: "Probably is doing a lot of work in that sentence.",
+    options: [
+      { label: "Take the race seat", detail: "A bad car you actually drive.",
+        outcome: "You take it. Racing badly beats not racing.",
+        effect: { seat: "worse", attrs: { racecraft: 5 }, rep: { mercenary: 2 } } },
+      { label: "Wait for the promise", detail: "Two more years of Fridays.",
+        outcome: "You wait.",
+        effect: { rep: { loyal: 4 } },
+        roll: [
+          { w: 45, outcome: "The seat comes free exactly when they said it would.", effect: { seat: "better", contract: 2 } },
+          { w: 55, outcome: "They sign somebody else's junior and apologise in person.", effect: { attrs: { consistency: -2 }, rep: { fragile: 2 } } },
+        ] },
+    ], when: isReserve },
+
+  { id: "res-sim", eyebrow: "Reserve", scene: "You have run every setup the engineers asked for and one they did not. Yours is quicker, and admitting you tried it means admitting you went off programme.",
+    question: "The race drivers are two tenths off all weekend.",
+    options: [
+      { label: "Hand it over", detail: "Tell them what you did.",
+        outcome: "You own up and give them the numbers. They use it that weekend.",
+        effect: { attrs: { feedback: 7 }, rep: { loyal: 3, political: 1 } } },
+      { label: "Keep it for yourself", detail: "For when you get the car.",
+        outcome: "You say nothing and file it away.",
+        effect: { attrs: { qualifying: 4, feedback: 2 }, rep: { mercenary: 2 } } },
+    ], when: isReserve },
+
+  { id: "indy-oval", eyebrow: "IndyCar", scene: "Your first oval. Four laps of practice in and you have not lifted, which everyone tells you is the easy part.",
+    question: "The wall does not move.",
+    options: [
+      { label: "Trust it and commit", detail: "Flat, all four corners, all race.",
+        outcome: "You commit.",
+        effect: { rep: { fragile: 1 } },
+        roll: [
+          { w: 60, outcome: "By lap forty it feels normal, and you spend the last stint learning where the air goes.", effect: { attrs: { racecraft: 6, consistency: 3 } } },
+          { w: 40, outcome: "You catch a tow wrong at 220mph and end the day in the fence.", effect: { attrs: { consistency: -4 }, rep: { fragile: 3 } } },
+        ] },
+      { label: "Build up to it", detail: "Lift, learn, repeat.",
+        outcome: "You build up over two race weekends and arrive at the same place, slower.",
+        effect: { attrs: { consistency: 5, tyres: 2 } } },
+    ], when: isIndy },
+
+  { id: "indy-500", eyebrow: "Indianapolis", scene: "Qualifying for the 500 is four laps at absolute maximum with a car trimmed until it barely wants to turn. There is a setting the engineer will use if you tell him to.",
+    question: "It is worth half a row, and it makes the car horrible.",
+    options: [
+      { label: "Trim it out", detail: "Four terrifying laps.",
+        outcome: "You have him trim it.",
+        effect: {},
+        roll: [
+          { w: 55, outcome: "Four laps that feel like an hour, and you are on the front two rows.", effect: { attrs: { qualifying: 9, racecraft: 3 } } },
+          { w: 45, outcome: "The car is unmanageable and you abort on lap two. You start deep in the field.", effect: { attrs: { qualifying: -3 } } },
+        ] },
+      { label: "Keep it drivable", detail: "Qualify midfield, race well.",
+        outcome: "You keep downforce in it, qualify eleventh, and can actually follow people on Sunday.",
+        effect: { attrs: { racecraft: 5, tyres: 3 } } },
+    ], when: isIndy },
+
+  { id: "gt-am", eyebrow: "Sportscars", scene: "Your amateur co-driver has just handed the car over four laps down after a spin, and there is a television camera pointed at your face.",
+    question: "He is standing right there.",
+    options: [
+      { label: "Take the blame yourself", detail: "Say the setup was your call.",
+        outcome: "You say the balance was your fault. Everyone in the garage knows it was not.",
+        effect: { rep: { loyal: 5 } },
+        later: { inSeasons: 2, text: "Your co-driver funds a second car the following year, and asks for you in it.", effect: { car: 5 } } },
+      { label: "Say nothing and drive", detail: "Get the laps back.",
+        outcome: "You say nothing, get in, and take three of the four laps back before the flag.",
+        effect: { attrs: { racecraft: 6, tyres: 3 } } },
+    ], when: isGT },
+
+  { id: "gt-factory", eyebrow: "Sportscars", scene: "The manufacturer want you at the factory for three weeks of development on next year's car, which means missing two races of this one.",
+    question: "You are second in the championship.",
+    options: [
+      { label: "Go to the factory", detail: "Next year's car, this year's points.",
+        outcome: "You go. The championship goes with it, and next year's car is built around how you drive.",
+        effect: { car: 6, attrs: { feedback: 6 }, rep: { loyal: 3 } } },
+      { label: "Race the season out", detail: "Finish what you started.",
+        outcome: "You stay in the car and fight the championship to the last round.",
+        effect: { attrs: { racecraft: 4, consistency: 3 }, rep: { mercenary: 1 } } },
+    ], when: isGT },
+
+  { id: "night-stint", eyebrow: "Endurance", scene: "Four in the morning, seventh hour of rain, and the team ask if you want out. You have been in the car for three stints.",
+    question: "The next driver is awake but not warm.",
+    options: [
+      { label: "Stay in", detail: "You know where the grip is.",
+        outcome: "You stay in for two more stints and give the car back four places better off.",
+        effect: { attrs: { wet: 8, tyres: 4, consistency: -2 }, rep: { loyal: 3 } } },
+      { label: "Hand it over", detail: "Sleep, and come back sharp.",
+        outcome: "You hand over and sleep for ninety minutes. It is the right call and it costs two places.",
+        effect: { attrs: { consistency: 5 } } },
+    ], when: isGT },
+
+  { id: "mid-title-fight", eyebrow: "Mid-season", scene: "You lead the championship by nine points with five to go, and the team want to change the car's concept to something they think is faster.",
+    question: "It might be. It might take four races to work.",
+    options: [
+      { label: "Change it", detail: "Chase the pace.",
+        outcome: "You take the new package.",
+        effect: {},
+        roll: [
+          { w: 50, outcome: "It works from the first session and you close the season out comfortably.", effect: { car: 5, attrs: { racecraft: 2 } } },
+          { w: 50, outcome: "It takes three races to understand and the lead is gone by the time it does.", effect: { car: -3, attrs: { consistency: -2 } } },
+        ] },
+      { label: "Keep what you have", detail: "Win it with a known car.",
+        outcome: "You keep the car you understand and grind out the points.",
+        effect: { attrs: { consistency: 5, tyres: 2 } } },
+    ], when: () => tier >= 4 },
+
+  { id: "young-manager", eyebrow: "Off-track", scene: "Your manager of nine years wants to retire. His replacement is thirty, hungry, and has never negotiated a Formula 1 contract.",
+    question: "He knows every principal on the grid. She does not, yet.",
+    options: [
+      { label: "Stay with the firm", detail: "New face, same contacts.",
+        outcome: "You stay. She is better than anyone expected within a year.",
+        effect: { rep: { loyal: 3, political: 2 } } },
+      { label: "Represent yourself", detail: "Nobody knows what you want better than you.",
+        outcome: "You take your own meetings. Some go very well and some are excruciating.",
+        effect: { attrs: { feedback: 3 }, rep: { mercenary: 3, political: 2 } } },
+    ], when: () => tier >= 4 },
+
+  { id: "kart-parents", eyebrow: "Junior", scene: "Your parents have remortgaged to keep the season going and have not told you. You found the paperwork.",
+    question: "There are four rounds left.",
+    options: [
+      { label: "Say you know", detail: "Talk about it properly.",
+        outcome: "You bring it up. It is the worst conversation of your life and something changes afterwards.",
+        effect: { attrs: { consistency: 4, feedback: 2 }, rep: { loyal: 4 } } },
+      { label: "Say nothing and win", detail: "Make it worth it.",
+        outcome: "You say nothing and drive like the season depends on it, because it does.",
+        effect: { attrs: { qualifying: 5, racecraft: 4, consistency: -2 }, rep: { fragile: 2 } } },
+    ], when: isJunior },
+
+  { id: "f1-boycott", eyebrow: "F1", scene: "The drivers are being asked to sign a joint statement about safety at a circuit the promoter refuses to change. Two of the biggest names have not signed.",
+    question: "Your team would rather this went away.",
+    options: [
+      { label: "Sign it", detail: "With everyone who did.",
+        outcome: "You sign. The circuit is changed eighteen months later.",
+        effect: { rep: { loyal: 3, political: 3 } } },
+      { label: "Stay out of it", detail: "Not your fight this year.",
+        outcome: "You do not sign, and the drivers who did notice who did not.",
+        effect: { rep: { mercenary: 2 } },
+        later: { inSeasons: 2, text: "The drivers who signed that statement look after each other now. You are not in that group.", effect: { rep: { political: -2 } } } },
+    ], when: isF1 },
+];
+
+DECISIONS.push(...EXTRA_THREE);
