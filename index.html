@@ -2365,11 +2365,37 @@ const REAL_F1 = [
     { name: "Racing Bulls", drivers: ["Liam Lawson", "Arvid Lindblad"] },
     { name: "Cadillac", drivers: ["Sergio Pérez", "Valtteri Bottas"] },
 ];
-/** Announced or widely reported reserve and test drivers. Edit freely. */
+/* A real reserve paddock is four kinds of driver at once: ex-Formula 1 drivers
+   waiting for a way back, F2 graduates with nowhere to go, drivers who left for
+   sportscars or IndyCar and kept a testing role, and junior-programme names.
+   All four are here. Edit freely, this is just data. */
+/** Ex-Formula 1 drivers who kept a testing or reserve role. */
+const RESERVES_EX_F1 = [
+    "Mick Schumacher", "Zhou Guanyu", "Daniel Ricciardo", "Kevin Magnussen", "Logan Sargeant",
+    "Nyck de Vries", "Antonio Giovinazzi", "Daniil Kvyat", "Stoffel Vandoorne", "Jack Doohan",
+    "Robert Shwartzman", "Callum Ilott", "Nicholas Latifi",
+];
+/** Formula 2 graduates and title contenders on the edge of a seat. */
+const RESERVES_F2 = [
+    "Felipe Drugovich", "Frederik Vesti", "Théo Pourchaire", "Ayumu Iwasa", "Jak Crawford",
+    "Paul Aron", "Zane Maloney", "Victor Martins", "Luke Browning", "Dennis Hauger",
+    "Richard Verschoor", "Pepe Martí", "Oliver Goethe", "Roman Staněk", "Kush Maini",
+    "Amaury Cordeel", "Gabriele Minì", "Leonardo Fornaroli", "Rafael Villagómez",
+];
+/** Drivers who went to sportscars or IndyCar and kept a foot in the door. */
+const RESERVES_OTHER_SERIES = [
+    "Ryo Hirakawa", "Pato O'Ward", "Sébastien Buemi", "Brendon Hartley", "Kamui Kobayashi",
+    "Jean-Éric Vergne", "Antonio Félix da Costa", "Will Stevens", "Nick Cassidy",
+    "Robin Frijns", "Norman Nato", "Marcus Ericsson", "Felix Rosenqvist",
+];
+/** Junior-programme drivers coming up behind them. */
+const RESERVES_JUNIOR = [
+    "Tim Tramnitz", "Martinius Stenshorne", "Alex Dunne", "Freddie Slater", "Christian Mansell",
+    "Nikola Tsolov", "James Wharton", "Ugo Ugochukwu", "Rafael Câmara", "Noel León",
+    "Brando Badoer", "Arvid Lindblad", "Sami Meguetounif",
+];
 const REAL_RESERVES = [
-    "Ayumu Iwasa", "Felipe Drugovich", "Frederik Vesti", "Jak Crawford", "Paul Aron",
-    "Zane Maloney", "Pato O'Ward", "Ryo Hirakawa", "Luke Browning", "Victor Martins",
-    "Jack Doohan", "Théo Pourchaire", "Robert Shwartzman", "Callum Ilott", "Zhou Guanyu",
+    ...RESERVES_EX_F1, ...RESERVES_F2, ...RESERVES_OTHER_SERIES, ...RESERVES_JUNIOR,
 ];
 const REAL_JUNIOR_TEAMS = [
     "Prema", "ART Grand Prix", "Campos Racing", "Hitech", "MP Motorsport", "Rodin Motorsport",
@@ -2423,12 +2449,28 @@ function teamPool(t) {
     return [...REAL_JUNIOR_TEAMS];
 }
 /** Real drivers for the F1 tiers, so the grid you join is the real one. */
+/** A few names from a list, without repeats. */
+function pickSome(list, n) {
+    const copy = [...list];
+    const out = [];
+    for (let i = 0; i < n && copy.length; i++) {
+        out.push(copy.splice(Math.floor(rng() * copy.length), 1)[0]);
+    }
+    return out;
+}
 function realFieldNames(t) {
     if (!useRealRoster || t < 4 || t >= 8)
         return null;
-    // a reserve shares the paddock with the race drivers and the other reserves
-    if (t === 4)
-        return [...REAL_RESERVES, ...REAL_F1.flatMap((x) => x.drivers)];
+    // a reserve shares the paddock with the race drivers and a mixed reserve pool
+    if (t === 4) {
+        const mix = [
+            ...pickSome(RESERVES_EX_F1, 4),
+            ...pickSome(RESERVES_F2, 6),
+            ...pickSome(RESERVES_OTHER_SERIES, 3),
+            ...pickSome(RESERVES_JUNIOR, 3),
+        ];
+        return [...mix, ...REAL_F1.flatMap((x) => x.drivers)];
+    }
     return REAL_F1.flatMap((x) => x.drivers);
 }
 document.addEventListener("DOMContentLoaded", () => {
