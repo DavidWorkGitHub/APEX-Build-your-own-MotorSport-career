@@ -471,6 +471,8 @@ input::placeholder{color:#4A525B}
 .callbacks{padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(220,0,26,.05);display:grid;gap:8px}
 .callbacks p{margin:0;font-size:13.5px;line-height:1.5;display:flex;gap:10px;align-items:flex-start;color:var(--ink)}
 .callbacks i{width:5px;height:5px;border-radius:50%;background:var(--accent-2);flex:none;margin-top:7px}
+.season__class{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent-2);border:1px solid rgba(220,0,26,.35);border-radius:99px;padding:3px 9px}
 .season__rep{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
 
 /* ================= log ================= */
@@ -481,6 +483,14 @@ input::placeholder{color:#4A525B}
 .log-year{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint)}
 .log-row b{font-weight:600;font-size:14.5px}
 .log-row small{display:block;color:var(--dim);font-size:13px;margin-top:5px;line-height:1.5}
+
+/* what the driver added, under each result */
+.rr-why{display:flex;align-items:flex-start;gap:10px;padding:7px 22px 11px;border-bottom:1px solid var(--line);
+  font-size:12px;color:var(--dim);line-height:1.45;background:rgba(220,0,26,.035)}
+.rr-why i{width:4px;height:4px;border-radius:50%;background:var(--accent-2);flex:none;margin-top:6px}
+.rr-why.is-new{animation:slidein .38s var(--ease) both}
+.summary__trait{color:var(--accent-2);font-size:13.5px;margin:8px 0 0;line-height:1.5}
+@media (max-width:560px){ .rr-why{padding-left:14px;padding-right:14px} }
 
 /* ================= season ================= */
 .season{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.72fr);gap:18px;align-items:start}
@@ -584,6 +594,7 @@ input::placeholder{color:#4A525B}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* flags are drawn, not emoji, Windows shows letter boxes for regional indicators */
 .flag{display:inline-block;vertical-align:-3px;border-radius:2px;flex:none}
+.flag--img{object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.25) inset;background:var(--carbon-3)}
 .country__flag{display:flex;align-items:center;line-height:0}
 .chip .flag{vertical-align:-4px}
 .card__nat .flag,.hall-main .flag{vertical-align:-4px}
@@ -1224,6 +1235,7 @@ input::placeholder{color:#4A525B}
       <div class="panel season__main">
         <div class="panel__head season__head">
           <h2 id="seasonDivision">Karting</h2>
+          <span class="season__class" id="seasonClass" hidden></span>
           <span id="seasonYear">Season 1</span>
           <span class="season__rep" id="seasonRep"></span>
           <span class="season__driver" id="seasonDriver"></span>
@@ -1285,6 +1297,7 @@ input::placeholder{color:#4A525B}
       <h2 class="summary__pos"><b id="sumPos">-</b><span>in the championship</span></h2>
       <p class="summary__verdict" id="sumVerdict"></p>
       <p class="summary__mate" id="sumMate"></p>
+      <p class="summary__trait" id="sumTrait"></p>
       <p class="eyebrow" id="sumDivision" hidden></p>
       <span hidden><i id="sumPoints"></i><i id="sumWins"></i><i id="sumPodiums"></i><i id="sumBest"></i><i id="sumDnf"></i><i id="sumH2H"></i></span>
 
@@ -1844,16 +1857,32 @@ function computeAttrs() {
             a[k] += currentSeat.perk.mods[k] ?? 0;
         });
     }
-    // age: reflexes go first, judgement holds for years after
+    // Age. A driver's prime runs roughly 27 to 33, and a settled driver holds it
+    // longer: consistency buys you extra years before anything starts to go.
     if (typeof age !== "undefined") {
-        const past = Math.max(0, age - 31);
+        // read raw consistency, not the clamped display value, or the grace is lost
+        const rawCons = BASE_ATTRS.consistency
+            + (typeof careerGrowth !== "undefined" ? careerGrowth.consistency : 0)
+            + (typeof earnedGrowth !== "undefined" ? earnedGrowth.consistency : 0)
+            + (driver.trait?.mods.consistency ?? 0)
+            + (driver.setup === "understeer" ? 4 : -3);
+        const grace = clamp((rawCons - 60) / 9, -2, 5); // up to five extra years
+        const primeEnd = 33 + grace;
+        const past = Math.max(0, age - primeEnd);
         if (past > 0) {
-            a.qualifying -= past * 1.9;
-            a.racecraft -= past * 1.5;
-            a.wet -= past * 0.8;
-            a.tyres -= Math.max(0, age - 34) * 0.7;
-            a.consistency -= Math.max(0, age - 35) * 0.6;
-            a.feedback += Math.min(past * 0.5, 4); // you know more than you did
+            // gentle at first, steeper the further past it you go
+            const curve = past * (0.55 + past * 0.055);
+            a.qualifying -= curve * 1.5;
+            a.racecraft -= curve * 1.15;
+            a.wet -= curve * 0.6;
+            a.tyres -= Math.max(0, age - primeEnd - 2) * 0.5;
+            a.consistency -= Math.max(0, age - primeEnd - 3) * 0.45;
+            a.feedback += Math.min(past * 0.6, 6); // you know more than you did
+        }
+        else if (age >= 27) {
+            // in the prime itself, everything sharpens slightly
+            a.consistency += 2;
+            a.tyres += 1.5;
         }
     }
     // grinding is capped by the level you're racing in, what you win from decisions is not
@@ -2252,8 +2281,25 @@ const MORE = {
     ZW: { k: "h", c: ["#319208", "#FFD200", "#DE2010", K, "#319208"] },
 };
 Object.assign(FLAGS, MORE);
-/** Renders a flag as inline SVG. Same everywhere, no font dependency. */
+/* Real flags come from flagcdn.com: free, no key, 254 flags, SVG, on Cloudflare.
+   The drawn versions below stay as the fallback, so the game still works with no
+   internet and nothing ever renders as a blank box. */
+const FLAG_CDN = "https://flagcdn.com";
+let cdnFlags = true;
+/** Real artwork where we can get it, drawn bands where we cannot. */
 function flagSvg(code, w = 20) {
+    const h = Math.round(w * 0.7);
+    if (cdnFlags && code) {
+        const lower = code.toLowerCase();
+        // the drawn version is the fallback, swapped in if the image fails to load
+        return `<img class="flag flag--img" width="${w}" height="${h}" loading="lazy" decoding="async"
+      src="${FLAG_CDN}/${lower}.svg" alt=""
+      onerror="this.outerHTML=drawnFlag('${code}',${w})">`;
+    }
+    return drawnFlag(code, w);
+}
+/** Renders a flag as inline SVG. Same everywhere, no font dependency. */
+function drawnFlag(code, w = 20) {
     const h = Math.round(w * 0.7);
     const f = FLAGS[code];
     const open = `<svg class="flag" viewBox="0 0 30 21" width="${w}" height="${h}" aria-hidden="true">`;
@@ -2747,6 +2793,35 @@ function runRace(round, div) {
     };
     const finish = posOf(player);
     const mateFinish = posOf(mate);
+    // Where the car "should" have finished, so we can show what the driver added.
+    const carOnly = pace
+        .map(({ r, p }) => ({ r, p: p - (r.isPlayer ? attrs.qualifying * 0.02 : 0) }))
+        .sort((a, b) => b.p - a.p)
+        .findIndex((x) => x.r.isPlayer) + 1;
+    let note;
+    if (finish !== null) {
+        const gridGain = gridPos.get(0) - finish;
+        const vsCar = carOnly - finish;
+        const t = driver.trait?.id;
+        if (wet && finish <= carOnly - 2 && attrs.wet >= 68) {
+            note = `Wet weather: ${attrs.wet | 0} in the rain, ${carOnly - finish} places better than the car deserved`;
+        }
+        else if (gridPos.get(0) <= 3 && attrs.qualifying >= 70) {
+            note = `Qualifying ${attrs.qualifying | 0}: P${gridPos.get(0)} on a day the car was worth P${carOnly}`;
+        }
+        else if (gridGain >= 4 && attrs.racecraft >= 68) {
+            note = `Racecraft ${attrs.racecraft | 0}: ${gridGain} places gained on track`;
+        }
+        else if (gridGain >= 3 && attrs.tyres >= 70) {
+            note = `Tyre management ${attrs.tyres | 0}: ${gridGain} places gained as others faded`;
+        }
+        else if (vsCar >= 3) {
+            note = `${vsCar} places better than the machinery was worth`;
+        }
+        else if (vsCar <= -3 && t) {
+            note = `The car had more in it than that`;
+        }
+    }
     if (!standIn) {
         return {
             round, circuit: div.rounds[round - 1], wet, grid: 0, finish: null,
@@ -2755,7 +2830,7 @@ function runRace(round, div) {
     }
     return {
         round, circuit: div.rounds[round - 1], wet,
-        grid: gridPos.get(0), finish,
+        grid: gridPos.get(0), finish, note,
         points: finish ? (POINTS[finish - 1] ?? 0) : 0,
         teamMateFinish: mateFinish,
         beatTeamMate: finish !== null && (mateFinish === null || finish < mateFinish),
@@ -3058,13 +3133,13 @@ const DIVISIONS = [
         rounds: CIRCUITS.junior.slice(0, 9), skillBand: [56, 80], carBand: [52, 76], seatChance: 0.5, next: [3] },
     { id: "f2", name: "Formula 2", label: "F2", tier: 3, fieldSize: 18,
         rounds: CIRCUITS.junior, skillBand: [62, 84], carBand: [56, 80], seatChance: 0.3, next: [4, 8, 10] },
-    { id: "reserve", name: "F1 reserve driver", label: "RES", tier: 4, fieldSize: 20,
+    { id: "reserve", name: "Formula 1", series: "Formula 1", klass: "Reserve driver", label: "RES", tier: 4, fieldSize: 20,
         rounds: CIRCUITS.f1.slice(0, 4), skillBand: [70, 92], carBand: [50, 74], seatChance: 0.55, next: [5, 8, 10] },
-    { id: "backmarker", name: "Formula 1 (backmarker team)", label: "F1", tier: 5, fieldSize: 20,
+    { id: "backmarker", name: "Formula 1", series: "Formula 1", klass: "Backmarker team", label: "F1", tier: 5, fieldSize: 20,
         rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [42, 58], seatChance: 0.35, next: [6] },
-    { id: "midfield", name: "Formula 1 (midfield team)", label: "F1", tier: 6, fieldSize: 20,
+    { id: "midfield", name: "Formula 1", series: "Formula 1", klass: "Midfield team", label: "F1", tier: 6, fieldSize: 20,
         rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [60, 76], seatChance: 0.3, next: [7] },
-    { id: "front", name: "Formula 1 (front-running team)", label: "F1", tier: 7, fieldSize: 20,
+    { id: "front", name: "Formula 1", series: "Formula 1", klass: "Front-running team", label: "F1", tier: 7, fieldSize: 20,
         rounds: CIRCUITS.f1, skillBand: [70, 92], carBand: [80, 94], seatChance: 0, next: [] },
     { id: "gt3", name: "GT3 sportscars", label: "GT3", tier: 8, fieldSize: 22,
         rounds: CIRCUITS.gt, skillBand: [58, 82], carBand: [54, 78], seatChance: 0.45, next: [9] },
@@ -3073,6 +3148,11 @@ const DIVISIONS = [
     { id: "indycar", name: "IndyCar", label: "INDY", tier: 10, fieldSize: 24,
         rounds: CIRCUITS.indy, skillBand: [64, 88], carBand: [60, 82], seatChance: 0.16, next: [4] },
 ];
+/** "Formula 1, midfield team" rather than two different-sounding series. */
+function divLabel(t) {
+    const d = DIVISIONS[t];
+    return d.klass ? `${d.name}, ${d.klass.toLowerCase()}` : d.name;
+}
 /** Divisions you've won and can't go back to. */
 const lockedOut = new Set();
 const careerHistory = [];
@@ -3128,15 +3208,22 @@ function promotionRoll() {
     const secondSeat = seatOpen && (DIVISIONS[div.next[0]]?.next.length ?? 0) > 0 && rng() < 0.22;
     const teamMate = season.field.find((r) => r.isTeamMate);
     const mateName = teamMate?.name ?? "your team-mate";
-    // at the top of the sport, with a seat and a record, stopping is your call
+    // Nobody takes the seat off a driver who is still delivering. What ends a
+    // career is the pace going, not a birthday.
+    const stillGood = overall() >= 72;
+    const stillWinning = pos <= 3 || (season?.field[0].wins ?? 0) > 0;
     const established = tier >= 5 && (cabinet.titles.length > 0 || pos <= 6);
-    if (age >= 40 || (age >= 34 && !established)) {
+    if (age >= 34 && (stillGood || stillWinning)) {
+        return { outcome: "stall", headline: "Nobody is asking you to stop",
+            detail: `You're ${age}, and you are still quick enough that the question does not come up. The seat is yours until you decide otherwise.` };
+    }
+    if (age >= 36 && !stillGood && !stillWinning) {
+        return { outcome: "out", headline: "The last season",
+            detail: `You're ${age}, the pace has gone, and there is a nineteen-year-old the team would rather find out about.` };
+    }
+    if (age >= 34 && !established) {
         return { outcome: "out", headline: "The last season",
             detail: `You're ${age}. There is one more contract on the table and you already know you won't sign it.` };
-    }
-    if (age >= 34 && established) {
-        return { outcome: "stall", headline: "Nobody is asking you to stop",
-            detail: `You're ${age}, and the seat is still yours for as long as you want it. Retire whenever you decide to, not when somebody decides for you.` };
     }
     // a title is a promotion. You don't get to defend it.
     if (pos === 1 && div.next.length > 0) {
@@ -3170,7 +3257,7 @@ function promotionRoll() {
     }
     if (score >= bar && seatOpen) {
         return { outcome: "promote", headline: "Moving up",
-            detail: `${DIVISIONS[div.next[0]].name}. The results were there and, for once, so was the seat.` };
+            detail: `${divLabel(div.next[0])}. The results were there and, for once, so was the seat.` };
     }
     // an expired contract means a new seat, wherever you are
     if (contractLeft <= 1) {
@@ -4648,13 +4735,13 @@ function showRoll() {
     $("#rollOutcome").className = `roll__badge roll__badge--${roll.outcome}`;
     $("#rollHeadline").textContent = roll.headline;
     $("#rollDetail").textContent = roll.detail;
-    $("#rollFrom").textContent = currentDivision().name;
+    $("#rollFrom").textContent = divLabel(tier);
     if (roll.outcome !== "fork")
         applyRoll(roll);
     if (roll.outcome === "stall" || roll.outcome === "reseat")
         contractLeft = Math.max(0, contractLeft - 1);
     $("#rollTo").textContent = roll.outcome === "fork" ? "Reserve, sportscars or IndyCar"
-        : roll.outcome === "out" ? "Career over" : currentDivision().name;
+        : roll.outcome === "out" ? "Career over" : divLabel(tier);
     $("#rollArrow").className = `roll__arrow roll__arrow--${roll.outcome}`;
     const btn = $("#rollNext");
     if (roll.outcome === "fork") {
@@ -4682,7 +4769,7 @@ function showRoll() {
     const wasGT = tierBeforeRoll >= 8; // sportscars and IndyCar are careers, not corridors
     const moving = roll.outcome === "promote" || roll.outcome === "jump";
     stay.hidden = !(wasGT && moving);
-    stay.textContent = `Stay in ${DIVISIONS[tierBeforeRoll].name}`;
+    stay.textContent = `Stay in ${divLabel(tierBeforeRoll)}`;
     show("roll");
 }
 let pendingYear = 1;
@@ -5173,7 +5260,7 @@ function retirementReason() {
         return { headline: "It stopped", detail: lastRoll.detail };
     }
     if (age >= 34) {
-        return { headline: "You walk away", detail: `You're ${age}. The seat is still yours, and you hand it back before anyone asks you to.` };
+        return { headline: "You walk away", detail: `You're ${age}. The seat was still yours, and you handed it back before anyone asked you to.` };
     }
     if (t > 0) {
         return { headline: "You walk away on your terms", detail: `${t} title${t > 1 ? "s" : ""}, and you stop while ${peak} still wants you.` };
@@ -5216,7 +5303,7 @@ function epilogue() {
         ? `Across ${totalBeat + totalLost} races you out-scored your team-mate ${totalBeat} times. The paddock reads that number first, and it read well.`
         : `Across ${totalBeat + totalLost} races your team-mates finished ahead ${totalLost} times. That is the number people remembered.`);
     if (comebacks > 0) {
-        lines.push(`You stopped once and came back. The second career was ${DIVISIONS[tier].name.toLowerCase()}, and shorter.`);
+        lines.push(`You stopped once and came back. The second career was ${divLabel(tier).toLowerCase()}, and shorter.`);
     }
     if (nemesis.name) {
         lines.push(nemesis.beat + nemesis.lost > 0
@@ -5923,11 +6010,22 @@ function showBriefing(year) {
         : "A season of racing ahead.";
     const mateName = teamMate.name || "to be confirmed";
     const rows = [
-        ["Division", div.name, `${div.rounds.length} rounds`],
+        ["Series", div.series ?? div.name, `${div.rounds.length} rounds`],
+        ...(div.klass ? [["Your team", div.klass, "Where your car sits in the field"]] : []),
         ["Team", currentSeat?.name ?? "-", currentSeat ? (contractLeft <= 1 ? "Final year of the contract" : `${contractLeft} years left on the contract`) : undefined],
         ["Team-mate", mateName, teamMate.seasons ? `${teamMate.seasons} season${teamMate.seasons === 1 ? "" : "s"} together, ${teamMate.beat}–${teamMate.lost}, ${relationshipLabel().toLowerCase()}` : "New to you"],
         ["Your trait", driver.trait?.full ?? "-", driver.trait?.blurb],
-        ["Age", String(age), age >= 30 ? "Past your peak, and you know things you didn't" : "Still improving"],
+        ["Age", String(age), (() => {
+                const grace = clamp((a.consistency - 55) / 12, -1.5, 4);
+                const primeEnd = Math.round(33 + grace);
+                if (age < 27)
+                    return `Still improving. Your prime starts around 27`;
+                if (age <= primeEnd)
+                    return `In your prime, which your consistency holds until about ${primeEnd}`;
+                if (age <= primeEnd + 3)
+                    return "Just past your peak. Judgement is holding, one-lap pace is not";
+                return "Well past your peak, and you know things you did not";
+            })()],
         ["Strongest", `${strongest[1]} ${Math.round(a[strongest[0]])}`, `Weakest: ${weakest[1]} ${Math.round(a[weakest[0]])}`],
         ["Overall", String(overall()), ovrBand(overall())],
     ];
@@ -6064,8 +6162,10 @@ function agePool() {
         // development, then decline
         if (p.age <= 26)
             p.skill = clamp(p.skill + 1.2 + rng() * 1.8, 30, 97);
-        else if (p.age >= 32)
-            p.skill = clamp(p.skill - (p.age - 31) * 0.7, 30, 97);
+        else if (p.age <= 33)
+            p.skill = clamp(p.skill + 0.2, 30, 97); // the prime
+        else
+            p.skill = clamp(p.skill - (p.age - 33) * 0.6, 30, 97); // and after it
         // the juniors move up or run out of road
         if (p.tier <= 3 && p.age >= 24 && rng() < 0.45) {
             p.retired = true;
@@ -6074,10 +6174,12 @@ function agePool() {
         if (p.tier <= 6 && rng() < 0.18)
             p.tier = Math.min(p.tier + 1, 7);
         // and everybody stops eventually
-        const stopAge = p.tier >= 5 ? 34 + Math.floor(rng() * 4) : 29;
+        // the good ones last longer, exactly as they do in life
+        const bonus = p.skill >= 88 ? 4 : p.skill >= 80 ? 2 : 0;
+        const stopAge = (p.tier >= 5 ? 35 + Math.floor(rng() * 4) : 30) + bonus;
         if (p.age >= stopAge)
             p.retired = true;
-        else if (p.age >= stopAge - 3 && rng() < 0.3)
+        else if (p.age >= stopAge - 3 && rng() < 0.25)
             p.retired = true;
         // teams change hands between seasons
         if (rng() < 0.25)
@@ -6363,7 +6465,7 @@ function renderOverview() {
         <span class="rr-finish ${cls}">${pos}</span>
         <span class="rr-mate ${r.beatTeamMate ? "beat" : "lost"}">${m}</span>
         <span class="rr-pts">${r.points || "-"}</span>
-      </div>`;
+      </div>` + (r.note ? `<div class="rr-why"><i></i><span>${r.note}</span></div>` : "");
     }).join("");
     $("#ovStats").innerHTML = `
     <div><b>${ORD(championshipPos())}</b><span>Championship</span></div>
@@ -6734,7 +6836,11 @@ const ORD = (n) => {
 let raceTimer = 0;
 let skipping = false;
 function seasonHeader() {
-    $("#seasonDivision").textContent = season.division.name;
+    const dv = currentDivision();
+    $("#seasonDivision").textContent = dv.series ?? dv.name;
+    const cls = $("#seasonClass");
+    cls.textContent = dv.klass ?? "";
+    cls.hidden = !dv.klass;
     $("#seasonYear").textContent = `Season ${season.year}`;
     $("#seasonRep").textContent = typeof repLabel === "function" ? repLabel() : "";
     $("#seasonDriver").textContent = `${driver.surname.toUpperCase()} · ${driver.number}${currentSeat ? " · " + currentSeat.name : ""}`;
@@ -6754,6 +6860,12 @@ function renderResultRow(r) {
     <span class="rr-mate ${r.beatTeamMate ? "beat" : "lost"}">${mate}</span>
     <span class="rr-pts">${r.points || "-"}</span>`;
     body.appendChild(row);
+    if (r.note) {
+        const why = document.createElement("div");
+        why.className = "rr-why is-new";
+        why.innerHTML = `<i></i><span>${r.note}</span>`;
+        body.appendChild(why);
+    }
     body.scrollTop = body.scrollHeight;
 }
 function renderRunning() {
@@ -6815,7 +6927,7 @@ function showSummary() {
     }
     else if (pos <= 3) {
         verdict = rookie ? "Top three in your first year. People above you noticed."
-            : `Top three in ${currentDivision().name}. Close enough to be annoyed about it.`;
+            : `Top three in ${divLabel(tier)}. Close enough to be annoyed about it.`;
     }
     else if (beat > done - beat) {
         verdict = `You beat ${mate?.name ?? "your team-mate"} more often than not. That is the number the paddock reads first.`;
@@ -6830,7 +6942,14 @@ function showSummary() {
     $("#sumMate").textContent = mate
         ? `${mate.name} finished ${ORD(standings().findIndex((r) => r.id === mate.id) + 1)} on ${mate.points} points.`
         : "";
-    $("#hubTitle").textContent = `Season ${season.year} · ${currentDivision().name}`;
+    $("#hubTitle").textContent = `Season ${season.year} · ${divLabel(tier)}`;
+    // what your driver, rather than your car, was worth this year
+    const notes = season.results.filter((r) => r.note).length;
+    const a = computeAttrs();
+    const top = ATTR_LABELS.reduce((b, e) => (a[e[0]] > a[b[0]] ? e : b), ATTR_LABELS[0]);
+    $("#sumTrait").textContent = notes
+        ? `${driver.trait?.full ?? "Your driving"} showed in ${notes} of ${sst.races} races this year. Strongest: ${top[1]} at ${Math.round(a[top[0]])}.`
+        : `A quiet year for ${(driver.trait?.full ?? "your strengths").toLowerCase()}. Strongest: ${top[1]} at ${Math.round(a[top[0]])}.`;
     if (reserve) {
         const dns = season.results.filter((r) => r.didNotStart).length;
         $("#sumVerdict").textContent = sst.races === 0

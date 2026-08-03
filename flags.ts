@@ -1,7 +1,7 @@
 /* =========================================================
    FLAGS
    Windows doesn't render regional-indicator flag emoji at all
-   — Chrome and Edge show two letter boxes. So we draw them.
+  , Chrome and Edge show two letter boxes. So we draw them.
    Every flag here is built from bands plus a handful of
    special cases, which keeps it offline and dependency-free.
    ========================================================= */
@@ -63,8 +63,96 @@ const FLAGS: Record<string, FlagSpec> = {
   VN: { k: "disc", bg: "#DA251D", disc: "#FFFF00" },
 };
 
-/** Renders a flag as inline SVG. Same everywhere, no font dependency. */
+
+/* Broad-brush flags for the wider country list. Bands only, but they read
+   as flags at 20px, which is all a driver card needs. */
+const MORE: Record<string, FlagSpec> = {
+  HK:{k:"disc",bg:"#DE2910",disc:W}, AF:{k:"h",c:[K,"#BE0027",G]}, AL:{k:"h",c:["#E41E20","#E41E20"]}, DZ:{k:"v",c:[G,W]},
+  AD:{k:"v",c:["#10069F","#FEDD00","#D50032"]}, AO:{k:"h",c:["#CE1126",K]},
+  AG:{k:"h",c:[K,"#0072C6",W]}, AM:{k:"h",c:["#D90012","#0033A0","#F2A800"]},
+  AW:{k:"h",c:["#418FDE","#418FDE","#F7E017"]}, AZ:{k:"h",c:["#00B5E2","#EF3340",G]},
+  BS:{k:"h",c:["#00778B","#FFC72C","#00778B"]}, BD:{k:"disc",bg:"#006A4E",disc:"#F42A41"},
+  BB:{k:"v",c:["#00267F","#FFC726","#00267F"]}, BY:{k:"h",c:["#CE1720",G]},
+  BZ:{k:"h",c:["#003F87","#003F87","#CE1126"]}, BJ:{k:"v",c:[G,"#FCD116","#E8112D"]},
+  BM:{k:"special",id:"uk-canton"}, BT:{k:"h",c:["#FFD520","#FF4E12"]},
+  BO:{k:"h",c:["#D52B1E","#F9E300",G]}, BA:{k:"h",c:["#002F6C","#002F6C","#FECB00"]},
+  BW:{k:"h",c:["#6DA9D2",W,K,W,"#6DA9D2"]}, BN:{k:"h",c:["#F7E017",W,K]},
+  BF:{k:"h",c:["#EF2B2D",G]}, BI:{k:"h",c:["#CE1126",W,G]}, KH:{k:"h",c:["#032EA1","#E00025","#032EA1"]},
+  CM:{k:"v",c:[G,"#CE1126","#FCD116"]}, CV:{k:"h",c:["#003893",W,"#CF2027",W,"#003893"]},
+  CF:{k:"h",c:["#003082",W,G,"#FFCE00"]}, TD:{k:"v",c:["#002664","#FECB00","#C60C30"]},
+  KM:{k:"h",c:["#FFD100",W,"#CE1126","#3A7728"]}, CG:{k:"h",c:[G,"#FBDE4A","#DC241F"]},
+  CR:{k:"h",c:["#002B7F",W,"#CE1126",W,"#002B7F"]}, CI:{k:"v",c:["#F77F00",W,G]},
+  CU:{k:"h",c:["#002A8F",W,"#002A8F",W,"#002A8F"]}, CY:{k:"h",c:[W,W]},
+  CD:{k:"h",c:["#007FFF","#007FFF"]}, DJ:{k:"h",c:["#6AB2E7","#12AD2B"]},
+  DM:{k:"h",c:[G,G]}, DO:{k:"cross",bg:"#002D62",cross:W,x:0.5},
+  EC:{k:"h",c:["#FFDD00","#0033A0","#EF3340"]}, EG:{k:"h",c:["#CE1126",W,K]},
+  SV:{k:"h",c:["#0F47AF",W,"#0F47AF"]}, GQ:{k:"h",c:[G,W,"#E32118"]},
+  ER:{k:"h",c:["#12AD2B","#4189DD"]}, SZ:{k:"h",c:["#3E5EB9","#FFD900","#B10C0C","#FFD900","#3E5EB9"]},
+  ET:{k:"h",c:["#078930","#FCDD09","#DA121A"]}, FJ:{k:"special",id:"uk-canton"},
+  GA:{k:"h",c:["#009E60","#FCD116","#3A75C4"]}, GM:{k:"h",c:["#CE1126",W,"#3A7728"]},
+  GE:{k:"cross",bg:W,cross:"#FF0000",x:0.5}, GH:{k:"h",c:["#CE1126","#FCD116","#006B3F"]},
+  GD:{k:"h",c:["#CE1126","#007A5E","#CE1126"]}, GT:{k:"v",c:["#4997D0",W,"#4997D0"]},
+  GN:{k:"v",c:["#CE1126","#FCD116","#009460"]}, GW:{k:"h",c:["#FCD116","#009E49"]},
+  GY:{k:"h",c:["#009E49","#009E49"]}, HT:{k:"h",c:["#00209F","#D21034"]},
+  HN:{k:"h",c:["#0073CF",W,"#0073CF"]}, IR:{k:"h",c:["#239F40",W,"#DA0000"]},
+  IQ:{k:"h",c:["#CE1126",W,K]}, JM:{k:"h",c:["#009B3A","#009B3A"]},
+  JO:{k:"h",c:[K,W,"#007A3D"]}, KE:{k:"h",c:[K,"#BB0000",G]},
+  KI:{k:"h",c:["#CE1126","#003F87"]}, KW:{k:"h",c:[G,W,"#CE1126"]},
+  KG:{k:"disc",bg:"#E8112D",disc:"#FFEF00"}, LA:{k:"h",c:["#CE1126","#002868","#CE1126"]},
+  LB:{k:"h",c:["#ED1C24",W,"#ED1C24"]}, LS:{k:"h",c:["#00209F",W,"#009543"]},
+  LR:{k:"h",c:["#BF0A30",W,"#BF0A30",W,"#BF0A30"]}, LY:{k:"h",c:["#E70013",K,G]},
+  LI:{k:"h",c:["#002B7F","#CE1126"]}, MK:{k:"disc",bg:"#D20000",disc:"#FFE600"},
+  MG:{k:"v",c:[W,"#FC3D32","#007E3A"]}, MW:{k:"h",c:[K,"#CE1126",G]},
+  MV:{k:"disc",bg:"#D21034",disc:"#007E3A"}, ML:{k:"v",c:["#14B53A","#FCD116","#CE1126"]},
+  MT:{k:"v",c:[W,"#CF142B"]}, MR:{k:"h",c:[G,G]}, MU:{k:"h",c:["#EA2839","#1A206D","#FFD500","#00A551"]},
+  MD:{k:"v",c:["#0046AE","#FFD200","#CC092F"]}, MN:{k:"v",c:["#C4272F","#015197","#C4272F"]},
+  ME:{k:"h",c:["#C40308","#C40308"]}, MZ:{k:"h",c:["#009A00",W,K]},
+  MM:{k:"h",c:["#FECB00","#34B233","#EA2839"]}, NA:{k:"h",c:["#003580","#D21034","#009543"]},
+  NP:{k:"h",c:["#DC143C","#DC143C"]}, NI:{k:"h",c:["#0067C6",W,"#0067C6"]},
+  NE:{k:"disc",bg:W,disc:"#E05206"}, KP:{k:"h",c:["#024FA2",W,"#ED1C27",W,"#024FA2"]},
+  OM:{k:"h",c:[W,"#DB161B",G]}, PK:{k:"v",c:[W,"#01411C"]}, PS:{k:"h",c:[K,W,G]},
+  PA:{k:"h",c:[W,"#DA121A"]}, PG:{k:"h",c:["#CE1126",K]}, PR:{k:"h",c:["#ED0000",W,"#ED0000",W,"#ED0000"]},
+  RW:{k:"h",c:["#00A1DE","#FAD201","#20603D"]}, KN:{k:"h",c:[G,K,"#C8102E"]},
+  LC:{k:"disc",bg:"#6CCFF6",disc:K}, VC:{k:"v",c:["#0072C6","#FCD116",G]},
+  WS:{k:"h",c:["#CE1126","#CE1126"]}, SM:{k:"h",c:[W,"#5EB6E4"]},
+  ST:{k:"h",c:["#12AD2B","#FFCE00","#12AD2B"]}, SN:{k:"v",c:["#00853F","#FDEF42","#E31B23"]},
+  SC:{k:"h",c:["#003F87","#FCD856","#D62828"]}, SL:{k:"h",c:["#1EB53A",W,"#0072C6"]},
+  SB:{k:"h",c:["#0051BA","#215B33"]}, SO:{k:"disc",bg:"#4189DD",disc:W},
+  SS:{k:"h",c:[K,"#DA121A","#078930"]}, LK:{k:"h",c:["#8D2029","#8D2029"]},
+  SD:{k:"h",c:["#D21034",W,K]}, SR:{k:"h",c:[G,W,"#B40A2D",W,G]},
+  SY:{k:"h",c:["#CE1126",W,K]}, TW:{k:"h",c:["#FE0000","#FE0000"]},
+  TJ:{k:"h",c:["#CC0000",W,"#006600"]}, TZ:{k:"h",c:["#1EB53A","#FCD116","#00A3DD"]},
+  TL:{k:"h",c:["#DC241F","#DC241F"]}, TG:{k:"h",c:[G,"#FFCE00",G,"#FFCE00",G]},
+  TO:{k:"h",c:["#C10000","#C10000"]}, TT:{k:"h",c:["#CE1126","#CE1126"]},
+  TN:{k:"disc",bg:"#E70013",disc:W}, TM:{k:"h",c:["#00843D","#00843D"]},
+  UG:{k:"h",c:[K,"#FCDC04","#D90000",K,"#FCDC04"]}, UZ:{k:"h",c:["#0099B5",W,"#1EB53A"]},
+  VU:{k:"h",c:["#D21034",G]}, VA:{k:"v",c:["#FFE000",W]},
+  YE:{k:"h",c:["#CE1126",W,K]}, ZM:{k:"h",c:["#198A00","#198A00"]},
+  ZW:{k:"h",c:["#319208","#FFD200","#DE2010",K,"#319208"]},
+};
+Object.assign(FLAGS, MORE);
+
+/* Real flags come from flagcdn.com: free, no key, 254 flags, SVG, on Cloudflare.
+   The drawn versions below stay as the fallback, so the game still works with no
+   internet and nothing ever renders as a blank box. */
+const FLAG_CDN = "https://flagcdn.com";
+let cdnFlags = true;
+
+/** Real artwork where we can get it, drawn bands where we cannot. */
 function flagSvg(code: string, w = 20): string {
+  const h = Math.round(w * 0.7);
+  if (cdnFlags && code) {
+    const lower = code.toLowerCase();
+    // the drawn version is the fallback, swapped in if the image fails to load
+    return `<img class="flag flag--img" width="${w}" height="${h}" loading="lazy" decoding="async"
+      src="${FLAG_CDN}/${lower}.svg" alt=""
+      onerror="this.outerHTML=drawnFlag('${code}',${w})">`;
+  }
+  return drawnFlag(code, w);
+}
+
+/** Renders a flag as inline SVG. Same everywhere, no font dependency. */
+function drawnFlag(code: string, w = 20): string {
   const h = Math.round(w * 0.7);
   const f = FLAGS[code];
   const open = `<svg class="flag" viewBox="0 0 30 21" width="${w}" height="${h}" aria-hidden="true">`;
