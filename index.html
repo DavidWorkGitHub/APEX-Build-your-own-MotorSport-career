@@ -454,6 +454,8 @@ input::placeholder{color:#4A525B}
 /* gambles */
 .option--gamble{border-left-color:var(--yellow)}
 .option--gamble:hover{border-left-color:var(--yellow)}
+.gamble-tag--good{color:var(--green)!important;border-color:rgba(0,230,118,.4)!important}
+.gamble-tag--bad{color:var(--red)!important;border-color:rgba(216,38,44,.45)!important}
 .gamble-tag{font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;font-style:normal;
   color:var(--yellow);border:1px solid rgba(255,212,0,.35);border-radius:99px;padding:3px 8px;margin-left:10px;
   vertical-align:3px}
@@ -2962,11 +2964,18 @@ function makeSeats() {
             ? PERKS[PERKS.length - 1]
             : PERKS[Math.floor(rng() * (PERKS.length - 1))];
         o.years = o.archetype === "works" ? 1 + Math.floor(rng() * 2) : 2 + Math.floor(rng() * 2);
-        // the better the seat, the more likely it comes with strings
-        const clausePool = o.archetype === "works" ? CLAUSES.slice(0, 8)
-            : o.archetype === "midfield" ? CLAUSES.slice(0, 11)
-                : CLAUSES.slice(4);
-        o.clause = clausePool[Math.floor(rng() * clausePool.length)];
+        // A clause has to make sense for who is offering it. The best team on the
+        // grid does not let a bigger team buy you out, because there isn't one.
+        const byId = (ids) => CLAUSES.filter((c) => ids.includes(c.id));
+        const pool = o.archetype === "works"
+            // a top seat holds power over you, it does not hand it away
+            ? byId(["performance", "option", "veto", "media", "testing", "no-1", "loyalty", "clean"])
+            : o.archetype === "midfield"
+                // a midfield team is the one that can lose you upward
+                ? byId(["performance", "release", "buyout", "results", "option", "loan", "media", "testing", "clean"])
+                // a small team needs your money and your time more than your loyalty
+                : byId(["pay", "wage-cut", "results", "loan", "buyout", "release", "clean", "testing"]);
+        o.clause = pool[Math.floor(rng() * pool.length)];
     });
     // one seat always suits your balance, one always fights it, the third is luck
     const suits = Math.floor(rng() * 3);
@@ -3401,6 +3410,7 @@ const DECISIONS = [
             { label: "Take the pace", detail: "Faster, and it might not last the year.",
                 outcome: "You take it.",
                 effect: { car: 4, attrs: { consistency: -3 }, rep: { fragile: 2 } },
+                skill: { attr: "feedback", weight: 0.7 },
                 roll: [
                     { w: 45, outcome: "It's a rocket all year and never misses a beat.", effect: { car: 3, attrs: { qualifying: 4 } } },
                     { w: 35, outcome: "It's quick, until it isn't. Three engines in five rounds.", effect: { attrs: { consistency: -4 } } },
@@ -3440,6 +3450,7 @@ const DECISIONS = [
             { label: "Gamble on slicks", detail: "If he's right you win. If he's wrong you're last.",
                 outcome: "You stay out.",
                 effect: { rep: { fragile: 1 } },
+                skill: { attr: "wet", weight: 1.2 },
                 roll: [
                     { w: 40, outcome: "The shower passes in eight minutes and you drive away from the entire field.", effect: { attrs: { wet: 8, racecraft: 4, qualifying: 2 } } },
                     { w: 35, outcome: "It rains harder. You survive it, barely, and learn more in twenty minutes than in the year before.", effect: { attrs: { wet: 5, consistency: -2 } } },
@@ -3464,9 +3475,10 @@ const DECISIONS = [
             { label: "Race elsewhere instead", detail: "Endurance cameo. Seat time, exposure, money.",
                 outcome: "You do a winter series abroad. Different tyres, different rivals, useful.",
                 effect: { attrs: { racecraft: 4, tyres: 2 }, rep: { mercenary: 2 } } },
-            { label: "Take the winter off", detail: "You're nineteen and exhausted.",
-                outcome: "You go home. You come back rested and a step behind.",
-                effect: { attrs: { consistency: 3, feedback: -2 } } },
+            { label: "Take the winter off", detail: "You're nineteen and exhausted. It has been three years without one.",
+                outcome: "You go home for six weeks. You come back rested, hungry, and a step behind on the car.",
+                effect: { attrs: { consistency: 6, racecraft: 3, feedback: -2 } },
+                later: { inSeasons: 2, text: "The drivers who never stopped are burning out around you. You are not.", effect: { attrs: { consistency: 4 } } } },
         ],
     },
     {
@@ -3510,6 +3522,7 @@ const DECISIONS = [
             { label: "Keep taking it flat", detail: "Four tenths is four tenths. Three times in four.",
                 outcome: "You keep doing it.",
                 effect: { rep: { fragile: 3 } },
+                skill: { attr: "qualifying", weight: 1 },
                 roll: [
                     { w: 50, outcome: "It holds all season and it becomes the thing people know you for.", effect: { attrs: { qualifying: 9, racecraft: 3 } } },
                     { w: 30, outcome: "It bites in qualifying at the worst circuit on the calendar and the chassis is bent.", effect: { attrs: { qualifying: 3, consistency: -5 }, car: -3 } },
@@ -3523,7 +3536,7 @@ const DECISIONS = [
                 outcome: "You back off. Someone else finds it two months later.",
                 effect: { attrs: { consistency: 4, qualifying: -1 }, rep: { loyal: 1 } } },
         ],
-        when: () => (driver.trait?.id === "qualifier" || driver.trait?.id === "overtaker"),
+        when: () => tier <= 6 && (driver.trait?.id === "qualifier" || driver.trait?.id === "overtaker"),
     },
     {
         id: "engineer-blame",
@@ -3556,7 +3569,8 @@ const DECISIONS = [
                 outcome: "You stay independent. Nobody's phone rings for you but your own.",
                 effect: { attrs: { racecraft: 4, feedback: 2 }, rep: { mercenary: 1, loyal: 1 } } },
         ],
-        when: () => beatMate() || lastSeasonPos() <= 5,
+        // a junior programme does not call a driver who has already made it
+        when: () => tier <= 3 && (beatMate() || lastSeasonPos() <= 5),
     },
     {
         id: "injury",
@@ -3567,6 +3581,7 @@ const DECISIONS = [
             { label: "Race on it", detail: "Nobody sees the hand. Everybody sees the result.",
                 outcome: "You race.",
                 effect: { rep: { fragile: 2 } },
+                skill: { attr: "consistency", weight: 0.9 },
                 roll: [
                     { w: 45, outcome: "It holds. You finish fourth and the scout writes your name down.", effect: { attrs: { racecraft: 6, consistency: 2 }, car: 3 } },
                     { w: 35, outcome: "It's the worst pain of your life and you finish, nowhere.", effect: { attrs: { racecraft: 3, consistency: -3 } } },
@@ -3596,16 +3611,42 @@ function pickDecision() {
         return null;
     return eligible[Math.floor(rng() * eligible.length)];
 }
-/** Picks one branch of a gamble, weighted. */
-function resolveRoll(branches) {
-    const total = branches.reduce((n, b) => n + b.w, 0);
+/** Picks one branch of a gamble. A relevant attribute shifts the odds toward
+    the first branch, which is always the good one. 50 is neutral. */
+function resolveRoll(branches, skill) {
+    const weights = branches.map((b) => b.w);
+    if (skill && branches.length > 1) {
+        const a = computeAttrs()[skill.attr];
+        const power = (skill.weight ?? 1) * ((a - 55) / 45); // roughly -1.2 to +1
+        // good branch gets better, the rest get worse, in proportion
+        weights[0] = Math.max(4, weights[0] * (1 + power * 0.85));
+        for (let i = 1; i < weights.length; i++) {
+            weights[i] = Math.max(3, weights[i] * (1 - power * 0.55));
+        }
+    }
+    const total = weights.reduce((n, x) => n + x, 0);
     let pick = rng() * total;
-    for (const b of branches) {
-        pick -= b.w;
+    for (let i = 0; i < branches.length; i++) {
+        pick -= weights[i];
         if (pick <= 0)
-            return b;
+            return branches[i];
     }
     return branches[branches.length - 1];
+}
+/** Rough odds of the good branch, for showing the player before they commit. */
+function rollOdds(opt) {
+    if (!opt.roll || opt.roll.length < 2)
+        return null;
+    const weights = opt.roll.map((b) => b.w);
+    if (opt.skill) {
+        const a = computeAttrs()[opt.skill.attr];
+        const power = (opt.skill.weight ?? 1) * ((a - 55) / 45);
+        weights[0] = Math.max(4, weights[0] * (1 + power * 0.85));
+        for (let i = 1; i < weights.length; i++)
+            weights[i] = Math.max(3, weights[i] * (1 - power * 0.55));
+    }
+    const total = weights.reduce((n, x) => n + x, 0);
+    return Math.round((weights[0] / total) * 100);
 }
 /** Returns the text to show, which for a gamble is the branch that actually fired. */
 function chooseOption(opt) {
@@ -3619,7 +3660,7 @@ function chooseOption(opt) {
         queue(opt.later);
     let text = opt.outcome;
     if (opt.roll && opt.roll.length) {
-        const b = resolveRoll(opt.roll);
+        const b = resolveRoll(opt.roll, opt.skill);
         applyEffect(b.effect);
         if (b.later)
             queue(b.later);
@@ -3727,6 +3768,7 @@ const MORE_DECISIONS = [
         options: [
             { label: "Stay out", detail: "Track position, dead rubber.",
                 outcome: "You stay out.", effect: { rep: { fragile: 1 } },
+                skill: { attr: "tyres", weight: 1.2 },
                 roll: [
                     { w: 45, outcome: "You defend for eleven laps on tyres that gave up long ago, and win it.", effect: { attrs: { tyres: 7, racecraft: 5 } } },
                     { w: 55, outcome: "They come past you one by one over the last four laps. Nothing you could do.", effect: { attrs: { tyres: 3, racecraft: -2, consistency: -2 } } },
@@ -3777,6 +3819,7 @@ const MORE_DECISIONS = [
         options: [
             { label: "Insist on going first", detail: "You're ahead. Take the position.",
                 outcome: "You go first.", effect: { rep: { mercenary: 2 } },
+                skill: { attr: "racecraft", weight: 0.8 },
                 roll: [
                     { w: 55, outcome: "Clean stop, position kept, and he loses two places behind you.", effect: { attrs: { racecraft: 4 } } },
                     { w: 45, outcome: "The second car catches you in the box. Four seconds gone and you both lose out.", effect: { attrs: { racecraft: -2, consistency: -2 }, rep: { fragile: 1 } } },
@@ -3789,6 +3832,7 @@ const MORE_DECISIONS = [
             { label: "Teach him properly", detail: "The rig isn't the car.", outcome: "You teach him. He's better for it, and still seventeen.", effect: { attrs: { feedback: 5 }, rep: { loyal: 3 } } },
             { label: "Beat him on the rig", detail: "Spend the winter proving a point.",
                 outcome: "You spend December on the simulator.", effect: { rep: { fragile: 2 } },
+                skill: { attr: "feedback", weight: 1 },
                 roll: [
                     { w: 50, outcome: "You come out of it quicker than a teenager and sharper than you have been in years.", effect: { attrs: { qualifying: 7, racecraft: 3 } } },
                     { w: 50, outcome: "You come out of it exhausted, having proved something nobody was arguing about.", effect: { attrs: { qualifying: 2, consistency: -4, feedback: -2 } } },
@@ -3805,6 +3849,7 @@ const MORE_DECISIONS = [
         options: [
             { label: "Accept the help", detail: "Win it. Owe it.",
                 outcome: "You take the deal.", effect: { rep: { political: 5, mercenary: 2 } },
+                skill: { attr: "racecraft", weight: 0.6 },
                 roll: [
                     { w: 60, outcome: "Their car defends like it is their own title, and you win the fight on track.", effect: { car: 4, attrs: { racecraft: 3 } } },
                     { w: 40, outcome: "Their driver holds up the wrong car and then holds you up too. Everyone knows there was a deal.", effect: { car: -2, rep: { fragile: 2, mercenary: 2 } } },
@@ -3842,6 +3887,7 @@ const EXTRA_DECISIONS = [
             { label: "Go through him", detail: "In the dark, at 300kph, past a driver who isn't seeing straight.",
                 outcome: "You commit.",
                 effect: { rep: { fragile: 1 } },
+                skill: { attr: "racecraft", weight: 1.1 },
                 roll: [
                     { w: 55, outcome: "He never sees you and you're gone. The class lead comes twenty minutes later.", effect: { attrs: { racecraft: 7, wet: 2 } } },
                     { w: 45, outcome: "He moves the same way you do. Both cars survive. Yours is missing a headlight and forty minutes.", effect: { attrs: { racecraft: 2, consistency: -4 }, car: -2 } },
@@ -3887,6 +3933,7 @@ const EXTRA_DECISIONS = [
             { label: "Send it on low fuel", detail: "One headline lap. Risk the wall.",
                 outcome: "You go for the lap.",
                 effect: { rep: { fragile: 1 } },
+                skill: { attr: "qualifying", weight: 1.1 },
                 roll: [
                     { w: 55, outcome: "You end up P6 and three tenths off the race driver. Everyone reads the timesheet.", effect: { attrs: { qualifying: 8 }, car: 4 } },
                     { w: 45, outcome: "You lose it at the last corner with four minutes left. That's the lap everyone sees.", effect: { attrs: { qualifying: -2, consistency: -3 }, rep: { fragile: 3 } } },
@@ -3941,6 +3988,7 @@ const EXTRA_DECISIONS = [
             { label: "Wait for it to come", detail: "It always came back before.",
                 outcome: "You keep doing what always worked.",
                 effect: {},
+                skill: { attr: "consistency", weight: 1 },
                 roll: [
                     { w: 45, outcome: "By midseason it has. You out-qualify him at three circuits in a row.", effect: { attrs: { qualifying: 6, racecraft: 4 } } },
                     { w: 55, outcome: "It doesn't. The gap is the same in November as it was in March.", effect: { attrs: { qualifying: -4, racecraft: -3 }, rep: { fragile: 2 } } },
@@ -4007,6 +4055,7 @@ const EXTRA_DECISIONS = [
             { label: "Leave him no room", detail: "Win it or wreck it.",
                 outcome: "You take the racing line and close the door.",
                 effect: { rep: { fragile: 2, mercenary: 2 } },
+                skill: { attr: "racecraft", weight: 1.1 },
                 roll: [
                     { w: 50, outcome: "He backs out with two wheels on the grass. You take the flag and the title.", effect: { attrs: { racecraft: 6, qualifying: 2 } } },
                     { w: 30, outcome: "You touch. Both of you finish, wings hanging off, and the stewards spend four hours on it.", effect: { attrs: { racecraft: 2, consistency: -4 } } },
@@ -4037,6 +4086,7 @@ const EXTRA_DECISIONS = [
             { label: "Ignore them and race", detail: "Trust the fuel is there.",
                 outcome: "You keep racing.",
                 effect: { rep: { fragile: 1 } },
+                skill: { attr: "tyres", weight: 1.1 },
                 roll: [
                     { w: 50, outcome: "You make the flag with a lap's worth in the tank. They were being cautious and you were right.", effect: { attrs: { racecraft: 5, feedback: 3 } } },
                     { w: 50, outcome: "You run dry on the last lap. Third becomes eleventh in about ninety seconds.", effect: { attrs: { racecraft: -2, tyres: -2, consistency: -3 } } },
@@ -4052,6 +4102,7 @@ const EXTRA_DECISIONS = [
             { label: "Stay with him", detail: "He got you here.",
                 outcome: "You stay. He does handle it, mostly, and you never quite stop wondering.",
                 effect: { rep: { loyal: 4 } },
+                skill: { attr: "consistency", weight: 0.5 },
                 roll: [
                     { w: 60, outcome: "He puts you first when it counts.", effect: { car: 4 } },
                     { w: 40, outcome: "One of the younger two ends up in the seat you were promised.", effect: { car: -4, rep: { fragile: 1 } } },
@@ -4089,6 +4140,7 @@ const EXTRA_DECISIONS = [
             { label: "Sign the new team", detail: "Build it, or go down with it.",
                 outcome: "You sign.",
                 effect: { rep: { loyal: 3 } },
+                skill: { attr: "feedback", weight: 0.8 },
                 roll: [
                     { w: 40, outcome: "They're organised, funded and quick within two years. You're the reason the good people joined.", effect: { car: 8, attrs: { feedback: 5 } } },
                     { w: 60, outcome: "It's chaos. Parts arrive late, the wind tunnel numbers are fiction, and you spend a year qualifying last.", effect: { car: -6, attrs: { racecraft: 4, feedback: 3 } } },
@@ -4103,6 +4155,7 @@ const EXTRA_DECISIONS = [
             { label: "Defend the way you always have", detail: "Make them prove it.",
                 outcome: "You defend exactly as before.",
                 effect: {},
+                skill: { attr: "racecraft", weight: 1 },
                 roll: [
                     { w: 50, outcome: "Nothing is called all weekend and the complaints stop being taken seriously.", effect: { attrs: { racecraft: 5 }, rep: { mercenary: 1 } } },
                     { w: 50, outcome: "You get a ten-second penalty for something you've done a hundred times.", effect: { attrs: { racecraft: -2, consistency: -2 }, rep: { fragile: 2 } } },
@@ -4136,9 +4189,10 @@ const EXTRA_TWO = [
                 outcome: "You arrive as an inconvenience and leave as the reason they had a good year.",
                 effect: { attrs: { feedback: 5, racecraft: 4 }, car: -3, rep: { loyal: 3 } },
                 later: { inSeasons: 2, text: "The team you were loaned to want you permanently, and they are paying.", effect: { car: 6 } } },
-            { label: "Refuse to go", detail: "Sit the season out if you have to.",
-                outcome: "You refuse. Lawyers get involved and you miss four rounds.",
-                effect: { attrs: { racecraft: -3, consistency: -2 }, rep: { mercenary: 4, fragile: 2 } } },
+            { label: "Refuse to go", detail: "Force them to break the contract, or keep you.",
+                outcome: "You refuse and call their bluff. Lawyers get involved, you miss two rounds, and the clause is gone from your next deal.",
+                effect: { attrs: { racecraft: -2 }, contract: 1, rep: { mercenary: 4 } },
+                later: { inSeasons: 2, text: "Nobody offers you a loan clause again. Word gets round about what happens.", effect: { car: 3 } } },
         ], when: () => currentSeat?.clause.id === "loan" || tier >= 4 },
     { id: "second-driver-clause", eyebrow: "Mid-season", scene: "Your contract says you move over if the other car is fighting for something. The other car is now fighting for something, and you are quicker.",
         question: "The radio call is coming this weekend.",
@@ -4150,6 +4204,7 @@ const EXTRA_TWO = [
             { label: "Ignore it once", detail: "One race. See what happens.",
                 outcome: "You stay ahead at the one race you badly wanted.",
                 effect: { attrs: { racecraft: 4 }, rep: { mercenary: 3, fragile: 1 } },
+                skill: { attr: "racecraft", weight: 0.6 },
                 roll: [
                     { w: 50, outcome: "They fine you and nothing else changes.", effect: {} },
                     { w: 50, outcome: "They put it in writing that you are replaceable, and start looking.", effect: { car: -4 } },
@@ -4171,9 +4226,9 @@ const EXTRA_TWO = [
             { label: "Ask for his data", detail: "Learn from a nineteen-year-old.",
                 outcome: "You go through his lap corner by corner. He is braking later at three of them and it works.",
                 effect: { attrs: { qualifying: 6, feedback: 3 } } },
-            { label: "Put it down to fuel", detail: "Say nothing, believe nothing.",
-                outcome: "You dismiss it publicly. Privately it sits with you all season.",
-                effect: { attrs: { consistency: -3, racecraft: 2 }, rep: { fragile: 2 } } },
+            { label: "Refuse to be rattled", detail: "One session on unknown fuel proves nothing.",
+                outcome: "You dismiss it, publicly and privately, and drive the best second half of your career.",
+                effect: { attrs: { consistency: 5, racecraft: 3 }, rep: { political: 1 } } },
         ], when: () => tier >= 4 && age >= 27 },
     { id: "weather-call", eyebrow: "Mid-season", scene: "Qualifying is drying and there is one lap left. Slicks are half a second quicker if the last sector has dried, and four seconds slower if it has not.",
         question: "Your engineer will not make the call for you.",
@@ -4181,6 +4236,7 @@ const EXTRA_TWO = [
             { label: "Slicks", detail: "Bet on the sector.",
                 outcome: "You take slicks.",
                 effect: {},
+                skill: { attr: "wet", weight: 1.3 },
                 roll: [
                     { w: 45, outcome: "It has dried. Pole by three tenths, and nobody else even gets a lap in.", effect: { attrs: { qualifying: 8, wet: 4 } } },
                     { w: 55, outcome: "It has not. You cross the line seventeenth and the team say nothing on the radio.", effect: { attrs: { qualifying: -3, wet: 2 } } },
@@ -4205,6 +4261,7 @@ const EXTRA_TWO = [
             { label: "Push with everything", detail: "Call in every favour you have.",
                 outcome: "You spend every bit of goodwill you have accumulated.",
                 effect: { rep: { political: 4 } },
+                skill: { attr: "consistency", weight: 0.7 },
                 roll: [
                     { w: 55, outcome: "It works. You get the seat and owe several people something unspecified.", effect: { car: 4 } },
                     { w: 45, outcome: "It does not. Everyone now knows how badly you wanted it.", effect: { rep: { fragile: 2 } } },
@@ -4229,6 +4286,7 @@ const EXTRA_THREE = [
             { label: "Treat it as an audition", detail: "One chance, take it.",
                 outcome: "You attack it.",
                 effect: { rep: { fragile: 1 } },
+                skill: { attr: "qualifying", weight: 1 },
                 roll: [
                     { w: 50, outcome: "You out-qualify the other car and the paddock talks about nothing else for a week.", effect: { attrs: { qualifying: 8, racecraft: 4 }, car: 4 } },
                     { w: 50, outcome: "You overdrive it, put it in the gravel on Saturday, and the story writes itself.", effect: { attrs: { qualifying: -2, consistency: -3 }, rep: { fragile: 3 } } },
@@ -4243,6 +4301,7 @@ const EXTRA_THREE = [
             { label: "Wait for the promise", detail: "Two more years of Fridays.",
                 outcome: "You wait.",
                 effect: { rep: { loyal: 4 } },
+                skill: { attr: "feedback", weight: 0.6 },
                 roll: [
                     { w: 45, outcome: "The seat comes free exactly when they said it would.", effect: { seat: "better", contract: 2 } },
                     { w: 55, outcome: "They sign somebody else's junior and apologise in person.", effect: { attrs: { consistency: -2 }, rep: { fragile: 2 } } },
@@ -4264,6 +4323,7 @@ const EXTRA_THREE = [
             { label: "Trust it and commit", detail: "Flat, all four corners, all race.",
                 outcome: "You commit.",
                 effect: { rep: { fragile: 1 } },
+                skill: { attr: "consistency", weight: 1.1 },
                 roll: [
                     { w: 60, outcome: "By lap forty it feels normal, and you spend the last stint learning where the air goes.", effect: { attrs: { racecraft: 6, consistency: 3 } } },
                     { w: 40, outcome: "You catch a tow wrong at 220mph and end the day in the fence.", effect: { attrs: { consistency: -4 }, rep: { fragile: 3 } } },
@@ -4278,6 +4338,7 @@ const EXTRA_THREE = [
             { label: "Trim it out", detail: "Four terrifying laps.",
                 outcome: "You have him trim it.",
                 effect: {},
+                skill: { attr: "qualifying", weight: 1.2 },
                 roll: [
                     { w: 55, outcome: "Four laps that feel like an hour, and you are on the front two rows.", effect: { attrs: { qualifying: 9, racecraft: 3 } } },
                     { w: 45, outcome: "The car is unmanageable and you abort on lap two. You start deep in the field.", effect: { attrs: { qualifying: -3 } } },
@@ -4323,6 +4384,7 @@ const EXTRA_THREE = [
             { label: "Change it", detail: "Chase the pace.",
                 outcome: "You take the new package.",
                 effect: {},
+                skill: { attr: "feedback", weight: 1 },
                 roll: [
                     { w: 50, outcome: "It works from the first session and you close the season out comfortably.", effect: { car: 5, attrs: { racecraft: 2 } } },
                     { w: 50, outcome: "It takes three races to understand and the lead is gone by the time it does.", effect: { car: -3, attrs: { consistency: -2 } } },
@@ -4441,6 +4503,7 @@ const DECIDER = {
         { label: "Drive it flat out", detail: "Take the race to him from lap one.",
             outcome: "You attack from the start.",
             effect: { rep: { fragile: 1 } },
+            skill: { attr: "racecraft", weight: 1.1 },
             roll: [
                 { w: 55, outcome: "It works. You're past him by lap nine and he never gets back on terms.", effect: { attrs: { racecraft: 4 } } },
                 { w: 45, outcome: "You overdrive it, cook the tyres by half distance and spend the last twenty laps hanging on.", effect: { attrs: { tyres: -2 } } },
@@ -4451,6 +4514,7 @@ const DECIDER = {
         { label: "Make him beat you", detail: "Sit on him and wait for the mistake.",
             outcome: "You shadow him and refuse to go away.",
             effect: { rep: { political: 1 } },
+            skill: { attr: "consistency", weight: 1 },
             roll: [
                 { w: 50, outcome: "He cracks at half distance, runs wide, and hands you the corner and the year.", effect: { attrs: { racecraft: 3, consistency: 2 } } },
                 { w: 50, outcome: "He doesn't crack. He never once looks like cracking.", effect: { attrs: { consistency: 2 } } },
@@ -6711,6 +6775,20 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================================= */
 let callbacks = [];
 let decisionLocked = false;
+/** Gambles show their odds and which attribute is carrying them, so a strong
+    driver can see that the risky option is the right one for them. */
+function gambleTag(o) {
+    if (!o.roll)
+        return "";
+    const odds = rollOdds(o);
+    if (odds === null)
+        return '<em class="gamble-tag">gamble</em>';
+    const label = o.skill
+        ? `${odds}% · ${ATTR_LABELS.find(([k]) => k === o.skill.attr)[1]}`
+        : `${odds}%`;
+    const cls = odds >= 62 ? "gamble-tag gamble-tag--good" : odds <= 40 ? "gamble-tag gamble-tag--bad" : "gamble-tag";
+    return `<em class="${cls}">${label}</em>`;
+}
 function renderDecision(d) {
     currentDecision = d;
     decisionLocked = false;
@@ -6721,7 +6799,7 @@ function renderDecision(d) {
     $("#decOptions").hidden = false;
     $("#decOptions").innerHTML = d.options.map((o, i) => `
     <button class="option ${o.roll ? "option--gamble" : ""}" type="button" data-opt="${i}">
-      <span class="option__label">${o.label}${o.roll ? '<em class="gamble-tag">gamble</em>' : ""}</span>
+      <span class="option__label">${o.label}${gambleTag(o)}</span>
       <span class="option__detail">${o.detail}</span>
     </button>`).join("");
     $$(".option").forEach((btn) => {
@@ -6919,11 +6997,21 @@ function showSummary() {
     const rookie = careerHistory.length === 0;
     const t = currentDivision().tier;
     let verdict;
+    const titles = cabinet.titles.filter((x) => x.tier >= 5).length;
     if (pos === 1) {
-        verdict = t >= 5 ? "World champion. Whatever happens now, that is the first line about you."
-            : t >= 8 ? "Champion in sportscars. A win here is a win anywhere."
-                : t >= 3 ? "Champion. You have run out of things to prove at this level."
-                    : "Champion. The junior programmes have your number now.";
+        if (t >= 5) {
+            verdict = titles >= 5 ? `${titles} world championships. There is nobody left to compare you to.`
+                : titles >= 2 ? `World champion again. The argument now is about where you rank, not whether you belong.`
+                    : "World champion. Whatever happens now, that is the first line about you.";
+        }
+        else if (t === 10)
+            verdict = "IndyCar champion. The closest field in racing, and you were the front of it.";
+        else if (t >= 8)
+            verdict = "Champion in sportscars. A win here is a win anywhere.";
+        else if (t >= 3)
+            verdict = "Champion. You have run out of things to prove at this level.";
+        else
+            verdict = "Champion. The junior programmes have your number now.";
     }
     else if (pos <= 3) {
         verdict = rookie ? "Top three in your first year. People above you noticed."

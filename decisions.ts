@@ -1,5 +1,5 @@
 /* =========================================================
-   PHASE 2 — decisions
+   PHASE 2, decisions
    A scene, two or three options, no preview of outcomes.
    Some of what you choose lands two or three seasons later.
    ========================================================= */
@@ -10,6 +10,9 @@ interface Effect {
   attrs?: Partial<Attributes>;
   car?: number;
   rep?: Partial<Reputation>;
+  /** an outcome that promises a move has to actually move you */
+  seat?: "new" | "better" | "worse";
+  contract?: number;          // seasons added to the deal
 }
 
 interface Consequence {
@@ -25,6 +28,9 @@ interface Branch {
   later?: Consequence;
 }
 
+/** A gamble can lean on an attribute, so who you built changes the odds. */
+interface Skill { attr: keyof Attributes; weight?: number }
+
 interface DecisionOption {
   label: string;
   detail: string;
@@ -33,6 +39,8 @@ interface DecisionOption {
   later?: Consequence;
   /** A gamble: one of these fires. The player sees the odds exist, never which way it went. */
   roll?: Branch[];
+  /** Which attribute tilts it. A wet gamble should reward a wet-weather driver. */
+  skill?: Skill;
 }
 
 interface Decision {
@@ -41,7 +49,7 @@ interface Decision {
   scene: string;
   question: string;
   options: DecisionOption[];
-  /** gating — trait, seat, year, or how the season actually went */
+  /** gating, trait, seat, year, or how the season actually went */
   when?: () => boolean;
 }
 
@@ -49,9 +57,9 @@ interface LogEntry { year: number; decision: string; chose: string; outcome: str
 
 /* --------------------------- career state --------------------------- */
 
-/** Natural development — capped by the level you're racing in. */
+/** Natural development, capped by the level you're racing in. */
 const careerGrowth: Attributes = { qualifying: 0, racecraft: 0, tyres: 0, wet: 0, feedback: 0, consistency: 0 };
-/** Won or lost through decisions — not capped, because a choice should always count. */
+/** Won or lost through decisions, not capped, because a choice should always count. */
 const earnedGrowth: Attributes = { qualifying: 0, racecraft: 0, tyres: 0, wet: 0, feedback: 0, consistency: 0 };
 const reputation: Reputation = { loyal: 0, mercenary: 0, political: 0, fragile: 0 };
 const decisionLog: LogEntry[] = [];
@@ -73,13 +81,16 @@ function applyEffect(e: Effect | undefined): void {
   if (!e) return;
   if (e.attrs) {
     (Object.keys(e.attrs) as Array<keyof Attributes>).forEach((k) => {
-      earnedGrowth[k] += e.attrs![k] ?? 0;
+      // a single choice always counts, but twenty of them can't make you untouchable
+      earnedGrowth[k] = clamp(earnedGrowth[k] + (e.attrs![k] ?? 0), -22, 22);
     });
   }
   if (e.car) carBonus += e.car;
+  if (e.contract) contractLeft = Math.max(0, contractLeft + e.contract);
+  if (e.seat && typeof moveSeat === "function") moveSeat(e.seat);
   if (e.rep) {
     (Object.keys(e.rep) as Array<keyof Reputation>).forEach((k) => {
-      reputation[k] += e.rep![k] ?? 0;
+      reputation[k] = Math.max(0, reputation[k] + (e.rep![k] ?? 0));
     });
   }
 }
@@ -103,6 +114,7 @@ const DECISIONS: Decision[] = [
       { label: "Take the pace", detail: "Faster, and it might not last the year.",
         outcome: "You take it.",
         effect: { car: 4, attrs: { consistency: -3 }, rep: { fragile: 2 } },
+        skill: { attr: "feedback", weight: 0.7 },
         roll: [
           { w: 45, outcome: "It's a rocket all year and never misses a beat.", effect: { car: 3, attrs: { qualifying: 4 } } },
           { w: 35, outcome: "It's quick, until it isn't. Three engines in five rounds.", effect: { attrs: { consistency: -4 } } },
@@ -142,6 +154,7 @@ const DECISIONS: Decision[] = [
       { label: "Gamble on slicks", detail: "If he's right you win. If he's wrong you're last.",
         outcome: "You stay out.",
         effect: { rep: { fragile: 1 } },
+        skill: { attr: "wet", weight: 1.2 },
         roll: [
           { w: 40, outcome: "The shower passes in eight minutes and you drive away from the entire field.", effect: { attrs: { wet: 8, racecraft: 4, qualifying: 2 } } },
           { w: 35, outcome: "It rains harder. You survive it, barely, and learn more in twenty minutes than in the year before.", effect: { attrs: { wet: 5, consistency: -2 } } },
@@ -166,9 +179,10 @@ const DECISIONS: Decision[] = [
       { label: "Race elsewhere instead", detail: "Endurance cameo. Seat time, exposure, money.",
         outcome: "You do a winter series abroad. Different tyres, different rivals, useful.",
         effect: { attrs: { racecraft: 4, tyres: 2 }, rep: { mercenary: 2 } } },
-      { label: "Take the winter off", detail: "You're nineteen and exhausted.",
-        outcome: "You go home. You come back rested and a step behind.",
-        effect: { attrs: { consistency: 3, feedback: -2 } } },
+      { label: "Take the winter off", detail: "You're nineteen and exhausted. It has been three years without one.",
+        outcome: "You go home for six weeks. You come back rested, hungry, and a step behind on the car.",
+        effect: { attrs: { consistency: 6, racecraft: 3, feedback: -2 } },
+        later: { inSeasons: 2, text: "The drivers who never stopped are burning out around you. You are not.", effect: { attrs: { consistency: 4 } } } },
     ],
   },
   {
@@ -184,7 +198,7 @@ const DECISIONS: Decision[] = [
       { label: "Stay where you are", detail: "Slower, and they build the car around you.",
         outcome: "You stay. The team principal tells the press you're family.",
         effect: { attrs: { feedback: 4, consistency: 2 }, rep: { loyal: 4 } },
-        later: { inSeasons: 2, text: "Staying paid off — the team's new chassis is built to your feedback.", effect: { car: 4 } } },
+        later: { inSeasons: 2, text: "Staying paid off, the team's new chassis is built to your feedback.", effect: { car: 4 } } },
     ],
     when: () => lastSeasonPos() > 1,
   },
@@ -212,6 +226,7 @@ const DECISIONS: Decision[] = [
       { label: "Keep taking it flat", detail: "Four tenths is four tenths. Three times in four.",
         outcome: "You keep doing it.",
         effect: { rep: { fragile: 3 } },
+        skill: { attr: "qualifying", weight: 1 },
         roll: [
           { w: 50, outcome: "It holds all season and it becomes the thing people know you for.", effect: { attrs: { qualifying: 9, racecraft: 3 } } },
           { w: 30, outcome: "It bites in qualifying at the worst circuit on the calendar and the chassis is bent.", effect: { attrs: { qualifying: 3, consistency: -5 }, car: -3 } },
@@ -225,7 +240,7 @@ const DECISIONS: Decision[] = [
         outcome: "You back off. Someone else finds it two months later.",
         effect: { attrs: { consistency: 4, qualifying: -1 }, rep: { loyal: 1 } } },
     ],
-    when: () => (driver.trait?.id === "qualifier" || driver.trait?.id === "overtaker"),
+    when: () => tier <= 6 && (driver.trait?.id === "qualifier" || driver.trait?.id === "overtaker"),
   },
   {
     id: "engineer-blame",
@@ -247,7 +262,7 @@ const DECISIONS: Decision[] = [
   {
     id: "junior-programme",
     eyebrow: "The call",
-    scene: "A manufacturer junior programme calls. They want you on a development contract: their coaching, their doctors, their schedule — and they own where you race next.",
+    scene: "A manufacturer junior programme calls. They want you on a development contract: their coaching, their doctors, their schedule, and they own where you race next.",
     question: "It's the fastest way up, and the least of it is yours.",
     options: [
       { label: "Sign with the programme", detail: "Doors open. You stop choosing which ones.",
@@ -258,7 +273,8 @@ const DECISIONS: Decision[] = [
         outcome: "You stay independent. Nobody's phone rings for you but your own.",
         effect: { attrs: { racecraft: 4, feedback: 2 }, rep: { mercenary: 1, loyal: 1 } } },
     ],
-    when: () => beatMate() || lastSeasonPos() <= 5,
+    // a junior programme does not call a driver who has already made it
+    when: () => tier <= 3 && (beatMate() || lastSeasonPos() <= 5),
   },
   {
     id: "injury",
@@ -269,6 +285,7 @@ const DECISIONS: Decision[] = [
       { label: "Race on it", detail: "Nobody sees the hand. Everybody sees the result.",
         outcome: "You race.",
         effect: { rep: { fragile: 2 } },
+        skill: { attr: "consistency", weight: 0.9 },
         roll: [
           { w: 45, outcome: "It holds. You finish fourth and the scout writes your name down.", effect: { attrs: { racecraft: 6, consistency: 2 }, car: 3 } },
           { w: 35, outcome: "It's the worst pain of your life and you finish, nowhere.", effect: { attrs: { racecraft: 3, consistency: -3 } } },
@@ -290,29 +307,70 @@ function decisionDue(year: number): boolean {
 }
 
 function pickDecision(): Decision | null {
-  const eligible = DECISIONS.filter((d) => !usedDecisions.has(d.id) && (!d.when || d.when()));
+  const fits = (d: Decision): boolean => !d.when || d.when();
+  let eligible = DECISIONS.filter((d) => !usedDecisions.has(d.id) && fits(d));
+
+  // only start repeating once this stage of the career has genuinely run out of scenes
+  if (eligible.length === 0) {
+    DECISIONS.filter(fits).forEach((d) => usedDecisions.delete(d.id));
+    eligible = DECISIONS.filter(fits);
+  }
   if (eligible.length === 0) return null;
   return eligible[Math.floor(rng() * eligible.length)];
 }
 
-/** Picks one branch of a gamble, weighted. */
-function resolveRoll(branches: Branch[]): Branch {
-  const total = branches.reduce((n, b) => n + b.w, 0);
+/** Picks one branch of a gamble. A relevant attribute shifts the odds toward
+    the first branch, which is always the good one. 50 is neutral. */
+function resolveRoll(branches: Branch[], skill?: Skill): Branch {
+  const weights = branches.map((b) => b.w);
+
+  if (skill && branches.length > 1) {
+    const a = computeAttrs()[skill.attr];
+    const power = (skill.weight ?? 1) * ((a - 55) / 45);   // roughly -1.2 to +1
+    // good branch gets better, the rest get worse, in proportion
+    weights[0] = Math.max(4, weights[0] * (1 + power * 0.85));
+    for (let i = 1; i < weights.length; i++) {
+      weights[i] = Math.max(3, weights[i] * (1 - power * 0.55));
+    }
+  }
+
+  const total = weights.reduce((n, x) => n + x, 0);
   let pick = rng() * total;
-  for (const b of branches) { pick -= b.w; if (pick <= 0) return b; }
+  for (let i = 0; i < branches.length; i++) {
+    pick -= weights[i];
+    if (pick <= 0) return branches[i];
+  }
   return branches[branches.length - 1];
+}
+
+/** Rough odds of the good branch, for showing the player before they commit. */
+function rollOdds(opt: DecisionOption): number | null {
+  if (!opt.roll || opt.roll.length < 2) return null;
+  const weights = opt.roll.map((b) => b.w);
+  if (opt.skill) {
+    const a = computeAttrs()[opt.skill.attr];
+    const power = (opt.skill.weight ?? 1) * ((a - 55) / 45);
+    weights[0] = Math.max(4, weights[0] * (1 + power * 0.85));
+    for (let i = 1; i < weights.length; i++) weights[i] = Math.max(3, weights[i] * (1 - power * 0.55));
+  }
+  const total = weights.reduce((n, x) => n + x, 0);
+  return Math.round((weights[0] / total) * 100);
 }
 
 /** Returns the text to show, which for a gamble is the branch that actually fired. */
 function chooseOption(opt: DecisionOption): string {
   applyEffect(opt.effect);
-  if (opt.later) pending.push({ ...opt.later, dueYear: (season?.year ?? 1) + opt.later.inSeasons });
+  const queue = (c: Consequence): void => {
+    if (pending.some((p) => p.text === c.text)) return;   // never queue the same one twice
+    pending.push({ ...c, dueYear: (season?.year ?? 1) + c.inSeasons });
+  };
+  if (opt.later) queue(opt.later);
 
   let text = opt.outcome;
   if (opt.roll && opt.roll.length) {
-    const b = resolveRoll(opt.roll);
+    const b = resolveRoll(opt.roll, opt.skill);
     applyEffect(b.effect);
-    if (b.later) pending.push({ ...b.later, dueYear: (season?.year ?? 1) + b.later.inSeasons });
+    if (b.later) queue(b.later);
     text = `${opt.outcome} ${b.outcome}`;
   }
 
@@ -331,10 +389,10 @@ function resolveDue(year: number): string[] {
   const due = pending.filter((c) => c.dueYear <= year);
   pending = pending.filter((c) => c.dueYear > year);
   due.forEach((c) => applyEffect(c.effect));
-  return due.map((c) => c.text);
+  return [...new Set(due.map((c) => c.text))];
 }
 
-/** Natural development — fast early, flattening out. */
+/** Natural development, fast early, flattening out. */
 function growSeason(year: number): void {
   const rate = year <= 3 ? 2.2 : year <= 6 ? 1.5 : 0.8;
   (Object.keys(careerGrowth) as Array<keyof Attributes>).forEach((k) => {
@@ -384,7 +442,7 @@ const MORE_DECISIONS: Decision[] = [
       { label: "Raise it in the debrief", detail: "In front of everyone who let it happen.", outcome: "You put the trace on the screen. The room goes cold.", effect: { attrs: { feedback: 3 }, rep: { political: 3, mercenary: 1 } },
         later: { inSeasons: 2, text: "The garage has never quite trusted you since the debrief.", effect: { attrs: { feedback: -3 } } } },
     ], when: isF1 },
-  { id: "veto", eyebrow: "Contract", scene: "A top team will sign you. The contract gives you a veto over your future team-mate — and they want the same clause the other way round next year.",
+  { id: "veto", eyebrow: "Contract", scene: "A top team will sign you. The contract gives you a veto over your future team-mate, and they want the same clause the other way round next year.",
     question: "Your lawyer thinks it's fine.",
     options: [
       { label: "Take the veto", detail: "Control who sits next to you.", outcome: "You sign with the veto. You use it once, on the fastest rookie available.", effect: { car: 4, rep: { political: 4 } },
@@ -423,6 +481,7 @@ const MORE_DECISIONS: Decision[] = [
     options: [
       { label: "Stay out", detail: "Track position, dead rubber.",
         outcome: "You stay out.", effect: { rep: { fragile: 1 } },
+        skill: { attr: "tyres", weight: 1.2 },
         roll: [
           { w: 45, outcome: "You defend for eleven laps on tyres that gave up long ago, and win it.", effect: { attrs: { tyres: 7, racecraft: 5 } } },
           { w: 55, outcome: "They come past you one by one over the last four laps. Nothing you could do.", effect: { attrs: { tyres: 3, racecraft: -2, consistency: -2 } } },
@@ -442,7 +501,7 @@ const MORE_DECISIONS: Decision[] = [
       { label: "Appeal it", detail: "Fight for the five places.", outcome: "You appeal. You lose, and the room remembers.", effect: { rep: { political: 3, fragile: 1 } } },
       { label: "Take the penalty", detail: "Start eleventh and race.", outcome: "You take it without comment and pass six cars on Sunday.", effect: { attrs: { racecraft: 4 }, rep: { loyal: 2 } } },
     ] },
-  { id: "bad-year", eyebrow: "Winter", scene: "The new car is bad. Not fixable-bad — conceptually bad. The team say twelve months. Your manager says a rival needs a driver by March.",
+  { id: "bad-year", eyebrow: "Winter", scene: "The new car is bad. Not fixable-bad, conceptually bad. The team say twelve months. Your manager says a rival needs a driver by March.",
     question: "You have a contract.",
     options: [
       { label: "Stay and drag it", detail: "A year of scrapping for tenth.", outcome: "You stay and drag a bad car further up the road than it deserves.", effect: { attrs: { racecraft: 5, tyres: 3 }, rep: { loyal: 5 } },
@@ -473,6 +532,7 @@ const MORE_DECISIONS: Decision[] = [
     options: [
       { label: "Insist on going first", detail: "You're ahead. Take the position.",
         outcome: "You go first.", effect: { rep: { mercenary: 2 } },
+        skill: { attr: "racecraft", weight: 0.8 },
         roll: [
           { w: 55, outcome: "Clean stop, position kept, and he loses two places behind you.", effect: { attrs: { racecraft: 4 } } },
           { w: 45, outcome: "The second car catches you in the box. Four seconds gone and you both lose out.", effect: { attrs: { racecraft: -2, consistency: -2 }, rep: { fragile: 1 } } },
@@ -485,6 +545,7 @@ const MORE_DECISIONS: Decision[] = [
       { label: "Teach him properly", detail: "The rig isn't the car.", outcome: "You teach him. He's better for it, and still seventeen.", effect: { attrs: { feedback: 5 }, rep: { loyal: 3 } } },
       { label: "Beat him on the rig", detail: "Spend the winter proving a point.",
         outcome: "You spend December on the simulator.", effect: { rep: { fragile: 2 } },
+        skill: { attr: "feedback", weight: 1 },
         roll: [
           { w: 50, outcome: "You come out of it quicker than a teenager and sharper than you have been in years.", effect: { attrs: { qualifying: 7, racecraft: 3 } } },
           { w: 50, outcome: "You come out of it exhausted, having proved something nobody was arguing about.", effect: { attrs: { qualifying: 2, consistency: -4, feedback: -2 } } },
@@ -496,11 +557,12 @@ const MORE_DECISIONS: Decision[] = [
       { label: "Work him", detail: "Be indispensable by March.", outcome: "You spend three months making yourself impossible to replace.", effect: { rep: { political: 5 }, car: 2 } },
       { label: "Keep your head down and drive", detail: "Let the results argue.", outcome: "You say nothing and score in eight consecutive races.", effect: { attrs: { consistency: 5, racecraft: 2 }, rep: { loyal: 2 } } },
     ], when: () => tier >= 4 },
-  { id: "last-round-deal", eyebrow: "Final round", scene: "You're fighting for the championship and a rival team offers to help you — their driver holds up your rival, and next year you owe them a favour nobody will write down.",
+  { id: "last-round-deal", eyebrow: "Final round", scene: "You're fighting for the championship and a rival team offers to help you, their driver holds up your rival, and next year you owe them a favour nobody will write down.",
     question: "It would probably decide it.",
     options: [
       { label: "Accept the help", detail: "Win it. Owe it.",
         outcome: "You take the deal.", effect: { rep: { political: 5, mercenary: 2 } },
+        skill: { attr: "racecraft", weight: 0.6 },
         roll: [
           { w: 60, outcome: "Their car defends like it is their own title, and you win the fight on track.", effect: { car: 4, attrs: { racecraft: 3 } } },
           { w: 40, outcome: "Their driver holds up the wrong car and then holds you up too. Everyone knows there was a deal.", effect: { car: -2, rep: { fragile: 2, mercenary: 2 } } },
@@ -519,7 +581,4 @@ const MORE_DECISIONS: Decision[] = [
 
 DECISIONS.push(...MORE_DECISIONS);
 
-/** Scenes can come round again after a while, framed by where you are now. */
-function releaseOldDecisions(year: number): void {
-  if (year % 5 === 0) usedDecisions.clear();
-}
+

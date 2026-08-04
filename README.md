@@ -8,7 +8,7 @@ Currently built: the landing page and the full driver creator. The season simula
 
 ## Running it
 
-**Just play it:** download `swami-formula.html` and double-click. One self-contained file — no install, no server, no internet needed. If double-clicking does something odd, right-click → Open with → Chrome.
+**Just play it:** download `index.html` and double-click. One self-contained file — no install, no server, no internet needed. If double-clicking does something odd, right-click → Open with → Chrome.
 
 **Edit the code:** use the `swami-formula/` folder.
 
@@ -19,7 +19,7 @@ tsc src/app.ts --target ES2020 --lib ES2020,DOM --strict --outDir .
 node build.js
 ```
 
-`tsc` compiles `src/app.ts` → `app.js`. `build.js` squashes `index.html` + `app.js` + `hero.jpg` into the standalone `swami-formula.html`. Add `--watch` to the `tsc` line to recompile on save.
+`tsc` compiles `src/app.ts` → `app.js`. `build.js` squashes the source `index.html` plus every script and `hero.jpg` into a standalone `index.html`, and writes the deploy copy at the same time. Add `--watch` to the `tsc` line to recompile on save.
 
 You can also just open `index.html` directly while developing — it loads `app.js` from disk, so you only need `build.js` when you want a new single file to share.
 
@@ -27,7 +27,7 @@ You can also just open `index.html` directly while developing — it loads `app.
 
 | File | What it is |
 |---|---|
-| `swami-formula.html` | The game. Everything inlined. This is the one to share. |
+| `index.html` | The game. Everything inlined. This is the one to share. |
 | `swami-formula/index.html` | Markup + all CSS. Where the design lives. |
 | `swami-formula/src/app.ts` | All logic, typed. The only file you should edit for behaviour. |
 | `swami-formula/app.js` | Compiled output. Generated — don't edit by hand. |
@@ -60,6 +60,60 @@ You can also just open `index.html` directly while developing — it loads `app.
 ---
 
 ## Changelog
+
+**Gambles that respond to your driver, and modifiers that make sense**
+
+*Your stats now change the odds.* Every gamble is tied to a relevant attribute, and it moves the numbers a long way. The slick-tyre gamble in the rain runs at **17% for a driver rated 30 in the wet, and 71% for a driver rated 90**. Qualifying carries the flat-out corner, tyre management carries staying out on old rubber, racecraft carries the final-lap fights, technical feedback carries anything involving the engineers. 24 of the 25 gambles in the game are now weighted this way.
+
+*The odds are shown before you commit.* A gamble tag now reads "71% · Wet weather" instead of just "gamble", coloured green when it favours you and red when it does not. You still cannot see which way it will fall, but you can see whether it is a good bet **for your driver**, which is the point.
+
+*Options that were never worth taking have been fixed.* Taking a winter off was pure downside and now gives real recovery plus a payoff two seasons later. Appealing a penalty was a guaranteed loss and is now a genuine gamble weighted by technical feedback. Refusing a loan clause cost you everything and now removes the clause from your next contract. Four others rebalanced the same way.
+
+*Contract clauses now suit the team offering them.* The best team on the grid was offering "a bigger team can buy you out", which made no sense. A works seat now holds power over you (team option, veto, number two by contract), a midfield team is the one that can lose you upward (buy-out, release, results trigger), and a small team wants your money and your time (funding, deferred terms, testing).
+
+*Scenes match your standing.* A manufacturer junior programme was calling nine-time world champions. Junior scenes are now gated to junior categories, the flat-out-corner scene stops in the top tier, and the rival-team offer stops once you have three world titles. A champion sees 42 of the 74 scenes, and none of them are about being noticed.
+
+*Verdicts scale with your record.* Winning your ninth title no longer says "the junior programmes have your number now". It says "9 world championships. There is nobody left to compare you to."
+
+**Real flags**
+- Flags now come from **flagcdn.com**, a free CDN with all 254 ISO country flags as SVG. No API key, no account, no rate limit, served from Cloudflare.
+- The hand-drawn flags are still in the build as a **fallback**. If the CDN is unreachable, or the file is opened offline, each image swaps itself for the drawn version rather than showing a broken box. Verified by simulating a failed load.
+- That means the standalone `index.html` still works with no internet, it just uses the simpler flags.
+- If you ever want to force the drawn set, set `cdnFlags = false` in `src/flags.ts`.
+
+**Ageing, retirement, and traits you can see**
+
+*A real prime.* A driver now peaks between 27 and 33 rather than starting to decline at 31, and **consistency extends it**. A settled driver holds their prime up to five years longer than a fragile one, and the difference is large: at 44, a driver with high consistency is still on 65 qualifying where a low-consistency driver is on 51. Decline is gentle at first and steeper the further past your peak you go, instead of dropping off a cliff.
+
+*No more being retired while winning.* The hard door at 40 is gone. What ends a career is the pace going, not a birthday: if your overall is 72 or better, or you finished top three, or you won a race, nobody asks you to stop, at any age. A 40-year-old on 80 overall keeps the seat. The old rule pushed out a driver who had just scored 475 points with one retirement, which was the right complaint to make.
+
+*Formula 1 reads as one category.* The four F1 tiers were presented as separate series, which made results confusing. It is now "Formula 1" everywhere, with your team's competitiveness shown as a separate tag: reserve driver, backmarker team, midfield team, front-running team. Same underlying ladder, far easier to follow.
+
+*Traits are visible at last.* Two testers said the driver's characteristics did not seem to influence anything. They always did, but nothing said so. Now individual races carry a line explaining what your driver added over what the car was worth: "Qualifying 74: P2 on a day the car was worth P9", "Racecraft 71: 5 places gained on track", "Wet weather 82: 4 places better than the car deserved". The end of season adds a summary: "Qualifier showed in 4 of 12 races this year. Strongest: Qualifying at 58."
+
+*AI drivers age the same way*, and the quick ones last longer, so the grid keeps its veterans rather than clearing them out on schedule.
+
+**Bug fixes, reserve drivers, more of everything**
+
+- **Achievements no longer overlap.** Several unlocking at once stacked on top of each other. They queue properly now, shorten when more are waiting, show "3 more unlocked, see Achievements", and sit above the iPhone home indicator.
+- **Reserve seasons made sense of.** A reserve driver only races when somebody else cannot, so most weekends are now a did-not-start rather than a DNF. The screenshot showing four appearances with three DNFs was counting weekends you were never in the car. Stats, tables and the verdict all read from starts only: "3 stand-in appearances from 4 race weekends, best finish 2nd".
+- **Real reserve drivers, all four kinds.** A reserve paddock is not one type of driver, so the pool is built from four groups and mixed fresh each season: ex-Formula 1 drivers waiting for a way back (Mick Schumacher, Ricciardo, Magnussen, de Vries, Giovinazzi), F2 graduates with nowhere to go (Drugovich, Vesti, Pourchaire, Crawford, Hauger), drivers who left for sportscars or IndyCar and kept a testing role (Hirakawa, O'Ward, Buemi, Hartley, Vergne), and junior-programme names coming up behind them. 58 drivers in total, and the invented pool does the same using juniors waiting for a seat.
+- **iOS safe areas** respected, so nothing hides behind the home indicator or the browser bar.
+- **65 achievements**, up from 47. New ones for the reserve year, racing in all three series, something like the triple crown, in-race moments, ten seasons at one team, ten different teams, 200 starts, fifty wins, a late first title, and losing a head-to-head badly.
+- **74 scenarios**, up from 62. Twelve new ones covering the reserve year, your first oval, qualifying for the 500, a co-driver who has just handed the car back four laps down, the seventh hour of rain at four in the morning, and parents who remortgaged without telling you.
+- **The file is now `index.html`**, which is the name Vercel wants. `node build.js` writes it and updates the deploy copy in one go.
+
+**In-race moments, deeper grids, more events**
+
+*In-race choices.* Up to three times a season the race stops and asks you something. Last lap and the door is open at the chicane. A late stop that costs three places now and might win five back. Front wing damage and the car is still quick in a straight line. Your team-mate one place ahead and slower through the middle sector, with nothing said on the radio.
+
+Each has a **push** and a **hold**. Pushing is marked as a risk and gains two to four places when it comes off; when it doesn't you either lose three places or you are in the barrier and the race is over. Holding keeps what you have. The result is applied to the finishing position before it is written down, so it changes your points, your championship and your head-to-head. Moments never interrupt a skip, and they work through the pool before repeating.
+
+*Reserve drivers choose their own way out.* Getting a seat from reserve is now the same three-way fork as leaving Formula 2: a Formula 1 race seat, sportscars, or IndyCar. The screen rewords itself for where you are standing, so the first option reads "Formula 1, a race seat, the thing every Friday practice and simulator day was for" rather than offering you reserve again.
+
+*Deeper grids.* The senior series carry proper depth now: around 85 drivers in the Formula 1 tiers, 60 across GT3 and Hypercar, 35 in IndyCar, plus reserves and drivers between seats. Each division is capped and trimmed each season so it stays that size instead of growing forever. More first and last names to draw on, so a long career stops recycling.
+
+*Twenty more mid-season events*, taking it to 39. Correlation found between the wind tunnel and the track. A rival poaching your technical director and half the design office. A mid-season budget cut. Two botched stops, one of them a podium. A tyre compound change nobody has data for. A hundred starts and a cake in the garage. A driver you came up with having a very big accident.
 
 **The big update**
 
